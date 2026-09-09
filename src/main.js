@@ -249,7 +249,18 @@ const UI_TEXT_EN = {
   "说完输出": "Final output",
   "输入": "Input",
   "请稍候": "Please wait",
-  "已占用": "Used "
+  "已占用": "Used ",
+  "长按触发": "Hold to trigger",
+  "全部重置": "Reset all",
+  "长按时间": "Hold duration",
+  "录音快捷键": "Recording shortcut",
+  "0.5 秒": "0.5 sec",
+  "1 秒": "1 sec",
+  "2 秒": "2 sec",
+  "3 秒": "3 sec",
+  "系统": "System",
+  "耳机": "Headset",
+  "麦克风": "Microphone"
 };
 
 const UI_TEXTS = {
@@ -275,12 +286,12 @@ const UI_TEXTS = {
 };
 
 const UI_TEXT_COMMON = {
-  fr: { "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
-  de: { "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
-  ja: { "已保存": "保存済み", "已占用": "使用済み ", "在线 API · 需要网络和 API Key": "オンライン API · インターネットと API キーが必要", "本地离线 · 边说边输入": "ローカル・オフライン · 話しながら入力", "本地离线 · 说完后输入": "ローカル・オフライン · 発話後に入力" },
-  es: { "已保存": "Guardado", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API en línea · Se necesita Internet y clave API", "本地离线 · 边说边输入": "Local sin conexión · Escribir mientras hablas", "本地离线 · 说完后输入": "Local sin conexión · Insertar después de hablar" },
-  ko: { "已保存": "저장됨", "已占用": "사용됨 ", "在线 API · 需要网络和 API Key": "온라인 API · 인터넷과 API 키 필요", "本地离线 · 边说边输入": "로컬 오프라인 · 말하면서 입력", "本地离线 · 说完后输入": "로컬 오프라인 · 말한 후 입력" },
-  pt: { "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
+  fr: { "长按触发": "Maintenir pour d\u00e9clencher", "全部重置": "Tout r\u00e9initialiser", "长按时间": "Dur\u00e9e du maintien", "录音快捷键": "Raccourci d\u2019enregistrement", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Syst\u00e8me", "耳机": "Casque", "麦克风": "Microphone", "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
+  de: { "长按触发": "Halten zum Ausl\u00f6sen", "全部重置": "Alles zur\u00fccksetzen", "长按时间": "Dauer des Haltens", "录音快捷键": "Aufnahme-Tastenk\u00fcrzel", "0.5 秒": "0,5 Sek.", "1 秒": "1 Sek.", "2 秒": "2 Sek.", "3 秒": "3 Sek.", "系统": "System", "耳机": "Kopfh\u00f6rer", "麦克风": "Mikrofon", "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
+  ja: { "长按触发": "長押しで起動", "全部重置": "すべてリセット", "长按时间": "長押し時間", "录音快捷键": "録音ショートカット", "0.5 秒": "0.5秒", "1 秒": "1秒", "2 秒": "2秒", "3 秒": "3秒", "系统": "システム", "耳机": "ヘッドセット", "麦克风": "マイク", "已保存": "保存済み", "已占用": "使用済み ", "在线 API · 需要网络和 API Key": "オンライン API · インターネットと API キーが必要", "本地离线 · 边说边输入": "ローカル・オフライン · 話しながら入力", "本地离线 · 说完后输入": "ローカル・オフライン · 発話後に入力" },
+  es: { "长按触发": "Mantener para activar", "全部重置": "Restablecer todo", "长按时间": "Duraci\u00f3n de pulsaci\u00f3n", "录音快捷键": "Atajo de grabaci\u00f3n", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Auriculares", "麦克风": "Micr\u00f3fono", "已保存": "Guardado", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API en línea · Se necesita Internet y clave API", "本地离线 · 边说边输入": "Local sin conexión · Escribir mientras hablas", "本地离线 · 说完后输入": "Local sin conexión · Insertar después de hablar" },
+  ko: { "长按触发": "길게 눌러 실행", "全部重置": "모두 재설정", "长按时间": "길게 누르는 시간", "录音快捷键": "녹음 단축키", "0.5 秒": "0.5초", "1 秒": "1초", "2 秒": "2초", "3 秒": "3초", "系统": "시스템", "耳机": "헤드셋", "麦克风": "마이크", "已保存": "저장됨", "已占用": "사용됨 ", "在线 API · 需要网络和 API Key": "온라인 API · 인터넷과 API 키 필요", "本地离线 · 边说边输入": "로컬 오프라인 · 말하면서 입력", "本地离线 · 说完后输入": "로컬 오프라인 · 말한 후 입력" },
+  pt: { "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -328,10 +339,18 @@ function t(value) {
     ko: [[/^默认麦克风：(.+) · 按住左键超过设定时间即可开始录音$/, "기본 마이크: $1 · 왼쪽 버튼을 길게 눌러 녹음을 시작하세요"], [/^(.+) 已保存当前设置$/, "$1 저장됨"], [/^(.+) 已设为当前本地模型$/, "$1이 현재 로컬 모델로 설정됨"], [/^已下载 (.+) MB$/, "$1MB 다운로드됨"], [/^无法检查麦克风：(.+)$/, "마이크를 확인할 수 없음: $1"]],
     pt: [[/^默认麦克风：(.+) · 按住左键超过设定时间即可开始录音$/, "Microfone padrão: $1 · Mantenha o botão esquerdo pressionado para gravar"], [/^(.+) 已保存当前设置$/, "$1 salvo"], [/^(.+) 已设为当前本地模型$/, "$1 agora é o modelo local"], [/^已下载 (.+) MB$/, "$1 MB baixados"], [/^无法检查麦克风：(.+)$/, "Não foi possível verificar o microfone: $1"]]
   }[uiLocale] || [];
+  let localized = text;
   for (const [pattern, replacement] of dynamic) {
-    if (pattern.test(text)) return text.replace(pattern, replacement);
+    if (pattern.test(localized)) {
+      localized = localized.replace(pattern, replacement);
+      break;
+    }
   }
-  return text;
+  const fragments = Object.entries({ ...UI_TEXT_EN, ...dictionary })
+    .filter(([source, target]) => source && target && source !== target)
+    .sort(([first], [second]) => second.length - first.length);
+  for (const [source, target] of fragments) localized = localized.split(source).join(target);
+  return localized;
 }
 
 function applyLocale() {
@@ -454,7 +473,7 @@ if (isOverlay) {
     <div class="overlay-mic">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><path d="M12 18v4"/></svg>
     </div>
-    <div id="overlay-label" class="overlay-label">说话中 · 00:00</div>
+    <div id="overlay-label" class="overlay-label">${t("说话中")} · 00:00</div>
   </div>`;
   let overlayTheme = localStorage.getItem("md-theme") || "dark";
   let overlayAccent = localStorage.getItem("md-accent") || "#8b7cff";
@@ -472,7 +491,7 @@ if (isOverlay) {
     syncOverlayAppearance();
     try {
       const elapsed = await invoke("get_recording_elapsed");
-      $("overlay-label").textContent = `说话中 · ${formatDuration(elapsed || 0)}`;
+      $("overlay-label").textContent = `${t("说话中")} · ${formatDuration(elapsed || 0)}`;
     } catch (_) {
       // The overlay can start before the backend is ready.
     }

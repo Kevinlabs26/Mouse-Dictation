@@ -1,6 +1,29 @@
 # Mouse Dictation
 
-Mouse Dictation is a Windows-first desktop speech input tool. Hold the left mouse button, or use a global hotkey, to transcribe speech directly into the active text field.
+<p align="center">
+  <img src="docs/images/mouse-dictation-icon.png" width="128" alt="Mouse Dictation icon">
+</p>
+
+<p align="center"><strong>Fast, private speech input for Windows</strong><br>Hold the left mouse button, or use a global hotkey, to transcribe speech directly into the active text field.</p>
+
+Mouse Dictation is a Windows-first desktop speech input tool for typing speech wherever your cursor is active.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/images/recognition-en.png" width="720" alt="Recognition settings"><br>
+      <sub>Recognition profiles, API or local offline mode, language selection, and model management.</sub>
+    </td>
+    <td align="center">
+      <img src="docs/images/speaking-overlay.png" width="260" alt="Speaking overlay with recording timer"><br>
+      <sub>Compact speaking overlay with the elapsed recording time.</sub>
+    </td>
+  </tr>
+</table>
+
+The application icon is shared across the Windows executable, installer, and tray assets.
 
 Current version: `0.1.6`
 
