@@ -1,0 +1,26 @@
+[package]
+name = "mouse-dictation"
+version = "0.1.6"
+description = "Fast mouse-only speech input for Windows and macOS"
+authors = ["Mouse Dictation"]
+license = "Apache-2.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rdev = "0.5"
+cpal = "0.15"
+hound = "3.5"
+arboard = "3.4"
+dirs-next = "2"
+keyring = "4.1.6"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "multipart", "rustls-tls"] }
+sherpa-onnx = { version = "1.13.7", default-features = false, features = ["shared"] }
+tar = "0.4"
+bzip2 = "0.5"
