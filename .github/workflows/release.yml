@@ -40,6 +40,7 @@ jobs:
             - Added a multilingual first-run guide with a GitHub Star page.
             - Added a Telegram community link beside the GitHub Star option and in the footer.
             - Existing users now see the setup guide once after updating, and can reopen it from the footer.
+            - Simplified the multilingual footer with a compact update action and a single-row layout.
 
             ## Downloads
 
