@@ -34,6 +34,7 @@ jobs:
             - The selected transcription language is now respected without forcing a fixed language.
             - Automatic language detection remains available for mixed-language use.
             - Added language-matched punctuation guidance for Chinese, French, German, Spanish, Japanese, Korean, and English.
+            - Added a manual “Check for updates” option to the system tray menu.
 
             ## Downloads
 

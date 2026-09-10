@@ -2879,6 +2879,7 @@ fn tray_menu<R: Runtime, M: Manager<R>>(
     }
     builder
         .separator()
+        .item(&MenuItemBuilder::with_id("check-updates", labels.check_updates).build(manager)?)
         .item(&MenuItemBuilder::with_id("open-settings", labels.open_settings).build(manager)?)
         .item(&MenuItemBuilder::with_id("quit", labels.quit).build(manager)?)
         .build()
@@ -2891,6 +2892,7 @@ struct TrayLabels {
     transcribe_only: &'static str,
     translation_languages: &'static str,
     saved_profiles: &'static str,
+    check_updates: &'static str,
     open_settings: &'static str,
     quit: &'static str,
 }
@@ -2904,6 +2906,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "Transcribe only",
             translation_languages: "Translation languages",
             saved_profiles: "Saved profiles",
+            check_updates: "Check for updates",
             open_settings: "Open settings",
             quit: "Quit Mouse Dictation",
         },
@@ -2914,6 +2917,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "Transcription uniquement",
             translation_languages: "Langues de traduction",
             saved_profiles: "Profils enregistrés",
+            check_updates: "Rechercher des mises à jour",
             open_settings: "Ouvrir les paramètres",
             quit: "Quitter Mouse Dictation",
         },
@@ -2924,6 +2928,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "Nur transkribieren",
             translation_languages: "Übersetzungssprachen",
             saved_profiles: "Gespeicherte Profile",
+            check_updates: "Nach Updates suchen",
             open_settings: "Einstellungen öffnen",
             quit: "Mouse Dictation beenden",
         },
@@ -2934,6 +2939,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "文字起こしのみ",
             translation_languages: "翻訳言語",
             saved_profiles: "保存済みプロファイル",
+            check_updates: "更新を確認",
             open_settings: "設定を開く",
             quit: "Mouse Dictationを終了",
         },
@@ -2944,6 +2950,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "Solo transcribir",
             translation_languages: "Idiomas de traducción",
             saved_profiles: "Perfiles guardados",
+            check_updates: "Buscar actualizaciones",
             open_settings: "Abrir configuración",
             quit: "Salir de Mouse Dictation",
         },
@@ -2954,6 +2961,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "전사만",
             translation_languages: "번역 언어",
             saved_profiles: "저장된 프로필",
+            check_updates: "업데이트 확인",
             open_settings: "설정 열기",
             quit: "Mouse Dictation 종료",
         },
@@ -2964,6 +2972,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "Apenas transcrever",
             translation_languages: "Idiomas de tradução",
             saved_profiles: "Perfis salvos",
+            check_updates: "Verificar atualizações",
             open_settings: "Abrir configurações",
             quit: "Sair do Mouse Dictation",
         },
@@ -2974,6 +2983,7 @@ fn tray_labels(locale: &str) -> TrayLabels {
             transcribe_only: "仅转写",
             translation_languages: "翻译语言",
             saved_profiles: "已保存方案",
+            check_updates: "检查更新",
             open_settings: "打开设置",
             quit: "退出 Mouse Dictation",
         },
@@ -3091,6 +3101,14 @@ fn handle_tray_menu<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
         return;
     }
     match id {
+        "check-updates" => {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.unminimize();
+                let _ = window.set_focus();
+            }
+            emit(app, "check-for-updates", ());
+        }
         "open-settings" => {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
