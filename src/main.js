@@ -238,6 +238,7 @@ const UI_TEXT_EN = {
   "在 GitHub 上点 Star": "Star on GitHub",
   "加入 Telegram 讨论群": "Join the Telegram community",
   "检查更新": "Check for updates",
+  "查看使用引导": "View setup guide",
   "当前已是最新版本": "You're up to date",
   "检查更新失败": "Update check failed",
   "发现新版本": "Update available",
@@ -328,12 +329,12 @@ const UI_TEXTS = {
 };
 
 const UI_TEXT_COMMON = {
-  fr: { "检查更新": "Rechercher des mises à jour", "当前已是最新版本": "Vous utilisez la dernière version", "检查更新失败": "Échec de la vérification des mises à jour", "发现新版本": "Mise à jour disponible", "当前版本": "Version actuelle", "立即更新": "Mettre à jour", "稍后": "Plus tard", "正在下载更新": "Téléchargement de la mise à jour", "更新失败": "Échec de la mise à jour", "长按触发": "Maintenir pour d\u00e9clencher", "全部重置": "Tout r\u00e9initialiser", "长按时间": "Dur\u00e9e du maintien", "录音快捷键": "Raccourci d\u2019enregistrement", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Syst\u00e8me", "耳机": "Casque", "麦克风": "Microphone", "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
-  de: { "检查更新": "Nach Updates suchen", "当前已是最新版本": "Sie verwenden die neueste Version", "检查更新失败": "Suche nach Updates fehlgeschlagen", "发现新版本": "Update verfügbar", "当前版本": "Aktuelle Version", "立即更新": "Jetzt aktualisieren", "稍后": "Später", "正在下载更新": "Update wird heruntergeladen", "更新失败": "Update fehlgeschlagen", "长按触发": "Halten zum Ausl\u00f6sen", "全部重置": "Alles zur\u00fccksetzen", "长按时间": "Dauer des Haltens", "录音快捷键": "Aufnahme-Tastenk\u00fcrzel", "0.5 秒": "0,5 Sek.", "1 秒": "1 Sek.", "2 秒": "2 Sek.", "3 秒": "3 Sek.", "系统": "System", "耳机": "Kopfh\u00f6rer", "麦克风": "Mikrofon", "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
-  ja: { "检查更新": "更新を確認", "当前已是最新版本": "最新バージョンです", "检查更新失败": "更新の確認に失敗しました", "发现新版本": "アップデートがあります", "当前版本": "現在のバージョン", "立即更新": "今すぐ更新", "稍后": "後で", "正在下载更新": "アップデートをダウンロード中", "更新失败": "アップデートに失敗しました", "长按触发": "長押しで起動", "全部重置": "すべてリセット", "长按时间": "長押し時間", "录音快捷键": "録音ショートカット", "0.5 秒": "0.5秒", "1 秒": "1秒", "2 秒": "2秒", "3 秒": "3秒", "系统": "システム", "耳机": "ヘッドセット", "麦克风": "マイク", "已保存": "保存済み", "已占用": "使用済み ", "在线 API · 需要网络和 API Key": "オンライン API · インターネットと API キーが必要", "本地离线 · 边说边输入": "ローカル・オフライン · 話しながら入力", "本地离线 · 说完后输入": "ローカル・オフライン · 発話後に入力" },
-  es: { "检查更新": "Buscar actualizaciones", "当前已是最新版本": "Tienes la última versión", "检查更新失败": "Error al buscar actualizaciones", "发现新版本": "Actualización disponible", "当前版本": "Versión actual", "立即更新": "Actualizar ahora", "稍后": "Más tarde", "正在下载更新": "Descargando actualización", "更新失败": "Error al actualizar", "长按触发": "Mantener para activar", "全部重置": "Restablecer todo", "长按时间": "Duraci\u00f3n de pulsaci\u00f3n", "录音快捷键": "Atajo de grabaci\u00f3n", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Auriculares", "麦克风": "Micr\u00f3fono", "已保存": "Guardado", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API en línea · Se necesita Internet y clave API", "本地离线 · 边说边输入": "Local sin conexión · Escribir mientras hablas", "本地离线 · 说完后输入": "Local sin conexión · Insertar después de hablar" },
-  ko: { "检查更新": "업데이트 확인", "当前已是最新版本": "최신 버전입니다", "检查更新失败": "업데이트 확인 실패", "发现新版本": "업데이트 있음", "当前版本": "현재 버전", "立即更新": "지금 업데이트", "稍后": "나중에", "正在下载更新": "업데이트 다운로드 중", "更新失败": "업데이트 실패", "长按触发": "길게 눌러 실행", "全部重置": "모두 재설정", "长按时间": "길게 누르는 시간", "录音快捷键": "녹음 단축키", "0.5 秒": "0.5초", "1 秒": "1초", "2 秒": "2초", "3 秒": "3초", "系统": "시스템", "耳机": "헤드셋", "麦克风": "마이크", "已保存": "저장됨", "已占用": "사용됨 ", "在线 API · 需要网络和 API Key": "온라인 API · 인터넷과 API 키 필요", "本地离线 · 边说边输入": "로컬 오프라인 · 말하면서 입력", "本地离线 · 说完后输入": "로컬 오프라인 · 말한 후 입력" },
-  pt: { "检查更新": "Verificar atualizações", "当前已是最新版本": "Você está usando a versão mais recente", "检查更新失败": "Falha ao verificar atualizações", "发现新版本": "Atualização disponível", "当前版本": "Versão atual", "立即更新": "Atualizar agora", "稍后": "Mais tarde", "正在下载更新": "Baixando atualização", "更新失败": "Falha na atualização", "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
+  fr: { "检查更新": "Rechercher des mises à jour", "查看使用引导": "Voir le guide de configuration", "当前已是最新版本": "Vous utilisez la dernière version", "检查更新失败": "Échec de la vérification des mises à jour", "发现新版本": "Mise à jour disponible", "当前版本": "Version actuelle", "立即更新": "Mettre à jour", "稍后": "Plus tard", "正在下载更新": "Téléchargement de la mise à jour", "更新失败": "Échec de la mise à jour", "长按触发": "Maintenir pour d\u00e9clencher", "全部重置": "Tout r\u00e9initialiser", "长按时间": "Dur\u00e9e du maintien", "录音快捷键": "Raccourci d\u2019enregistrement", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Syst\u00e8me", "耳机": "Casque", "麦克风": "Microphone", "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
+  de: { "检查更新": "Nach Updates suchen", "查看使用引导": "Einrichtungsassistent öffnen", "当前已是最新版本": "Sie verwenden die neueste Version", "检查更新失败": "Suche nach Updates fehlgeschlagen", "发现新版本": "Update verfügbar", "当前版本": "Aktuelle Version", "立即更新": "Jetzt aktualisieren", "稍后": "Später", "正在下载更新": "Update wird heruntergeladen", "更新失败": "Update fehlgeschlagen", "长按触发": "Halten zum Ausl\u00f6sen", "全部重置": "Alles zur\u00fccksetzen", "长按时间": "Dauer des Haltens", "录音快捷键": "Aufnahme-Tastenk\u00fcrzel", "0.5 秒": "0,5 Sek.", "1 秒": "1 Sek.", "2 秒": "2 Sek.", "3 秒": "3 Sek.", "系统": "System", "耳机": "Kopfh\u00f6rer", "麦克风": "Mikrofon", "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
+  ja: { "检查更新": "更新を確認", "查看使用引导": "セットアップガイドを見る", "当前已是最新版本": "最新バージョンです", "检查更新失败": "更新の確認に失敗しました", "发现新版本": "アップデートがあります", "当前版本": "現在のバージョン", "立即更新": "今すぐ更新", "稍后": "後で", "正在下载更新": "アップデートをダウンロード中", "更新失败": "アップデートに失敗しました", "长按触发": "長押しで起動", "全部重置": "すべてリセット", "长按时间": "長押し時間", "录音快捷键": "録音ショートカット", "0.5 秒": "0.5秒", "1 秒": "1秒", "2 秒": "2秒", "3 秒": "3秒", "系统": "システム", "耳机": "ヘッドセット", "麦克风": "マイク", "已保存": "保存済み", "已占用": "使用済み ", "在线 API · 需要网络和 API Key": "オンライン API · インターネットと API キーが必要", "本地离线 · 边说边输入": "ローカル・オフライン · 話しながら入力", "本地离线 · 说完后输入": "ローカル・オフライン · 発話後に入力" },
+  es: { "检查更新": "Buscar actualizaciones", "查看使用引导": "Ver la guía de configuración", "当前已是最新版本": "Tienes la última versión", "检查更新失败": "Error al buscar actualizaciones", "发现新版本": "Actualización disponible", "当前版本": "Versión actual", "立即更新": "Actualizar ahora", "稍后": "Más tarde", "正在下载更新": "Descargando actualización", "更新失败": "Error al actualizar", "长按触发": "Mantener para activar", "全部重置": "Restablecer todo", "长按时间": "Duraci\u00f3n de pulsaci\u00f3n", "录音快捷键": "Atajo de grabaci\u00f3n", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Auriculares", "麦克风": "Micr\u00f3fono", "已保存": "Guardado", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API en línea · Se necesita Internet y clave API", "本地离线 · 边说边输入": "Local sin conexión · Escribir mientras hablas", "本地离线 · 说完后输入": "Local sin conexión · Insertar después de hablar" },
+  ko: { "检查更新": "업데이트 확인", "查看使用引导": "설정 가이드 보기", "当前已是最新版本": "최신 버전입니다", "检查更新失败": "업데이트 확인 실패", "发现新版本": "업데이트 있음", "当前版本": "현재 버전", "立即更新": "지금 업데이트", "稍后": "나중에", "正在下载更新": "업데이트 다운로드 중", "更新失败": "업데이트 실패", "长按触发": "길게 눌러 실행", "全部重置": "모두 재설정", "长按时间": "길게 누르는 시간", "录音快捷键": "녹음 단축키", "0.5 秒": "0.5초", "1 秒": "1초", "2 秒": "2초", "3 秒": "3초", "系统": "시스템", "耳机": "헤드셋", "麦克风": "마이크", "已保存": "저장됨", "已占用": "사용됨 ", "在线 API · 需要网络和 API Key": "온라인 API · 인터넷과 API 키 필요", "本地离线 · 边说边输入": "로컬 오프라인 · 말하면서 입력", "本地离线 · 说完后输入": "로컬 오프라인 · 말한 후 입력" },
+  pt: { "检查更新": "Verificar atualizações", "查看使用引导": "Ver o guia de configuração", "当前已是最新版本": "Você está usando a versão mais recente", "检查更新失败": "Falha ao verificar atualizações", "发现新版本": "Atualização disponível", "当前版本": "Versão atual", "立即更新": "Atualizar agora", "稍后": "Mais tarde", "正在下载更新": "Baixando atualização", "更新失败": "Falha na atualização", "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -931,8 +932,9 @@ if (isOverlay) {
 
     <footer class="footer">
       <div class="footer-meta">
-        <span id="app-version" class="app-version">v0.1.15</span>
+        <span id="app-version" class="app-version">v0.1.16</span>
         <button id="footer-check-updates" class="footer-update" type="button">检查更新</button>
+        <button id="footer-onboarding" class="footer-update" type="button">查看使用引导</button>
         <button id="footer-telegram" class="footer-update" type="button">Telegram</button>
         <span id="saved" class="saved">已保存</span>
       </div>
@@ -1566,8 +1568,8 @@ function skipOnboardingToGithub() {
   renderOnboarding();
 }
 
-function maybeStartOnboarding(firstRun) {
-  if (firstRun && localStorage.getItem(ONBOARDING_STORAGE_KEY) !== "1") showOnboarding();
+function maybeStartOnboarding() {
+  if (localStorage.getItem(ONBOARDING_STORAGE_KEY) !== "1") showOnboarding();
 }
 
 const FEEDBACK_MIN_USES = 3;
@@ -2276,6 +2278,7 @@ async function init() {
   $("support-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
+  $("footer-onboarding").addEventListener("click", showOnboarding);
   $("footer-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
   $("onboarding-next").addEventListener("click", () => {
     if (onboardingStep === ONBOARDING_LAST_STEP) finishOnboarding();
@@ -2349,7 +2352,6 @@ async function init() {
     $("translate-api").value = found ? found[0] : "custom";
   });
 
-  const firstRun = await invoke("is_first_run").catch(() => false);
   const settings = await invoke("get_settings");
   await invoke("set_ui_locale", { locale: uiLocale });
   setEngine(settings.engine);
@@ -2472,7 +2474,7 @@ async function init() {
       $("status-detail").textContent = `已下载 ${Math.round((payload?.downloaded || 0) / 1048576)} MB`;
     }
   });
-  maybeStartOnboarding(firstRun);
+  maybeStartOnboarding();
 }
 
 function activateTab(name) {

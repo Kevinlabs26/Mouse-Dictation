@@ -588,11 +588,6 @@ fn get_settings(state: State<'_, AppState>) -> Settings {
 }
 
 #[tauri::command]
-fn is_first_run() -> bool {
-    config_path().map(|path| !path.is_file()).unwrap_or(false)
-}
-
-#[tauri::command]
 fn set_ui_locale(locale: String, state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
     let locale = match locale.as_str() {
         "en" | "fr" | "de" | "ja" | "es" | "ko" | "pt" => locale,
@@ -3201,7 +3196,6 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             get_settings,
-            is_first_run,
             set_ui_locale,
             get_profiles,
             create_profile,

@@ -38,6 +38,7 @@ jobs:
             - Added the current version and a manual update button to the app footer.
             - Added a multilingual first-run guide with a GitHub Star page.
             - Added a Telegram community link beside the GitHub Star option and in the footer.
+            - Existing users now see the setup guide once after updating, and can reopen it from the footer.
 
             ## Downloads
 
