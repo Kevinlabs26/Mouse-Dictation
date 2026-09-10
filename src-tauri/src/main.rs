@@ -1934,16 +1934,6 @@ fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
     let mut form = reqwest::blocking::multipart::Form::new()
         .text("model", settings.model.clone())
         .text("temperature", "0")
-        .text(
-            "prompt",
-            match settings.online_language.as_str() {
-                "zh" => "中文语音转写，自然标点。",
-                "en" => "English speech transcription, natural punctuation.",
-                "ja" => "日本語の音声文字起こし。自然な句読点。",
-                "ko" => "한국어 음성 전사, 자연스러운 문장 부호.",
-                _ => "Speech transcription with natural punctuation.",
-            },
-        )
         .part("file", file);
     if settings.online_language != "auto" {
         form = form.text("language", settings.online_language.clone());
