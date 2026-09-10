@@ -238,6 +238,7 @@ struct StreamingRecognizerCache {
 
 struct AppState {
     settings: Mutex<Settings>,
+    ui_locale: Mutex<String>,
     profiles: Mutex<Vec<Profile>>,
     active_profile: Mutex<Option<String>>,
     recorder: Mutex<Option<Recorder>>,
@@ -584,6 +585,17 @@ fn save_settings_file(settings: &Settings) -> Result<(), String> {
 #[tauri::command]
 fn get_settings(state: State<'_, AppState>) -> Settings {
     state.settings.lock().unwrap().clone()
+}
+
+#[tauri::command]
+fn set_ui_locale(locale: String, state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
+    let locale = match locale.as_str() {
+        "en" | "fr" | "de" | "ja" | "es" | "ko" | "pt" => locale,
+        _ => "zh".into(),
+    };
+    *state.ui_locale.lock().map_err(|_| "界面语言锁定失败")? = locale;
+    let settings = state.settings.lock().map_err(|_| "设置锁定失败")?.clone();
+    refresh_tray_menu(&app, &settings)
 }
 
 #[tauri::command]
@@ -2756,18 +2768,20 @@ fn tray_menu<R: Runtime, M: Manager<R>>(
     manager: &M,
     settings: &Settings,
     profiles: &[ProfileSummary],
+    locale: &str,
 ) -> tauri::Result<Menu<R>> {
-    let online_engine = CheckMenuItemBuilder::with_id("engine:online", "付费 API")
+    let labels = tray_labels(locale);
+    let online_engine = CheckMenuItemBuilder::with_id("engine:online", labels.paid_api)
         .checked(settings.engine != "local")
         .build(manager)?;
-    let local_engine = CheckMenuItemBuilder::with_id("engine:local", "本地离线")
+    let local_engine = CheckMenuItemBuilder::with_id("engine:local", labels.local_offline)
         .checked(settings.engine == "local")
         .build(manager)?;
-    let engines = SubmenuBuilder::with_id(manager, "recognition-engine", "识别方式")
+    let engines = SubmenuBuilder::with_id(manager, "recognition-engine", labels.recognition_mode)
         .items(&[&online_engine, &local_engine])
         .build()?;
     let current = current_quick_profile(settings);
-    let plain = CheckMenuItemBuilder::with_id("profile:plain", "仅转写")
+    let plain = CheckMenuItemBuilder::with_id("profile:plain", labels.transcribe_only)
         .checked(current == "profile:plain")
         .build(manager)?;
     let english = CheckMenuItemBuilder::with_id("profile:en", "English")
@@ -2813,8 +2827,12 @@ fn tray_menu<R: Runtime, M: Manager<R>>(
         .checked(current == "profile:th")
         .build(manager)?;
 
-    let translations = SubmenuBuilder::with_id(manager, "translation-languages", "翻译语言")
-        .items(&[
+    let translations = SubmenuBuilder::with_id(
+        manager,
+        "translation-languages",
+        labels.translation_languages,
+    )
+    .items(&[
             &english,
             &french,
             &japanese,
@@ -2839,7 +2857,8 @@ fn tray_menu<R: Runtime, M: Manager<R>>(
         .item(&translations);
     if !profiles.is_empty() {
         builder = builder.separator();
-        let mut saved_profiles = SubmenuBuilder::with_id(manager, "saved-profiles", "已保存方案");
+        let mut saved_profiles =
+            SubmenuBuilder::with_id(manager, "saved-profiles", labels.saved_profiles);
         for profile in profiles {
             let item = CheckMenuItemBuilder::with_id(
                 format!("saved-profile:{}", profile.id),
@@ -2854,14 +2873,116 @@ fn tray_menu<R: Runtime, M: Manager<R>>(
     }
     builder
         .separator()
-        .item(&MenuItemBuilder::with_id("open-settings", "打开设置").build(manager)?)
-        .item(&MenuItemBuilder::with_id("quit", "退出 Mouse Dictation").build(manager)?)
+        .item(&MenuItemBuilder::with_id("open-settings", labels.open_settings).build(manager)?)
+        .item(&MenuItemBuilder::with_id("quit", labels.quit).build(manager)?)
         .build()
+}
+
+struct TrayLabels {
+    recognition_mode: &'static str,
+    paid_api: &'static str,
+    local_offline: &'static str,
+    transcribe_only: &'static str,
+    translation_languages: &'static str,
+    saved_profiles: &'static str,
+    open_settings: &'static str,
+    quit: &'static str,
+}
+
+fn tray_labels(locale: &str) -> TrayLabels {
+    match locale {
+        "en" => TrayLabels {
+            recognition_mode: "Recognition mode",
+            paid_api: "Paid API",
+            local_offline: "Local offline",
+            transcribe_only: "Transcribe only",
+            translation_languages: "Translation languages",
+            saved_profiles: "Saved profiles",
+            open_settings: "Open settings",
+            quit: "Quit Mouse Dictation",
+        },
+        "fr" => TrayLabels {
+            recognition_mode: "Mode de reconnaissance",
+            paid_api: "API payante",
+            local_offline: "Hors ligne",
+            transcribe_only: "Transcription uniquement",
+            translation_languages: "Langues de traduction",
+            saved_profiles: "Profils enregistrés",
+            open_settings: "Ouvrir les paramètres",
+            quit: "Quitter Mouse Dictation",
+        },
+        "de" => TrayLabels {
+            recognition_mode: "Erkennungsmodus",
+            paid_api: "Bezahlte API",
+            local_offline: "Lokal offline",
+            transcribe_only: "Nur transkribieren",
+            translation_languages: "Übersetzungssprachen",
+            saved_profiles: "Gespeicherte Profile",
+            open_settings: "Einstellungen öffnen",
+            quit: "Mouse Dictation beenden",
+        },
+        "ja" => TrayLabels {
+            recognition_mode: "認識方式",
+            paid_api: "有料 API",
+            local_offline: "ローカル・オフライン",
+            transcribe_only: "文字起こしのみ",
+            translation_languages: "翻訳言語",
+            saved_profiles: "保存済みプロファイル",
+            open_settings: "設定を開く",
+            quit: "Mouse Dictationを終了",
+        },
+        "es" => TrayLabels {
+            recognition_mode: "Modo de reconocimiento",
+            paid_api: "API de pago",
+            local_offline: "Local sin conexión",
+            transcribe_only: "Solo transcribir",
+            translation_languages: "Idiomas de traducción",
+            saved_profiles: "Perfiles guardados",
+            open_settings: "Abrir configuración",
+            quit: "Salir de Mouse Dictation",
+        },
+        "ko" => TrayLabels {
+            recognition_mode: "인식 방식",
+            paid_api: "유료 API",
+            local_offline: "로컬 오프라인",
+            transcribe_only: "전사만",
+            translation_languages: "번역 언어",
+            saved_profiles: "저장된 프로필",
+            open_settings: "설정 열기",
+            quit: "Mouse Dictation 종료",
+        },
+        "pt" => TrayLabels {
+            recognition_mode: "Modo de reconhecimento",
+            paid_api: "API paga",
+            local_offline: "Local offline",
+            transcribe_only: "Apenas transcrever",
+            translation_languages: "Idiomas de tradução",
+            saved_profiles: "Perfis salvos",
+            open_settings: "Abrir configurações",
+            quit: "Sair do Mouse Dictation",
+        },
+        _ => TrayLabels {
+            recognition_mode: "识别方式",
+            paid_api: "付费 API",
+            local_offline: "本地离线",
+            transcribe_only: "仅转写",
+            translation_languages: "翻译语言",
+            saved_profiles: "已保存方案",
+            open_settings: "打开设置",
+            quit: "退出 Mouse Dictation",
+        },
+    }
 }
 
 fn refresh_tray_menu<R: Runtime>(app: &AppHandle<R>, settings: &Settings) -> Result<(), String> {
     let profiles = profile_summaries(&app.state::<AppState>());
-    let menu = tray_menu(app, settings, &profiles).map_err(|e| e.to_string())?;
+    let locale = app
+        .state::<AppState>()
+        .ui_locale
+        .lock()
+        .map_err(|_| "界面语言锁定失败")?
+        .clone();
+    let menu = tray_menu(app, settings, &profiles, &locale).map_err(|e| e.to_string())?;
     let tray = app
         .tray_by_id("main")
         .ok_or_else(|| "找不到系统托盘图标".to_string())?;
@@ -2978,6 +3099,7 @@ fn handle_tray_menu<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(
             tauri_plugin_autostart::Builder::new()
                 .args(["--hidden"])
@@ -2988,6 +3110,7 @@ fn main() {
             let profiles = load_profiles();
             app.manage(AppState {
                 settings: Mutex::new(settings.clone()),
+                ui_locale: Mutex::new("zh".into()),
                 profiles: Mutex::new(profiles),
                 active_profile: Mutex::new(None),
                 recorder: Mutex::new(None),
@@ -2995,7 +3118,7 @@ fn main() {
                 streaming_recognizer: Mutex::new(None),
             });
             let profiles = profile_summaries(&app.state::<AppState>());
-            let menu = tray_menu(app, &settings, &profiles)?;
+            let menu = tray_menu(app, &settings, &profiles, "zh")?;
             let mut tray = TrayIconBuilder::with_id("main")
                 .menu(&menu)
                 .tooltip("Mouse Dictation")
@@ -3036,12 +3159,20 @@ fn main() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            if window.label() != "overlay" && matches!(event, WindowEvent::CloseRequested { .. }) {
-                window.app_handle().exit(0);
+            if window.label() == "overlay" {
+                return;
+            }
+            match event {
+                WindowEvent::CloseRequested { .. } => window.app_handle().exit(0),
+                WindowEvent::Resized(_) if window.is_minimized().unwrap_or(false) => {
+                    let _ = window.hide();
+                }
+                _ => {}
             }
         })
         .invoke_handler(tauri::generate_handler![
             get_settings,
+            set_ui_locale,
             get_profiles,
             create_profile,
             rename_profile,

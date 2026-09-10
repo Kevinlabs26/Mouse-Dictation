@@ -1,6 +1,6 @@
 [package]
 name = "mouse-dictation"
-version = "0.1.6"
+version = "0.1.7"
 description = "Fast mouse-only speech input for Windows and macOS"
 authors = ["Mouse Dictation"]
 license = "Apache-2.0"
@@ -24,3 +24,6 @@ reqwest = { version = "0.12", default-features = false, features = ["blocking", 
 sherpa-onnx = { version = "1.13.7", default-features = false, features = ["shared"] }
 tar = "0.4"
 bzip2 = "0.5"
+
+[target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
+tauri-plugin-updater = "2.11.0"

@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { check } from "@tauri-apps/plugin-updater";
 import "./styles.css";
 
 const $ = (id) => document.querySelector(`#${id}`);
@@ -204,6 +205,12 @@ const UI_TEXT_EN = {
   "当前设置仍然保留": "Current settings were kept",
   "保存失败": "Save failed",
   "启动失败": "Startup failed",
+  "发现新版本": "Update available",
+  "当前版本": "Current version",
+  "立即更新": "Update now",
+  "稍后": "Later",
+  "正在下载更新": "Downloading update",
+  "更新失败": "Update failed",
   "发生错误": "Error",
   "已完成": "Completed",
   "稳定文字已粘贴到当前输入位置": "Stable text was pasted into the active input",
@@ -286,12 +293,12 @@ const UI_TEXTS = {
 };
 
 const UI_TEXT_COMMON = {
-  fr: { "长按触发": "Maintenir pour d\u00e9clencher", "全部重置": "Tout r\u00e9initialiser", "长按时间": "Dur\u00e9e du maintien", "录音快捷键": "Raccourci d\u2019enregistrement", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Syst\u00e8me", "耳机": "Casque", "麦克风": "Microphone", "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
-  de: { "长按触发": "Halten zum Ausl\u00f6sen", "全部重置": "Alles zur\u00fccksetzen", "长按时间": "Dauer des Haltens", "录音快捷键": "Aufnahme-Tastenk\u00fcrzel", "0.5 秒": "0,5 Sek.", "1 秒": "1 Sek.", "2 秒": "2 Sek.", "3 秒": "3 Sek.", "系统": "System", "耳机": "Kopfh\u00f6rer", "麦克风": "Mikrofon", "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
-  ja: { "长按触发": "長押しで起動", "全部重置": "すべてリセット", "长按时间": "長押し時間", "录音快捷键": "録音ショートカット", "0.5 秒": "0.5秒", "1 秒": "1秒", "2 秒": "2秒", "3 秒": "3秒", "系统": "システム", "耳机": "ヘッドセット", "麦克风": "マイク", "已保存": "保存済み", "已占用": "使用済み ", "在线 API · 需要网络和 API Key": "オンライン API · インターネットと API キーが必要", "本地离线 · 边说边输入": "ローカル・オフライン · 話しながら入力", "本地离线 · 说完后输入": "ローカル・オフライン · 発話後に入力" },
-  es: { "长按触发": "Mantener para activar", "全部重置": "Restablecer todo", "长按时间": "Duraci\u00f3n de pulsaci\u00f3n", "录音快捷键": "Atajo de grabaci\u00f3n", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Auriculares", "麦克风": "Micr\u00f3fono", "已保存": "Guardado", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API en línea · Se necesita Internet y clave API", "本地离线 · 边说边输入": "Local sin conexión · Escribir mientras hablas", "本地离线 · 说完后输入": "Local sin conexión · Insertar después de hablar" },
-  ko: { "长按触发": "길게 눌러 실행", "全部重置": "모두 재설정", "长按时间": "길게 누르는 시간", "录音快捷键": "녹음 단축키", "0.5 秒": "0.5초", "1 秒": "1초", "2 秒": "2초", "3 秒": "3초", "系统": "시스템", "耳机": "헤드셋", "麦克风": "마이크", "已保存": "저장됨", "已占用": "사용됨 ", "在线 API · 需要网络和 API Key": "온라인 API · 인터넷과 API 키 필요", "本地离线 · 边说边输入": "로컬 오프라인 · 말하면서 입력", "本地离线 · 说完后输入": "로컬 오프라인 · 말한 후 입력" },
-  pt: { "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
+  fr: { "发现新版本": "Mise à jour disponible", "当前版本": "Version actuelle", "立即更新": "Mettre à jour", "稍后": "Plus tard", "正在下载更新": "Téléchargement de la mise à jour", "更新失败": "Échec de la mise à jour", "长按触发": "Maintenir pour d\u00e9clencher", "全部重置": "Tout r\u00e9initialiser", "长按时间": "Dur\u00e9e du maintien", "录音快捷键": "Raccourci d\u2019enregistrement", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Syst\u00e8me", "耳机": "Casque", "麦克风": "Microphone", "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
+  de: { "发现新版本": "Update verfügbar", "当前版本": "Aktuelle Version", "立即更新": "Jetzt aktualisieren", "稍后": "Später", "正在下载更新": "Update wird heruntergeladen", "更新失败": "Update fehlgeschlagen", "长按触发": "Halten zum Ausl\u00f6sen", "全部重置": "Alles zur\u00fccksetzen", "长按时间": "Dauer des Haltens", "录音快捷键": "Aufnahme-Tastenk\u00fcrzel", "0.5 秒": "0,5 Sek.", "1 秒": "1 Sek.", "2 秒": "2 Sek.", "3 秒": "3 Sek.", "系统": "System", "耳机": "Kopfh\u00f6rer", "麦克风": "Mikrofon", "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
+  ja: { "发现新版本": "アップデートがあります", "当前版本": "現在のバージョン", "立即更新": "今すぐ更新", "稍后": "後で", "正在下载更新": "アップデートをダウンロード中", "更新失败": "アップデートに失敗しました", "长按触发": "長押しで起動", "全部重置": "すべてリセット", "长按时间": "長押し時間", "录音快捷键": "録音ショートカット", "0.5 秒": "0.5秒", "1 秒": "1秒", "2 秒": "2秒", "3 秒": "3秒", "系统": "システム", "耳机": "ヘッドセット", "麦克风": "マイク", "已保存": "保存済み", "已占用": "使用済み ", "在线 API · 需要网络和 API Key": "オンライン API · インターネットと API キーが必要", "本地离线 · 边说边输入": "ローカル・オフライン · 話しながら入力", "本地离线 · 说完后输入": "ローカル・オフライン · 発話後に入力" },
+  es: { "发现新版本": "Actualización disponible", "当前版本": "Versión actual", "立即更新": "Actualizar ahora", "稍后": "Más tarde", "正在下载更新": "Descargando actualización", "更新失败": "Error al actualizar", "长按触发": "Mantener para activar", "全部重置": "Restablecer todo", "长按时间": "Duraci\u00f3n de pulsaci\u00f3n", "录音快捷键": "Atajo de grabaci\u00f3n", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Auriculares", "麦克风": "Micr\u00f3fono", "已保存": "Guardado", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API en línea · Se necesita Internet y clave API", "本地离线 · 边说边输入": "Local sin conexión · Escribir mientras hablas", "本地离线 · 说完后输入": "Local sin conexión · Insertar después de hablar" },
+  ko: { "发现新版本": "업데이트 있음", "当前版本": "현재 버전", "立即更新": "지금 업데이트", "稍后": "나중에", "正在下载更新": "업데이트 다운로드 중", "更新失败": "업데이트 실패", "长按触发": "길게 눌러 실행", "全部重置": "모두 재설정", "长按时间": "길게 누르는 시간", "录音快捷键": "녹음 단축키", "0.5 秒": "0.5초", "1 秒": "1초", "2 秒": "2초", "3 秒": "3초", "系统": "시스템", "耳机": "헤드셋", "麦克风": "마이크", "已保存": "저장됨", "已占用": "사용됨 ", "在线 API · 需要网络和 API Key": "온라인 API · 인터넷과 API 키 필요", "本地离线 · 边说边输入": "로컬 오프라인 · 말하면서 입력", "本地离线 · 说完后输入": "로컬 오프라인 · 말한 후 입력" },
+  pt: { "发现新版本": "Atualização disponível", "当前版本": "Versão atual", "立即更新": "Atualizar agora", "稍后": "Mais tarde", "正在下载更新": "Baixando atualização", "更新失败": "Falha na atualização", "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -385,6 +392,7 @@ function applyLocale() {
 function setLocale(next) {
   uiLocale = SUPPORTED_LOCALES.has(next) ? next : "zh";
   localStorage.setItem("md-locale", uiLocale);
+  invoke("set_ui_locale", { locale: uiLocale }).catch(() => {});
   applyLocale();
   updateLanguageOptions();
   updateOnlineLanguageOptions();
@@ -1837,6 +1845,27 @@ async function afterModelDirChange() {
   renderModels();
 }
 
+async function checkForUpdates() {
+  if (isOverlay) return;
+  let update;
+  try {
+    update = await check();
+  } catch (error) {
+    console.warn("Update check failed", error);
+    return;
+  }
+  if (!update) return;
+
+  const message = `${t("发现新版本")} ${update.version}\n${t("当前版本")} ${update.currentVersion}`;
+  if (!window.confirm(`${message}\n\n${t("立即更新")}？`)) return;
+
+  setStatus("正在下载更新", update.version, "processing");
+  try {
+    await update.downloadAndInstall();
+  } catch (error) {
+    setStatus("更新失败", String(error), "error");
+  }
+}
 async function init() {
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", () => activateTab(tab.dataset.tab));
@@ -2056,6 +2085,7 @@ async function init() {
   });
 
   const settings = await invoke("get_settings");
+  await invoke("set_ui_locale", { locale: uiLocale });
   setEngine(settings.engine);
   $("api-url").value = settings.api_url;
   $("api-key").value = settings.api_key;
@@ -2177,5 +2207,7 @@ function activateTab(name) {
   document.querySelectorAll(".pane").forEach((p) => p.classList.toggle("active", p.id === `pane-${name}`));
 }
 
-  init().catch((error) => setStatus("启动失败", String(error), "error"));
+  init()
+    .then(() => checkForUpdates())
+    .catch((error) => setStatus("启动失败", String(error), "error"));
 }
