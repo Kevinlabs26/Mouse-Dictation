@@ -206,6 +206,36 @@ const UI_TEXT_EN = {
   "当前设置仍然保留": "Current settings were kept",
   "保存失败": "Save failed",
   "启动失败": "Startup failed",
+  "首次使用引导": "First-run guide",
+  "欢迎使用 Mouse Dictation": "Welcome to Mouse Dictation",
+  "几步设置，马上开始说话输入": "Set up in a few steps and start dictating.",
+  "下一步": "Next",
+  "上一步": "Back",
+  "完成": "Finish",
+  "关闭引导": "Skip setup",
+  "快速输入": "Fast input",
+  "说话即可输入文字": "Speak to type",
+  "随处可用": "Works anywhere",
+  "支持任何输入框": "Any text field",
+  "按你的方式": "Your way",
+  "在线或本地识别": "Online or local recognition",
+  "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Before using it, enter an API key or download a local model in Settings.",
+  "选择你的识别方式": "Choose how to recognize speech",
+  "根据你的需求选择在线 API 或本地离线识别。": "Choose online API or local offline recognition.",
+  "需要网络和 API Key，适合快速开始": "Requires internet and an API key; best for getting started quickly.",
+  "无需 API Key，首次使用需要下载模型": "No API key required; download a model the first time.",
+  "推荐": "Recommended",
+  "选择识别语言": "Choose a recognition language",
+  "选择你主要说的语言，也可以保持自动检测。": "Choose the language you speak most, or keep Auto-detect.",
+  "你可以稍后在设置中更改。": "You can change this later in Settings.",
+  "开始使用": "How to use it",
+  "按住鼠标左键开始说话，松开后自动输入。": "Hold the left mouse button to speak; release it to insert the text.",
+  "也可以在“触发”选项卡中设置全局快捷键。": "You can also set a global hotkey in the Trigger tab.",
+  "现在可以在任何输入框中使用 Mouse Dictation。": "You can now use Mouse Dictation in any text field.",
+  "喜欢 Mouse Dictation 吗？": "Like Mouse Dictation?",
+  "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "If this tool helps you, consider starring the project on GitHub.",
+  "你的支持会帮助更多人发现它。": "Your support helps more people discover it.",
+  "在 GitHub 上点 Star": "Star on GitHub",
   "检查更新": "Check for updates",
   "当前已是最新版本": "You're up to date",
   "检查更新失败": "Update check failed",
@@ -305,6 +335,38 @@ const UI_TEXT_COMMON = {
   pt: { "检查更新": "Verificar atualizações", "当前已是最新版本": "Você está usando a versão mais recente", "检查更新失败": "Falha ao verificar atualizações", "发现新版本": "Atualização disponível", "当前版本": "Versão atual", "立即更新": "Atualizar agora", "稍后": "Mais tarde", "正在下载更新": "Baixando atualização", "更新失败": "Falha na atualização", "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
+
+const UI_TEXT_ONBOARDING = {
+  fr: {
+    "首次使用引导": "Guide de première utilisation", "欢迎使用 Mouse Dictation": "Bienvenue dans Mouse Dictation", "几步设置，马上开始说话输入": "Configurez l’application en quelques étapes et commencez à dicter.", "下一步": "Suivant", "上一步": "Retour", "完成": "Terminer", "关闭引导": "Ignorer la configuration", "选择你的识别方式": "Choisissez le mode de reconnaissance", "根据你的需求选择在线 API 或本地离线识别。": "Choisissez la reconnaissance en ligne ou locale selon vos besoins.", "需要网络和 API Key，适合快速开始": "Internet et clé API requis ; idéal pour commencer rapidement.", "无需 API Key，首次使用需要下载模型": "Aucune clé API requise ; téléchargez un modèle lors de la première utilisation.", "推荐": "Recommandé", "选择识别语言": "Choisissez une langue de reconnaissance", "选择你主要说的语言，也可以保持自动检测。": "Choisissez votre langue principale ou gardez la détection automatique.", "你可以稍后在设置中更改。": "Vous pourrez modifier ce choix dans les paramètres.", "开始使用": "Comment l’utiliser", "按住鼠标左键开始说话，松开后自动输入。": "Maintenez le bouton gauche pour parler, puis relâchez pour insérer le texte.", "也可以在“触发”选项卡中设置全局快捷键。": "Vous pouvez aussi définir un raccourci global dans l’onglet Déclenchement.", "现在可以在任何输入框中使用 Mouse Dictation。": "Vous pouvez maintenant utiliser Mouse Dictation dans n’importe quel champ de texte.", "喜欢 Mouse Dictation 吗？": "Vous aimez Mouse Dictation ?", "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "Si cet outil vous aide, pensez à ajouter une étoile au projet sur GitHub.", "你的支持会帮助更多人发现它。": "Votre soutien aidera davantage de personnes à le découvrir.", "在 GitHub 上点 Star": "Ajouter une étoile sur GitHub"
+  },
+  de: {
+    "首次使用引导": "Einrichtungsassistent", "欢迎使用 Mouse Dictation": "Willkommen bei Mouse Dictation", "几步设置，马上开始说话输入": "In wenigen Schritten einrichten und direkt diktieren.", "下一步": "Weiter", "上一步": "Zurück", "完成": "Fertig", "关闭引导": "Einrichtung überspringen", "选择你的识别方式": "Erkennungsmethode wählen", "根据你的需求选择在线 API 或本地离线识别。": "Wähle Online-API oder lokale Offline-Erkennung.", "需要网络和 API Key，适合快速开始": "Internet und API-Key erforderlich; ideal für den schnellen Start.", "无需 API Key，首次使用需要下载模型": "Kein API-Key erforderlich; beim ersten Mal ein Modell herunterladen.", "推荐": "Empfohlen", "选择识别语言": "Erkennungssprache wählen", "选择你主要说的语言，也可以保持自动检测。": "Wähle deine häufigste Sprache oder behalte die automatische Erkennung.", "你可以稍后在设置中更改。": "Du kannst dies später in den Einstellungen ändern.", "开始使用": "So funktioniert es", "按住鼠标左键开始说话，松开后自动输入。": "Halte die linke Maustaste gedrückt und sprich; beim Loslassen wird der Text eingefügt.", "也可以在“触发”选项卡中设置全局快捷键。": "Du kannst auch im Tab Auslöser einen globalen Hotkey festlegen.", "现在可以在任何输入框中使用 Mouse Dictation。": "Du kannst Mouse Dictation jetzt in jedem Textfeld verwenden.", "喜欢 Mouse Dictation 吗？": "Gefällt dir Mouse Dictation?", "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "Wenn dir das Tool hilft, gib dem Projekt gerne einen Star auf GitHub.", "你的支持会帮助更多人发现它。": "Deine Unterstützung hilft anderen, das Projekt zu entdecken.", "在 GitHub 上点 Star": "Auf GitHub einen Star geben"
+  },
+  ja: {
+    "首次使用引导": "初回ガイド", "欢迎使用 Mouse Dictation": "Mouse Dictation へようこそ", "几步设置，马上开始说话输入": "いくつか設定するだけで、すぐに音声入力を始められます。", "下一步": "次へ", "上一步": "戻る", "完成": "完了", "关闭引导": "設定をスキップ", "选择你的识别方式": "認識方式を選択", "根据你的需求选择在线 API 或本地离线识别。": "オンライン API またはローカル・オフライン認識を選択します。", "需要网络和 API Key，适合快速开始": "インターネットと API キーが必要です。すぐに始めたい方におすすめです。", "无需 API Key，首次使用需要下载模型": "API キーは不要です。初回にモデルをダウンロードします。", "推荐": "おすすめ", "选择识别语言": "認識言語を選択", "选择你主要说的语言，也可以保持自动检测。": "主に話す言語を選ぶか、自動検出のままにします。", "你可以稍后在设置中更改。": "この設定は後で変更できます。", "开始使用": "使い方", "按住鼠标左键开始说话，松开后自动输入。": "左ボタンを押したまま話し、離すとテキストが入力されます。", "也可以在“触发”选项卡中设置全局快捷键。": "「トリガー」タブでグローバルショートカットも設定できます。", "现在可以在任何输入框中使用 Mouse Dictation。": "これで、どの入力欄でも Mouse Dictation を使えます。", "喜欢 Mouse Dictation 吗？": "Mouse Dictation を気に入りましたか？", "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "役に立ったら、GitHub でプロジェクトに Star をお願いします。", "你的支持会帮助更多人发现它。": "あなたの応援が、より多くの人にこのプロジェクトを届けます。", "在 GitHub 上点 Star": "GitHub で Star を付ける"
+  },
+  es: {
+    "首次使用引导": "Guía inicial", "欢迎使用 Mouse Dictation": "Bienvenido a Mouse Dictation", "几步设置，马上开始说话输入": "Configúralo en unos pasos y empieza a dictar.", "下一步": "Siguiente", "上一步": "Atrás", "完成": "Finalizar", "关闭引导": "Omitir configuración", "选择你的识别方式": "Elige el modo de reconocimiento", "根据你的需求选择在线 API 或本地离线识别。": "Elige reconocimiento mediante API en línea o local sin conexión.", "需要网络和 API Key，适合快速开始": "Necesita Internet y una clave API; ideal para empezar rápido.", "无需 API Key，首次使用需要下载模型": "No necesita clave API; descarga un modelo la primera vez.", "推荐": "Recomendado", "选择识别语言": "Elige el idioma de reconocimiento", "选择你主要说的语言，也可以保持自动检测。": "Elige tu idioma principal o mantén la detección automática.", "你可以稍后在设置中更改。": "Puedes cambiarlo más tarde en Configuración.", "开始使用": "Cómo usarlo", "按住鼠标左键开始说话，松开后自动输入。": "Mantén pulsado el botón izquierdo y habla; al soltarlo, el texto se inserta.", "也可以在“触发”选项卡中设置全局快捷键。": "También puedes configurar un atajo global en la pestaña Activación.", "现在可以在任何输入框中使用 Mouse Dictation。": "Ya puedes usar Mouse Dictation en cualquier campo de texto.", "喜欢 Mouse Dictation 吗？": "¿Te gusta Mouse Dictation?", "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "Si te resulta útil, considera darle una estrella al proyecto en GitHub.", "你的支持会帮助更多人发现它。": "Tu apoyo ayudará a que más personas lo descubran.", "在 GitHub 上点 Star": "Dar Star en GitHub"
+  },
+  ko: {
+    "首次使用引导": "첫 실행 안내", "欢迎使用 Mouse Dictation": "Mouse Dictation에 오신 것을 환영합니다", "几步设置，马上开始说话输入": "몇 단계만 설정하면 바로 음성 입력을 시작할 수 있습니다.", "下一步": "다음", "上一步": "이전", "完成": "완료", "关闭引导": "설정 건너뛰기", "选择你的识别方式": "인식 방식 선택", "根据你的需求选择在线 API 或本地离线识别。": "온라인 API 또는 로컬 오프라인 인식을 선택하세요.", "需要网络和 API Key，适合快速开始": "인터넷과 API 키가 필요하며 빠르게 시작하기 좋습니다.", "无需 API Key，首次使用需要下载模型": "API 키가 필요 없으며 처음 사용할 때 모델을 다운로드합니다.", "推荐": "추천", "选择识别语言": "인식 언어 선택", "选择你主要说的语言，也可以保持自动检测。": "주로 사용하는 언어를 선택하거나 자동 감지를 유지하세요.", "你可以稍后在设置中更改。": "나중에 설정에서 변경할 수 있습니다.", "开始使用": "사용 방법", "按住鼠标左键开始说话，松开后自动输入。": "왼쪽 버튼을 누른 채 말하고 놓으면 텍스트가 입력됩니다.", "也可以在“触发”选项卡中设置全局快捷键。": "트리거 탭에서 전역 단축키도 설정할 수 있습니다.", "现在可以在任何输入框中使用 Mouse Dictation。": "이제 모든 입력창에서 Mouse Dictation을 사용할 수 있습니다.", "喜欢 Mouse Dictation 吗？": "Mouse Dictation이 마음에 드시나요?", "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "도움이 되었다면 GitHub에서 프로젝트에 Star를 눌러 주세요.", "你的支持会帮助更多人发现它。": "여러분의 응원이 더 많은 사람에게 프로젝트를 알리는 데 도움이 됩니다.", "在 GitHub 上点 Star": "GitHub에서 Star 누르기"
+  },
+  pt: {
+    "首次使用引导": "Guia inicial", "欢迎使用 Mouse Dictation": "Bem-vindo ao Mouse Dictation", "几步设置，马上开始说话输入": "Configure em poucos passos e comece a ditar.", "下一步": "Avançar", "上一步": "Voltar", "完成": "Concluir", "关闭引导": "Ignorar configuração", "选择你的识别方式": "Escolha o modo de reconhecimento", "根据你的需求选择在线 API 或本地离线识别。": "Escolha o reconhecimento por API online ou local offline.", "需要网络和 API Key，适合快速开始": "Requer internet e chave de API; ideal para começar rapidamente.", "无需 API Key，首次使用需要下载模型": "Não requer chave de API; baixe um modelo na primeira utilização.", "推荐": "Recomendado", "选择识别语言": "Escolha o idioma de reconhecimento", "选择你主要说的语言，也可以保持自动检测。": "Escolha seu idioma principal ou mantenha a detecção automática.", "你可以稍后在设置中更改。": "Você pode alterar isso mais tarde nas Configurações.", "开始使用": "Como usar", "按住鼠标左键开始说话，松开后自动输入。": "Mantenha o botão esquerdo pressionado e fale; solte para inserir o texto.", "也可以在“触发”选项卡中设置全局快捷键。": "Você também pode definir um atalho global na aba Gatilho.", "现在可以在任何输入框中使用 Mouse Dictation。": "Agora você pode usar o Mouse Dictation em qualquer campo de texto.", "喜欢 Mouse Dictation 吗？": "Gostou do Mouse Dictation?", "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "Se a ferramenta ajudar, considere dar uma estrela ao projeto no GitHub.", "你的支持会帮助更多人发现它。": "Seu apoio ajudará mais pessoas a descobrirem o projeto.", "在 GitHub 上点 Star": "Dar Star no GitHub"
+  }
+};
+for (const [locale, entries] of Object.entries(UI_TEXT_ONBOARDING)) Object.assign(UI_TEXTS[locale], entries);
+
+const UI_TEXT_ONBOARDING_MORE = {
+  fr: { "快速输入": "Saisie rapide", "说话即可输入文字": "Parlez pour écrire", "随处可用": "Utilisable partout", "支持任何输入框": "Tous les champs de texte", "按你的方式": "À votre façon", "在线或本地识别": "Reconnaissance en ligne ou locale", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Avant de commencer, saisissez une clé API ou téléchargez un modèle local dans les paramètres." },
+  de: { "快速输入": "Schnelle Eingabe", "说话即可输入文字": "Sprechen und tippen", "随处可用": "Überall verfügbar", "支持任何输入框": "Jedes Textfeld", "按你的方式": "Deine Wahl", "在线或本地识别": "Online- oder lokale Erkennung", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Gib vor der ersten Nutzung einen API-Key ein oder lade in den Einstellungen ein lokales Modell herunter." },
+  ja: { "快速输入": "すばやく入力", "说话即可输入文字": "話すだけで入力", "随处可用": "どこでも使える", "支持任何输入框": "すべての入力欄に対応", "按你的方式": "自分の方法で", "在线或本地识别": "オンラインまたはローカル認識", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "初回利用前に、設定で API キーを入力するかローカルモデルをダウンロードしてください。" },
+  es: { "快速输入": "Entrada rápida", "说话即可输入文字": "Habla para escribir", "随处可用": "Funciona en cualquier lugar", "支持任何输入框": "Cualquier campo de texto", "按你的方式": "A tu manera", "在线或本地识别": "Reconocimiento en línea o local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usarlo, introduce una clave API o descarga un modelo local en Configuración." },
+  ko: { "快速输入": "빠른 입력", "说话即可输入文字": "말하면 입력", "随处可用": "어디서나 사용", "支持任何输入框": "모든 입력창 지원", "按你的方式": "원하는 방식으로", "在线或本地识别": "온라인 또는 로컬 인식", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "처음 사용하기 전에 설정에서 API 키를 입력하거나 로컬 모델을 다운로드하세요." },
+  pt: { "快速输入": "Entrada rápida", "说话即可输入文字": "Fale para escrever", "随处可用": "Funciona em qualquer lugar", "支持任何输入框": "Qualquer campo de texto", "按你的方式": "Do seu jeito", "在线或本地识别": "Reconhecimento online ou local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usar, insira uma chave de API ou baixe um modelo local nas Configurações." }
+};
+for (const [locale, entries] of Object.entries(UI_TEXT_ONBOARDING_MORE)) Object.assign(UI_TEXTS[locale], entries);
 
 const LOCALE_OPTIONS = [
   ["zh", "中文"],
@@ -411,6 +473,7 @@ function setLocale(next) {
   renderProfiles();
   if (models.length) renderModels();
   setStatus(currentStatus.title, currentStatus.detail, currentStatus.mode);
+  if (onboardingVisible) renderOnboarding();
 }
 
 
@@ -867,7 +930,7 @@ if (isOverlay) {
 
     <footer class="footer">
       <div class="footer-meta">
-        <span id="app-version" class="app-version">v0.1.13</span>
+        <span id="app-version" class="app-version">v0.1.14</span>
         <button id="footer-check-updates" class="footer-update" type="button">检查更新</button>
         <span id="saved" class="saved">已保存</span>
       </div>
@@ -888,6 +951,28 @@ if (isOverlay) {
           <button id="dialog-cancel" class="ghost" type="button">取消</button>
           <button id="dialog-confirm" class="ghost primary-ghost" type="button">确定</button>
         </div>
+      </section>
+    </div>
+
+    <div id="onboarding-root" class="onboarding-root" hidden>
+      <div class="onboarding-backdrop"></div>
+      <section class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <button id="onboarding-close" class="onboarding-close" type="button" aria-label="关闭引导">×</button>
+        <div class="onboarding-progress">
+          <span class="onboarding-kicker">首次使用引导</span>
+          <span id="onboarding-step-count"></span>
+        </div>
+        <div class="onboarding-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><path d="M12 18v3"/><path d="M8 21h8"/></svg>
+        </div>
+        <h2 id="onboarding-title"></h2>
+        <p id="onboarding-description"></p>
+        <div id="onboarding-content" class="onboarding-content"></div>
+        <div class="onboarding-actions">
+          <button id="onboarding-back" class="ghost" type="button"></button>
+          <button id="onboarding-next" class="primary" type="button"></button>
+        </div>
+        <button id="onboarding-skip" class="onboarding-skip" type="button">关闭引导</button>
       </section>
     </div>
   </div>
@@ -934,6 +1019,12 @@ const SUPPORT_LINKS = {
   kofi: "https://ko-fi.com/kevinlabs",
   store: "https://kevinlabs.lemonsqueezy.com/checkout/buy/7b60b363-50b5-4233-a982-91a0611eccd6"
 };
+const GITHUB_LINK = "https://github.com/Kevinlabs26/Mouse-Dictation";
+const ONBOARDING_STORAGE_KEY = "md-onboarding-completed";
+const ONBOARDING_LAST_STEP = 4;
+let onboardingStep = 0;
+let onboardingEngine = "online";
+let onboardingVisible = false;
 
 const MODEL_CATALOG = [
   {
@@ -1371,6 +1462,106 @@ function openSupportLink(url) {
   invoke("open_external_url", { url }).catch((error) => {
     setStatus("打开链接失败", String(error), "error");
   });
+}
+
+function onboardingLanguageList() {
+  const list = onboardingEngine === "local"
+    ? (localMode === "whisper" ? LANG_OPTIONS.whisper : localMode === "streaming" ? LANG_OPTIONS.stream : LANG_OPTIONS.base)
+    : LANG_OPTIONS.whisper.filter(([value]) => value !== "yue");
+  return list.map(([value, label]) => [value, value === "auto" ? "自动检测" : label]);
+}
+
+function renderOnboarding() {
+  const root = $("onboarding-root");
+  if (!root) return;
+  const last = onboardingStep === ONBOARDING_LAST_STEP;
+  const titles = [
+    "欢迎使用 Mouse Dictation",
+    "选择你的识别方式",
+    "选择识别语言",
+    "开始使用",
+    "喜欢 Mouse Dictation 吗？"
+  ];
+  const descriptions = [
+    "几步设置，马上开始说话输入",
+    "根据你的需求选择在线 API 或本地离线识别。",
+    "选择你主要说的语言，也可以保持自动检测。",
+    "现在可以在任何输入框中使用 Mouse Dictation。",
+    "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。"
+  ];
+  $("onboarding-step-count").textContent = `${onboardingStep + 1} / ${ONBOARDING_LAST_STEP + 1}`;
+  $("onboarding-title").textContent = t(titles[onboardingStep]);
+  $("onboarding-description").textContent = t(descriptions[onboardingStep]);
+  const content = $("onboarding-content");
+  if (onboardingStep === 0) {
+    content.innerHTML = `
+      <div class="onboarding-feature-grid">
+        <div class="onboarding-feature"><span class="onboarding-feature-icon">✦</span><strong>${t("快速输入")}</strong><small>${t("说话即可输入文字")}</small></div>
+        <div class="onboarding-feature"><span class="onboarding-feature-icon">◌</span><strong>${t("随处可用")}</strong><small>${t("支持任何输入框")}</small></div>
+        <div class="onboarding-feature"><span class="onboarding-feature-icon">⌁</span><strong>${t("按你的方式")}</strong><small>${t("在线或本地识别")}</small></div>
+      </div>`;
+  } else if (onboardingStep === 1) {
+    content.innerHTML = `
+      <div class="onboarding-choice-list">
+        <button class="onboarding-choice ${onboardingEngine === "online" ? "selected" : ""}" data-onboarding-engine="online" type="button">
+          <span class="onboarding-choice-icon">☁</span><span><strong>${t("在线 API")}</strong><small>${t("需要网络和 API Key，适合快速开始")}</small></span>${onboardingEngine === "online" ? "<i>✓</i>" : ""}
+        </button>
+        <button class="onboarding-choice ${onboardingEngine === "local" ? "selected" : ""}" data-onboarding-engine="local" type="button">
+          <span class="onboarding-choice-icon">▣</span><span><strong>${t("本地离线")}</strong><small>${t("无需 API Key，首次使用需要下载模型")}</small></span>${onboardingEngine === "local" ? `<em>${t("推荐")}</em>` : ""}
+        </button>
+      </div>`;
+  } else if (onboardingStep === 2) {
+    const current = onboardingEngine === "local" ? $("local-language").value : $("online-language").value;
+    content.innerHTML = `
+      <label class="onboarding-label" for="onboarding-language">${t("识别语言")}</label>
+      <select id="onboarding-language" class="onboarding-select">${onboardingLanguageList().map(([value, label]) => `<option value="${value}">${t(label)}</option>`).join("")}</select>
+      <p class="onboarding-hint">${t("你可以稍后在设置中更改。")}</p>`;
+    $("onboarding-language").value = onboardingLanguageList().some(([value]) => value === current) ? current : "auto";
+  } else if (onboardingStep === 3) {
+    content.innerHTML = `
+      <div class="onboarding-howto">
+        <div><span>01</span><p><strong>${t("按住鼠标左键开始说话，松开后自动输入。")}</strong></p></div>
+        <div><span>02</span><p><strong>${t("也可以在“触发”选项卡中设置全局快捷键。")}</strong></p></div>
+        <div><span>03</span><p><strong>${t("在线 API")}</strong><small>${t("首次使用前，请在设置中填写 API Key 或下载本地模型。")}</small></p></div>
+      </div>`;
+  } else {
+    content.innerHTML = `
+      <div class="onboarding-github-card">
+        <div class="onboarding-github-mark">★</div>
+        <div><strong>Kevinlabs26 / Mouse-Dictation</strong><small>${t("你的支持会帮助更多人发现它。")}</small></div>
+      </div>
+      <button class="onboarding-github-button" data-onboarding-github type="button">⭐ ${t("在 GitHub 上点 Star")}</button>`;
+  }
+  $("onboarding-back").hidden = onboardingStep === 0;
+  $("onboarding-back").textContent = t("上一步");
+  $("onboarding-next").textContent = t(last ? "完成" : "下一步");
+  $("onboarding-skip").hidden = last;
+  $("onboarding-close").hidden = last;
+}
+
+function finishOnboarding() {
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
+  onboardingVisible = false;
+  $("onboarding-root").hidden = true;
+  document.body.classList.remove("onboarding-open");
+}
+
+function showOnboarding() {
+  onboardingStep = 0;
+  onboardingEngine = engine;
+  onboardingVisible = true;
+  $("onboarding-root").hidden = false;
+  document.body.classList.add("onboarding-open");
+  renderOnboarding();
+}
+
+function skipOnboardingToGithub() {
+  onboardingStep = ONBOARDING_LAST_STEP;
+  renderOnboarding();
+}
+
+function maybeStartOnboarding(firstRun) {
+  if (firstRun && localStorage.getItem(ONBOARDING_STORAGE_KEY) !== "1") showOnboarding();
 }
 
 const FEEDBACK_MIN_USES = 3;
@@ -2079,6 +2270,43 @@ async function init() {
   $("support-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
+  $("onboarding-next").addEventListener("click", () => {
+    if (onboardingStep === ONBOARDING_LAST_STEP) finishOnboarding();
+    else {
+      onboardingStep += 1;
+      renderOnboarding();
+    }
+  });
+  $("onboarding-back").addEventListener("click", () => {
+    if (onboardingStep > 0) {
+      onboardingStep -= 1;
+      renderOnboarding();
+    }
+  });
+  $("onboarding-close").addEventListener("click", skipOnboardingToGithub);
+  $("onboarding-skip").addEventListener("click", skipOnboardingToGithub);
+  $("onboarding-content").addEventListener("click", (event) => {
+    const engineButton = event.target.closest("[data-onboarding-engine]");
+    if (engineButton) {
+      onboardingEngine = engineButton.dataset.onboardingEngine;
+      setEngine(onboardingEngine);
+      updateLanguageOptions();
+      updateOnlineLanguageOptions();
+      updateConfigSummary();
+      scheduleSave();
+      renderOnboarding();
+      return;
+    }
+    if (event.target.closest("[data-onboarding-github]")) openSupportLink(GITHUB_LINK);
+  });
+  $("onboarding-content").addEventListener("change", (event) => {
+    if (event.target.id !== "onboarding-language") return;
+    const value = event.target.value;
+    if (onboardingEngine === "local") $("local-language").value = value;
+    else $("online-language").value = value;
+    updateConfigSummary();
+    scheduleSave();
+  });
   $("feedback-dismiss").addEventListener("click", () => hideFeedbackCard());
   $("feedback-rating").addEventListener("click", (event) => {
     const button = event.target.closest("[data-rating]");
@@ -2113,6 +2341,7 @@ async function init() {
     $("translate-api").value = found ? found[0] : "custom";
   });
 
+  const firstRun = await invoke("is_first_run").catch(() => false);
   const settings = await invoke("get_settings");
   await invoke("set_ui_locale", { locale: uiLocale });
   setEngine(settings.engine);
@@ -2235,6 +2464,7 @@ async function init() {
       $("status-detail").textContent = `已下载 ${Math.round((payload?.downloaded || 0) / 1048576)} MB`;
     }
   });
+  maybeStartOnboarding(firstRun);
 }
 
 function activateTab(name) {

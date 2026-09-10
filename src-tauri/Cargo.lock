@@ -2878,7 +2878,7 @@ dependencies = [
 
 [[package]]
 name = "mouse-dictation"
-version = "0.1.13"
+version = "0.1.14"
 dependencies = [
  "arboard",
  "bzip2 0.5.2",
