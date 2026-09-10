@@ -561,6 +561,10 @@ body.onboarding-open { overflow: hidden; }
 .onboarding-github-card strong { font-size: 12px; }
 .onboarding-github-button { display: block; width: 100%; margin-top: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
 .onboarding-github-button:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.onboarding-community-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.onboarding-community-actions .onboarding-github-button { margin-top: 12px; }
+.onboarding-telegram-button { width: 100%; margin-top: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+.onboarding-telegram-button:hover { border-color: #229ed9; background: rgba(34, 158, 217, .12); color: #229ed9; }
 .onboarding-actions { display: flex; justify-content: space-between; gap: 10px; }
 .onboarding-actions .primary { min-width: 104px; padding: 9px 18px; font-size: 12px; }
 .onboarding-skip { display: block; margin: 13px auto 0; border: 0; background: transparent; color: var(--faint); font: inherit; font-size: 11px; cursor: pointer; }

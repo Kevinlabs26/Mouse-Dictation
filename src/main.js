@@ -236,6 +236,7 @@ const UI_TEXT_EN = {
   "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "If this tool helps you, consider starring the project on GitHub.",
   "你的支持会帮助更多人发现它。": "Your support helps more people discover it.",
   "在 GitHub 上点 Star": "Star on GitHub",
+  "加入 Telegram 讨论群": "Join the Telegram community",
   "检查更新": "Check for updates",
   "当前已是最新版本": "You're up to date",
   "检查更新失败": "Update check failed",
@@ -359,12 +360,12 @@ const UI_TEXT_ONBOARDING = {
 for (const [locale, entries] of Object.entries(UI_TEXT_ONBOARDING)) Object.assign(UI_TEXTS[locale], entries);
 
 const UI_TEXT_ONBOARDING_MORE = {
-  fr: { "快速输入": "Saisie rapide", "说话即可输入文字": "Parlez pour écrire", "随处可用": "Utilisable partout", "支持任何输入框": "Tous les champs de texte", "按你的方式": "À votre façon", "在线或本地识别": "Reconnaissance en ligne ou locale", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Avant de commencer, saisissez une clé API ou téléchargez un modèle local dans les paramètres." },
-  de: { "快速输入": "Schnelle Eingabe", "说话即可输入文字": "Sprechen und tippen", "随处可用": "Überall verfügbar", "支持任何输入框": "Jedes Textfeld", "按你的方式": "Deine Wahl", "在线或本地识别": "Online- oder lokale Erkennung", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Gib vor der ersten Nutzung einen API-Key ein oder lade in den Einstellungen ein lokales Modell herunter." },
-  ja: { "快速输入": "すばやく入力", "说话即可输入文字": "話すだけで入力", "随处可用": "どこでも使える", "支持任何输入框": "すべての入力欄に対応", "按你的方式": "自分の方法で", "在线或本地识别": "オンラインまたはローカル認識", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "初回利用前に、設定で API キーを入力するかローカルモデルをダウンロードしてください。" },
-  es: { "快速输入": "Entrada rápida", "说话即可输入文字": "Habla para escribir", "随处可用": "Funciona en cualquier lugar", "支持任何输入框": "Cualquier campo de texto", "按你的方式": "A tu manera", "在线或本地识别": "Reconocimiento en línea o local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usarlo, introduce una clave API o descarga un modelo local en Configuración." },
-  ko: { "快速输入": "빠른 입력", "说话即可输入文字": "말하면 입력", "随处可用": "어디서나 사용", "支持任何输入框": "모든 입력창 지원", "按你的方式": "원하는 방식으로", "在线或本地识别": "온라인 또는 로컬 인식", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "처음 사용하기 전에 설정에서 API 키를 입력하거나 로컬 모델을 다운로드하세요." },
-  pt: { "快速输入": "Entrada rápida", "说话即可输入文字": "Fale para escrever", "随处可用": "Funciona em qualquer lugar", "支持任何输入框": "Qualquer campo de texto", "按你的方式": "Do seu jeito", "在线或本地识别": "Reconhecimento online ou local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usar, insira uma chave de API ou baixe um modelo local nas Configurações." }
+  fr: { "快速输入": "Saisie rapide", "说话即可输入文字": "Parlez pour écrire", "随处可用": "Utilisable partout", "支持任何输入框": "Tous les champs de texte", "按你的方式": "À votre façon", "在线或本地识别": "Reconnaissance en ligne ou locale", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Avant de commencer, saisissez une clé API ou téléchargez un modèle local dans les paramètres.", "加入 Telegram 讨论群": "Rejoindre le groupe Telegram" },
+  de: { "快速输入": "Schnelle Eingabe", "说话即可输入文字": "Sprechen und tippen", "随处可用": "Überall verfügbar", "支持任何输入框": "Jedes Textfeld", "按你的方式": "Deine Wahl", "在线或本地识别": "Online- oder lokale Erkennung", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Gib vor der ersten Nutzung einen API-Key ein oder lade in den Einstellungen ein lokales Modell herunter.", "加入 Telegram 讨论群": "Telegram-Gruppe beitreten" },
+  ja: { "快速输入": "すばやく入力", "说话即可输入文字": "話すだけで入力", "随处可用": "どこでも使える", "支持任何输入框": "すべての入力欄に対応", "按你的方式": "自分の方法で", "在线或本地识别": "オンラインまたはローカル認識", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "初回利用前に、設定で API キーを入力するかローカルモデルをダウンロードしてください。", "加入 Telegram 讨论群": "Telegram グループに参加" },
+  es: { "快速输入": "Entrada rápida", "说话即可输入文字": "Habla para escribir", "随处可用": "Funciona en cualquier lugar", "支持任何输入框": "Cualquier campo de texto", "按你的方式": "A tu manera", "在线或本地识别": "Reconocimiento en línea o local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usarlo, introduce una clave API o descarga un modelo local en Configuración.", "加入 Telegram 讨论群": "Unirse al grupo de Telegram" },
+  ko: { "快速输入": "빠른 입력", "说话即可输入文字": "말하면 입력", "随处可用": "어디서나 사용", "支持任何输入框": "모든 입력창 지원", "按你的方式": "원하는 방식으로", "在线或本地识别": "온라인 또는 로컬 인식", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "처음 사용하기 전에 설정에서 API 키를 입력하거나 로컬 모델을 다운로드하세요.", "加入 Telegram 讨论群": "Telegram 그룹 참여" },
+  pt: { "快速输入": "Entrada rápida", "说话即可输入文字": "Fale para escrever", "随处可用": "Funciona em qualquer lugar", "支持任何输入框": "Qualquer campo de texto", "按你的方式": "Do seu jeito", "在线或本地识别": "Reconhecimento online ou local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usar, insira uma chave de API ou baixe um modelo local nas Configurações.", "加入 Telegram 讨论群": "Entrar no grupo do Telegram" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_ONBOARDING_MORE)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -930,8 +931,9 @@ if (isOverlay) {
 
     <footer class="footer">
       <div class="footer-meta">
-        <span id="app-version" class="app-version">v0.1.14</span>
+        <span id="app-version" class="app-version">v0.1.15</span>
         <button id="footer-check-updates" class="footer-update" type="button">检查更新</button>
+        <button id="footer-telegram" class="footer-update" type="button">Telegram</button>
         <span id="saved" class="saved">已保存</span>
       </div>
       <div class="footer-links">
@@ -1020,6 +1022,7 @@ const SUPPORT_LINKS = {
   store: "https://kevinlabs.lemonsqueezy.com/checkout/buy/7b60b363-50b5-4233-a982-91a0611eccd6"
 };
 const GITHUB_LINK = "https://github.com/Kevinlabs26/Mouse-Dictation";
+const TELEGRAM_LINK = "https://t.me/+nP4l6SwV-OVhOGRk";
 const ONBOARDING_STORAGE_KEY = "md-onboarding-completed";
 const ONBOARDING_LAST_STEP = 4;
 let onboardingStep = 0;
@@ -1530,7 +1533,10 @@ function renderOnboarding() {
         <div class="onboarding-github-mark">★</div>
         <div><strong>Kevinlabs26 / Mouse-Dictation</strong><small>${t("你的支持会帮助更多人发现它。")}</small></div>
       </div>
-      <button class="onboarding-github-button" data-onboarding-github type="button">⭐ ${t("在 GitHub 上点 Star")}</button>`;
+      <div class="onboarding-community-actions">
+        <button class="onboarding-github-button" data-onboarding-github type="button">⭐ ${t("在 GitHub 上点 Star")}</button>
+        <button class="onboarding-telegram-button" data-onboarding-telegram type="button">💬 ${t("加入 Telegram 讨论群")}</button>
+      </div>`;
   }
   $("onboarding-back").hidden = onboardingStep === 0;
   $("onboarding-back").textContent = t("上一步");
@@ -2270,6 +2276,7 @@ async function init() {
   $("support-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
+  $("footer-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
   $("onboarding-next").addEventListener("click", () => {
     if (onboardingStep === ONBOARDING_LAST_STEP) finishOnboarding();
     else {
@@ -2298,6 +2305,7 @@ async function init() {
       return;
     }
     if (event.target.closest("[data-onboarding-github]")) openSupportLink(GITHUB_LINK);
+    if (event.target.closest("[data-onboarding-telegram]")) openSupportLink(TELEGRAM_LINK);
   });
   $("onboarding-content").addEventListener("change", (event) => {
     if (event.target.id !== "onboarding-language") return;
