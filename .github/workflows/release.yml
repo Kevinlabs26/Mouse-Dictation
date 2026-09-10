@@ -27,7 +27,19 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Mouse Dictation ${{ github.ref_name }}
-          releaseBody: See the assets below to download and install Mouse Dictation.
+          releaseBody: |
+            ## What's new
+
+            - Updated the application icon.
+            - Added multilingual system tray menus.
+            - Minimize the window to the system tray without showing it in the taskbar.
+            - Added automatic update checking with signed Windows installers.
+            - Replaced the native update prompt with an in-app dialog matching the application theme.
+
+            ## Downloads
+
+            - NSIS installer: recommended for most users
+            - MSI installer: Windows installer package
           releaseDraft: false
           prerelease: false
           updaterJsonPreferNsis: true

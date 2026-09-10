@@ -513,7 +513,7 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   box-shadow: 0 18px 50px rgba(15, 23, 42, .18);
 }
 .dialog h2 { margin: 0; font-size: 16px; font-weight: 700; }
-.dialog p { margin: 7px 0 0; color: var(--dim); font-size: 12px; line-height: 1.55; }
+.dialog p { margin: 7px 0 0; color: var(--dim); font-size: 12px; line-height: 1.55; white-space: pre-line; }
 .dialog input { margin-top: 14px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 .dialog-actions .danger { color: var(--danger); border-color: var(--danger-soft); background: var(--danger-soft); }

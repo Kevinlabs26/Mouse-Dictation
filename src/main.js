@@ -1259,7 +1259,7 @@ function closeDialog(result = null) {
   resolve(result);
 }
 
-function showDialog({ title, message, value = "", placeholder = "", input = false, confirmText = "确定", danger = false }) {
+function showDialog({ title, message, value = "", placeholder = "", input = false, confirmText = "确定", cancelText = "取消", danger = false }) {
   return new Promise((resolve) => {
     const root = $("dialog-root");
     const field = $("dialog-input");
@@ -1268,6 +1268,7 @@ function showDialog({ title, message, value = "", placeholder = "", input = fals
     $("dialog-title").textContent = t(title);
     $("dialog-message").textContent = t(message);
     confirm.textContent = t(confirmText);
+    $("dialog-cancel").textContent = t(cancelText);
     confirm.classList.toggle("danger", danger);
     field.hidden = !input;
     field.value = value;
@@ -1856,8 +1857,13 @@ async function checkForUpdates() {
   }
   if (!update) return;
 
-  const message = `${t("发现新版本")} ${update.version}\n${t("当前版本")} ${update.currentVersion}`;
-  if (!window.confirm(`${message}\n\n${t("立即更新")}？`)) return;
+  const shouldUpdate = await showDialog({
+    title: "发现新版本",
+    message: `${t("发现新版本")} ${update.version}\n${t("当前版本")} ${update.currentVersion}`,
+    confirmText: "立即更新",
+    cancelText: "稍后",
+  });
+  if (shouldUpdate !== true) return;
 
   setStatus("正在下载更新", update.version, "processing");
   try {
