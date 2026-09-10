@@ -1916,6 +1916,19 @@ fn list_translation_models(settings: Settings) -> Result<Vec<String>, String> {
     Ok(ids)
 }
 
+fn transcription_prompt(language: &str) -> Option<&'static str> {
+    match language {
+        "zh" => Some("中文语音转写，使用自然的中文标点。"),
+        "en" => Some("English speech transcription with natural punctuation."),
+        "fr" => Some("Transcription audio en français avec une ponctuation naturelle."),
+        "de" => Some("Deutsche Audiotranskription mit natürlicher Zeichensetzung."),
+        "es" => Some("Transcripción de audio en español con puntuación natural."),
+        "ja" => Some("日本語の音声文字起こし。自然な句読点。"),
+        "ko" => Some("한국어 음성 전사, 자연스러운 문장 부호."),
+        _ => None,
+    }
+}
+
 fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
     let api_key = normalize_api_key(&settings.api_key);
     if api_key.is_empty() {
@@ -1937,6 +1950,9 @@ fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
         .part("file", file);
     if settings.online_language != "auto" {
         form = form.text("language", settings.online_language.clone());
+    }
+    if let Some(prompt) = transcription_prompt(&settings.online_language) {
+        form = form.text("prompt", prompt);
     }
     let response = reqwest::blocking::Client::builder()
         .connect_timeout(Duration::from_secs(15))
@@ -3190,7 +3206,7 @@ fn main() {
 mod tests {
     use super::{
         hotkey_matches, is_speech_to_text_model, normalize_api_key, normalize_audio,
-        resample_available, StreamingAudio,
+        resample_available, transcription_prompt, StreamingAudio,
     };
     use rdev::Key;
 
@@ -3217,6 +3233,19 @@ mod tests {
             &serde_json::json!({"id": "llama-3.3-70b-versatile"}),
             "llama-3.3-70b-versatile"
         ));
+    }
+
+    #[test]
+    fn uses_only_language_matched_prompts() {
+        assert_eq!(
+            transcription_prompt("zh"),
+            Some("中文语音转写，使用自然的中文标点。")
+        );
+        assert_eq!(
+            transcription_prompt("fr"),
+            Some("Transcription audio en français avec une ponctuation naturelle.")
+        );
+        assert_eq!(transcription_prompt("auto"), None);
     }
 
     #[test]

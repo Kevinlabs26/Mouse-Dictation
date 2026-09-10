@@ -30,11 +30,10 @@ jobs:
           releaseBody: |
             ## What's new
 
-            - Updated the application icon.
-            - Added multilingual system tray menus.
-            - Minimize the window to the system tray without showing it in the taskbar.
-            - Added automatic update checking with signed Windows installers.
-            - Replaced the native update prompt with an in-app dialog matching the application theme.
+            - Improved multilingual API transcription across supported providers and models.
+            - The selected transcription language is now respected without forcing a fixed language.
+            - Automatic language detection remains available for mixed-language use.
+            - Added language-matched punctuation guidance for Chinese, French, German, Spanish, Japanese, Korean, and English.
 
             ## Downloads
 
