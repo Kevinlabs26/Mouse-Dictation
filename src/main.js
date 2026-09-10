@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { getVersion } from "@tauri-apps/api/app";
 import { check } from "@tauri-apps/plugin-updater";
 import "./styles.css";
 
@@ -865,7 +866,11 @@ if (isOverlay) {
     </div>
 
     <footer class="footer">
-      <span id="saved" class="saved">已保存</span>
+      <div class="footer-meta">
+        <span id="app-version" class="app-version">v0.1.13</span>
+        <button id="footer-check-updates" class="footer-update" type="button">检查更新</button>
+        <span id="saved" class="saved">已保存</span>
+      </div>
       <div class="footer-links">
         <span class="footer-support-label">☕ 支持作者</span>
         <button id="support-kofi" class="footer-link footer-link-primary" type="button">Ko-fi</button>
@@ -2073,6 +2078,7 @@ async function init() {
   $("accent-custom").addEventListener("input", (e) => setAccent(e.target.value));
   $("support-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
+  $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
   $("feedback-dismiss").addEventListener("click", () => hideFeedbackCard());
   $("feedback-rating").addEventListener("click", (event) => {
     const button = event.target.closest("[data-rating]");
@@ -2149,6 +2155,11 @@ async function init() {
   await refreshModels();
   await refreshProfiles();
   await refreshAudioStatus();
+  try {
+    $("app-version").textContent = `v${await getVersion()}`;
+  } catch (_) {
+    // Keep the bundled fallback version when running outside the Tauri shell.
+  }
 
   await listen("check-for-updates", () => checkForUpdates(true));
   await listen("dictation-state", ({ payload }) => {

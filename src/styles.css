@@ -476,6 +476,10 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
   background: var(--surface-2);
 }
 .footer-links { display: flex; align-items: center; gap: 7px; min-width: 0; margin-left: auto; }
+.footer-meta { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.app-version { color: var(--dim); font-size: 11px; white-space: nowrap; }
+.footer-update { border: 0; padding: 0; background: transparent; color: var(--dim); font: inherit; font-size: 11px; cursor: pointer; }
+.footer-update:hover { color: var(--accent); }
 .footer-support-label { color: var(--dim); font-size: 11px; font-weight: 600; white-space: nowrap; }
 .footer-link { border: 1px solid var(--border); padding: 6px 10px; border-radius: 999px; background: var(--surface); color: var(--text); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
 .footer-link-primary { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
