@@ -1276,23 +1276,33 @@ fn emit<R: Runtime>(app: &AppHandle<R>, event: &str, payload: impl Serialize + C
 }
 
 fn position_overlay_at_cursor<R: Runtime>(app: &AppHandle<R>) {
-    if let Ok(pos) = app.cursor_position() {
-        if let Some(win) = app.get_webview_window("overlay") {
-            let size = win.inner_size().unwrap_or(PhysicalSize::new(200, 200));
-            let x = (pos.x - size.width as f64 / 2.0).round() as i32;
-            let y = (pos.y - size.height as f64 / 2.0).round() as i32;
-            let _ = win.set_position(PhysicalPosition::new(x, y));
-        }
+    let Ok(pos) = app.cursor_position() else {
+        eprintln!("无法读取鼠标位置，保留悬浮层当前位置");
+        return;
+    };
+    let Some(win) = app.get_webview_window("overlay") else {
+        eprintln!("找不到悬浮层窗口");
+        return;
+    };
+    let size = win.inner_size().unwrap_or(PhysicalSize::new(200, 200));
+    let x = (pos.x - size.width as f64 / 2.0).round() as i32;
+    let y = (pos.y - size.height as f64 / 2.0).round() as i32;
+    if let Err(error) = win.set_position(PhysicalPosition::new(x, y)) {
+        eprintln!("无法定位悬浮层窗口：{error}");
     }
 }
 
 fn show_overlay<R: Runtime>(app: &AppHandle<R>) {
-    position_overlay_at_cursor(app);
     if let Some(win) = app.get_webview_window("overlay") {
-        // Windows can lose the z-order after another window is activated;
-        // reassert topmost each time the overlay is shown without focusing it.
-        let _ = win.set_always_on_top(true);
+        let _ = win.unminimize();
+        let _ = win.set_ignore_cursor_events(true);
         let _ = win.show();
+        // Windows can lose the z-order after another window is activated;
+        // reassert topmost after showing without focusing the overlay.
+        let _ = win.set_always_on_top(true);
+        position_overlay_at_cursor(app);
+    } else {
+        eprintln!("显示录音悬浮层失败：窗口尚未创建");
     }
 }
 
@@ -1674,6 +1684,9 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
         .as_millis();
     let path = std::env::temp_dir().join(format!("mouse-dictation-{stamp}.wav"));
     let samples = normalize_audio(&samples, sample_rate, channels);
+    if !has_voice_energy(&samples) {
+        return Err("没有检测到语音".into());
+    }
     let spec = hound::WavSpec {
         channels: 1,
         sample_rate: 16_000,
@@ -1760,6 +1773,25 @@ fn normalize_audio(samples: &[i16], sample_rate: u32, channels: u16) -> Vec<i16>
             (mono[left.min(mono.len() - 1)] * (1.0 - fraction) + mono[right] * fraction) as i16
         })
         .collect()
+}
+
+fn has_voice_energy(samples: &[i16]) -> bool {
+    if samples.is_empty() {
+        return false;
+    }
+    let active_samples = samples
+        .iter()
+        .filter(|&&sample| i32::from(sample).abs() >= 600)
+        .count();
+    let mean_square = samples
+        .iter()
+        .map(|&sample| {
+            let amplitude = f64::from(sample);
+            amplitude * amplitude
+        })
+        .sum::<f64>()
+        / samples.len() as f64;
+    active_samples >= 160 && mean_square.sqrt() >= 180.0
 }
 
 fn normalize_api_key(value: &str) -> String {
@@ -2363,6 +2395,7 @@ fn finish_dictation(app: AppHandle) {
     match result {
         Ok(_) => emit(&app, "dictation-state", "done"),
         Err(error) if error == "当前没有录音" => {}
+        Err(error) if error == "没有检测到语音" => emit(&app, "dictation-state", "cancelled"),
         Err(error) => emit(&app, "dictation-error", error),
     }
     hide_overlay(&app);
@@ -3223,7 +3256,8 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::{
-        hotkey_matches, is_speech_to_text_model, normalize_api_key, normalize_audio,
+        has_voice_energy, hotkey_matches, is_speech_to_text_model, normalize_api_key,
+        normalize_audio,
         resample_available, transcription_prompt, StreamingAudio,
     };
     use rdev::Key;
@@ -3239,6 +3273,21 @@ mod tests {
     #[test]
     fn normalizes_pasted_bearer_api_key() {
         assert_eq!(normalize_api_key("  'Bearer gsk_test'  "), "gsk_test");
+    }
+
+    #[test]
+    fn rejects_silent_audio_before_transcription() {
+        assert!(!has_voice_energy(&vec![0_i16; 16_000]));
+        assert!(!has_voice_energy(&vec![120_i16; 16_000]));
+    }
+
+    #[test]
+    fn accepts_audio_with_sustained_voice_energy() {
+        let mut samples = vec![0_i16; 16_000];
+        for sample in &mut samples[2_000..6_000] {
+            *sample = 1_200;
+        }
+        assert!(has_voice_energy(&samples));
     }
 
     #[test]

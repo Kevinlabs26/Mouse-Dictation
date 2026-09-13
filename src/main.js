@@ -248,6 +248,10 @@ const UI_TEXT_EN = {
   "稍后": "Later",
   "正在下载更新": "Downloading update",
   "更新失败": "Update failed",
+  "更新完成": "Update complete",
+  "更新内容": "Thanks for continuing to use Mouse Dictation",
+  "本次更新让使用体验更顺手。": "This update makes Mouse Dictation easier to use.",
+  "继续使用": "Continue using",
   "发生错误": "Error",
   "已完成": "Completed",
   "稳定文字已粘贴到当前输入位置": "Stable text was pasted into the active input",
@@ -338,6 +342,16 @@ const UI_TEXT_COMMON = {
   pt: { "更新": "Atualizar", "检查更新": "Verificar atualizações", "查看使用引导": "Ver o guia de configuração", "当前已是最新版本": "Você está usando a versão mais recente", "检查更新失败": "Falha ao verificar atualizações", "发现新版本": "Atualização disponível", "当前版本": "Versão atual", "立即更新": "Atualizar agora", "稍后": "Mais tarde", "正在下载更新": "Baixando atualização", "更新失败": "Falha na atualização", "长按触发": "Manter pressionado para ativar", "全部重置": "Redefinir tudo", "长按时间": "Duração do pressionamento", "录音快捷键": "Atalho de gravação", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Sistema", "耳机": "Headset", "麦克风": "Microfone", "已保存": "Salvo", "已占用": "Usado ", "在线 API · 需要网络和 API Key": "API online · Internet e chave de API necessários", "本地离线 · 边说边输入": "Local offline · Digitar enquanto fala", "本地离线 · 说完后输入": "Local offline · Inserir após falar" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
+
+const UI_TEXT_UPDATE_NOTICE = {
+  fr: { "更新完成": "Mise à jour terminée", "更新内容": "Merci de continuer à utiliser Mouse Dictation", "本次更新让使用体验更顺手。": "Cette mise à jour rend Mouse Dictation plus agréable à utiliser.", "继续使用": "Continuer" },
+  de: { "更新完成": "Update abgeschlossen", "更新内容": "Danke, dass du Mouse Dictation weiter nutzt", "本次更新让使用体验更顺手。": "Dieses Update macht Mouse Dictation noch angenehmer.", "继续使用": "Weiter" },
+  ja: { "更新完成": "更新が完了しました", "更新内容": "Mouse Dictationを引き続きお使いいただきありがとうございます", "本次更新让使用体验更顺手。": "今回の更新でMouse Dictationがさらに使いやすくなりました。", "继续使用": "続ける" },
+  es: { "更新完成": "Actualización completada", "更新内容": "Gracias por seguir usando Mouse Dictation", "本次更新让使用体验更顺手。": "Esta actualización hace que Mouse Dictation sea más fácil de usar.", "继续使用": "Continuar" },
+  ko: { "更新完成": "업데이트 완료", "更新内容": "Mouse Dictation을 계속 사용해 주셔서 감사합니다", "本次更新让使用体验更顺手。": "이번 업데이트로 Mouse Dictation을 더 편리하게 사용할 수 있습니다.", "继续使用": "계속 사용" },
+  pt: { "更新完成": "Atualização concluída", "更新内容": "Obrigado por continuar usando o Mouse Dictation", "本次更新让使用体验更顺手。": "Esta atualização torna o Mouse Dictation mais fácil de usar.", "继续使用": "Continuar" }
+};
+for (const [locale, entries] of Object.entries(UI_TEXT_UPDATE_NOTICE)) Object.assign(UI_TEXTS[locale], entries);
 
 const UI_TEXT_ONBOARDING = {
   fr: {
@@ -933,7 +947,7 @@ if (isOverlay) {
 
     <footer class="footer">
       <div class="footer-meta">
-        <span id="app-version" class="app-version">v0.1.17</span>
+        <span id="app-version" class="app-version">v0.1.18</span>
         <button id="footer-check-updates" class="footer-update" type="button" title="检查更新">更新</button>
         <button id="footer-telegram" class="footer-update" type="button">Telegram</button>
         <span id="saved" class="saved">已保存</span>
@@ -977,6 +991,28 @@ if (isOverlay) {
           <button id="onboarding-next" class="primary" type="button"></button>
         </div>
         <button id="onboarding-skip" class="onboarding-skip" type="button">关闭引导</button>
+      </section>
+    </div>
+
+    <div id="update-notice-root" class="update-notice-root" hidden>
+      <div class="update-notice-backdrop"></div>
+      <section class="update-notice-card" role="dialog" aria-modal="true" aria-labelledby="update-notice-title">
+        <button id="update-notice-close" class="update-notice-close" type="button" aria-label="关闭">×</button>
+        <div class="update-notice-mark" aria-hidden="true">★</div>
+        <div id="update-notice-version" class="update-notice-version"></div>
+        <h2 id="update-notice-title"></h2>
+        <p id="update-notice-description"></p>
+        <div class="update-notice-panel">
+          <strong id="update-notice-panel-title"></strong>
+          <p id="update-notice-panel-text"></p>
+        </div>
+        <div class="update-notice-links">
+          <button id="update-notice-github" class="update-notice-link update-notice-link-primary" type="button">⭐ 在 GitHub 上点 Star</button>
+          <button id="update-notice-telegram" class="update-notice-link" type="button">💬 加入 Telegram 讨论群</button>
+          <button id="update-notice-kofi" class="update-notice-link" type="button">Ko-fi</button>
+          <button id="update-notice-store" class="update-notice-link" type="button">Lemon Squeezy</button>
+        </div>
+        <button id="update-notice-continue" class="primary update-notice-continue" type="button"></button>
       </section>
     </div>
   </div>
@@ -1026,6 +1062,7 @@ const SUPPORT_LINKS = {
 const GITHUB_LINK = "https://github.com/Kevinlabs26/Mouse-Dictation";
 const TELEGRAM_LINK = "https://t.me/+nP4l6SwV-OVhOGRk";
 const ONBOARDING_STORAGE_KEY = "md-onboarding-completed";
+const UPDATE_NOTICE_STORAGE_KEY = "md-update-notice-version";
 const ONBOARDING_LAST_STEP = 4;
 let onboardingStep = 0;
 let onboardingEngine = "online";
@@ -1570,6 +1607,36 @@ function skipOnboardingToGithub() {
 
 function maybeStartOnboarding() {
   if (localStorage.getItem(ONBOARDING_STORAGE_KEY) !== "1") showOnboarding();
+}
+
+function hideUpdateNotice() {
+  $("update-notice-root").hidden = true;
+  document.body.classList.remove("update-notice-open");
+}
+
+function showUpdateNotice(version) {
+  $("update-notice-version").textContent = `v${version} · ${t("更新")}`;
+  $("update-notice-title").textContent = t("更新完成");
+  $("update-notice-description").textContent = t("更新内容");
+  $("update-notice-panel-title").textContent = t("本次更新让使用体验更顺手。");
+  $("update-notice-panel-text").textContent = t("如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。");
+  $("update-notice-github").textContent = `⭐ ${t("在 GitHub 上点 Star")}`;
+  $("update-notice-telegram").textContent = `💬 ${t("加入 Telegram 讨论群")}`;
+  $("update-notice-continue").textContent = t("继续使用");
+  $("update-notice-root").hidden = false;
+  document.body.classList.add("update-notice-open");
+}
+
+function maybeShowUpdateNotice(version) {
+  const lastVersion = localStorage.getItem(UPDATE_NOTICE_STORAGE_KEY);
+  if (!lastVersion) {
+    localStorage.setItem(UPDATE_NOTICE_STORAGE_KEY, version);
+    if (localStorage.getItem(ONBOARDING_STORAGE_KEY) === "1") showUpdateNotice(version);
+    return;
+  }
+  if (lastVersion === version || onboardingVisible) return;
+  localStorage.setItem(UPDATE_NOTICE_STORAGE_KEY, version);
+  showUpdateNotice(version);
 }
 
 const FEEDBACK_MIN_USES = 3;
@@ -2323,6 +2390,12 @@ async function init() {
     if (button) submitFeedbackRating(Number(button.dataset.rating));
   });
   $("feedback-support").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
+  $("update-notice-close").addEventListener("click", hideUpdateNotice);
+  $("update-notice-continue").addEventListener("click", hideUpdateNotice);
+  $("update-notice-github").addEventListener("click", () => openSupportLink(GITHUB_LINK));
+  $("update-notice-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
+  $("update-notice-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
+  $("update-notice-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("translate-on").addEventListener("change", updateTranslateUi);
   $("translate-api").addEventListener("change", () => {
     applyTranslateChannel();
@@ -2393,8 +2466,10 @@ async function init() {
   await refreshModels();
   await refreshProfiles();
   await refreshAudioStatus();
+  let appVersion = "0.1.18";
   try {
-    $("app-version").textContent = `v${await getVersion()}`;
+    appVersion = await getVersion();
+    $("app-version").textContent = `v${appVersion}`;
   } catch (_) {
     // Keep the bundled fallback version when running outside the Tauri shell.
   }
@@ -2474,6 +2549,7 @@ async function init() {
     }
   });
   maybeStartOnboarding();
+  maybeShowUpdateNotice(appVersion);
 }
 
 function activateTab(name) {
