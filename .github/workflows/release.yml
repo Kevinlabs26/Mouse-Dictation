@@ -31,17 +31,12 @@ jobs:
           releaseBody: |
             ## What's new
 
-            - Improved multilingual API transcription across supported providers and models.
-            - The selected transcription language is now respected without forcing a fixed language.
-            - Automatic language detection remains available for mixed-language use.
-            - Added language-matched punctuation guidance for Chinese, French, German, Spanish, Japanese, Korean, and English.
-            - Added a manual “Check for updates” option to the system tray menu.
-            - Added the current version and a manual update button to the app footer.
-            - Added a multilingual first-run guide with a GitHub Star page.
-            - Added a Telegram community link beside the GitHub Star option and in the footer.
-            - Existing users now see the setup guide once after updating, and can reopen it from the footer.
-            - Simplified the multilingual footer with a compact update action and a single-row layout.
-            - Added a localized update-complete notice with GitHub, Telegram, Ko-fi, and Lemon Squeezy links.
+            - Added automatic update checks every six hours while the app is running.
+            - Reworked recording shortcut settings into a compact, customizable layout with reset support.
+            - Added single-key F1–F12 recording shortcuts, with F12 as the default.
+            - Improved Japanese and other localized interface labels.
+            - Added Buy Me a Coffee to the app and GitHub funding links.
+            - Simplified the post-update notice by removing redundant update-content text.
 
             ## Downloads
 
