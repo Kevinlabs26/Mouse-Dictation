@@ -64,7 +64,7 @@ impl Default for Settings {
             local_language: "auto".into(),
             local_mode: "offline".into(),
             output_mode: "final".into(),
-            hotkey: "disabled".into(),
+            hotkey: "custom:F12".into(),
             engine_hotkey: "primary-alt-e".into(),
             translate_hotkey: "primary-alt-t".into(),
             start_on_login: false,
@@ -405,7 +405,7 @@ fn parse_hotkey(hotkey: &str) -> Option<HotkeySpec> {
         }),
         _ => {
             let parts: Vec<_> = hotkey.strip_prefix("custom:")?.split('+').collect();
-            if parts.len() < 2 {
+            if parts.is_empty() {
                 return None;
             }
             let mut spec = HotkeySpec {
@@ -425,7 +425,26 @@ fn parse_hotkey(hotkey: &str) -> Option<HotkeySpec> {
                     _ => return None,
                 }
             }
-            if spec.ctrl || spec.alt || spec.shift || spec.meta {
+            if spec.ctrl
+                || spec.alt
+                || spec.shift
+                || spec.meta
+                || matches!(
+                    spec.key,
+                    Key::F1
+                        | Key::F2
+                        | Key::F3
+                        | Key::F4
+                        | Key::F5
+                        | Key::F6
+                        | Key::F7
+                        | Key::F8
+                        | Key::F9
+                        | Key::F10
+                        | Key::F11
+                        | Key::F12
+                )
+            {
                 Some(spec)
             } else {
                 None
@@ -3354,6 +3373,15 @@ mod tests {
             true,
             false,
             Key::KeyK
+        ));
+        assert!(hotkey_matches("custom:F9", false, false, false, false, Key::F9));
+        assert!(!hotkey_matches(
+            "custom:KeyA",
+            false,
+            false,
+            false,
+            false,
+            Key::KeyA
         ));
     }
 }

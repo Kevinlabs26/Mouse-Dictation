@@ -249,7 +249,6 @@ const UI_TEXT_EN = {
   "正在下载更新": "Downloading update",
   "更新失败": "Update failed",
   "更新完成": "Update complete",
-  "更新内容": "Thanks for continuing to use Mouse Dictation",
   "本次更新让使用体验更顺手。": "This update makes Mouse Dictation easier to use.",
   "继续使用": "Continue using",
   "发生错误": "Error",
@@ -333,6 +332,29 @@ const UI_TEXTS = {
   }
 };
 
+const UI_TEXT_JA_MORE = {
+  "已使用预设快捷键": "プリセットのショートカットを使用中",
+  "请按组合键…": "キーの組み合わせを押してください…",
+  "录制": "録音",
+  "修改": "編集",
+  "重置": "リセット",
+  "松开快捷键结束录音；鼠标长按仍可用。": "ショートカットを離すと録音を終了します。マウスの長押しも使用できます。",
+  "切换识别方式": "認識方式を切り替え",
+  "开关自动翻译": "自動翻訳を切り替え",
+  "修改快捷键": "ショートカットを編集",
+  "恢复默认": "デフォルトに戻す",
+  "每项功能都有独立默认快捷键，也可以直接修改。": "各機能には個別のデフォルトショートカットがあり、変更もできます。",
+  "快捷键冲突": "ショートカットが競合しています",
+  "请使用不同的组合键。": "別のキーの組み合わせを使用してください。",
+  "在“模型”选项卡中点击下载": "「モデル」タブで「ダウンロード」をクリック",
+  "开启翻译": "翻訳を有効にする",
+  "开机启动": "システム起動時に実行",
+  "例如：中文 · 本地离线": "例：中国語・ローカル・オフライン",
+  "显示 Key": "APIキーを表示",
+  "隐藏 Key": "APIキーを隠す"
+};
+Object.assign(UI_TEXTS.ja, UI_TEXT_JA_MORE);
+
 const UI_TEXT_COMMON = {
   fr: { "更新": "Actualiser", "检查更新": "Rechercher des mises à jour", "查看使用引导": "Voir le guide de configuration", "当前已是最新版本": "Vous utilisez la dernière version", "检查更新失败": "Échec de la vérification des mises à jour", "发现新版本": "Mise à jour disponible", "当前版本": "Version actuelle", "立即更新": "Mettre à jour", "稍后": "Plus tard", "正在下载更新": "Téléchargement de la mise à jour", "更新失败": "Échec de la mise à jour", "长按触发": "Maintenir pour d\u00e9clencher", "全部重置": "Tout r\u00e9initialiser", "长按时间": "Dur\u00e9e du maintien", "录音快捷键": "Raccourci d\u2019enregistrement", "0.5 秒": "0,5 s", "1 秒": "1 s", "2 秒": "2 s", "3 秒": "3 s", "系统": "Syst\u00e8me", "耳机": "Casque", "麦克风": "Microphone", "已保存": "Enregistré", "已占用": "Utilisé ", "在线 API · 需要网络和 API Key": "API en ligne · Internet et clé API requis", "本地离线 · 边说边输入": "Hors ligne · Écrire en parlant", "本地离线 · 说完后输入": "Hors ligne · Insérer après avoir parlé" },
   de: { "更新": "Update", "检查更新": "Nach Updates suchen", "查看使用引导": "Einrichtungsassistent öffnen", "当前已是最新版本": "Sie verwenden die neueste Version", "检查更新失败": "Suche nach Updates fehlgeschlagen", "发现新版本": "Update verfügbar", "当前版本": "Aktuelle Version", "立即更新": "Jetzt aktualisieren", "稍后": "Später", "正在下载更新": "Update wird heruntergeladen", "更新失败": "Update fehlgeschlagen", "长按触发": "Halten zum Ausl\u00f6sen", "全部重置": "Alles zur\u00fccksetzen", "长按时间": "Dauer des Haltens", "录音快捷键": "Aufnahme-Tastenk\u00fcrzel", "0.5 秒": "0,5 Sek.", "1 秒": "1 Sek.", "2 秒": "2 Sek.", "3 秒": "3 Sek.", "系统": "System", "耳机": "Kopfh\u00f6rer", "麦克风": "Mikrofon", "已保存": "Gespeichert", "已占用": "Verwendet ", "在线 API · 需要网络和 API Key": "Online-API · Internet und API-Key erforderlich", "本地离线 · 边说边输入": "Lokal offline · Während des Sprechens einfügen", "本地离线 · 说完后输入": "Lokal offline · Nach dem Sprechen einfügen" },
@@ -343,13 +365,23 @@ const UI_TEXT_COMMON = {
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
 
+const UI_TEXT_FOOTER = {
+  fr: { "支持作者": "Soutenir l’auteur", "☕ 支持作者": "☕ Soutenir l’auteur" },
+  de: { "支持作者": "Autor unterstützen", "☕ 支持作者": "☕ Autor unterstützen" },
+  ja: { "更新": "アップデート", "支持作者": "作者をサポート", "☕ 支持作者": "☕ 作者をサポート" },
+  es: { "支持作者": "Apoyar al autor", "☕ 支持作者": "☕ Apoyar al autor" },
+  ko: { "支持作者": "제작자 후원", "☕ 支持作者": "☕ 제작자 후원" },
+  pt: { "支持作者": "Apoiar o autor", "☕ 支持作者": "☕ Apoiar o autor" }
+};
+for (const [locale, entries] of Object.entries(UI_TEXT_FOOTER)) Object.assign(UI_TEXTS[locale], entries);
+
 const UI_TEXT_UPDATE_NOTICE = {
-  fr: { "更新完成": "Mise à jour terminée", "更新内容": "Merci de continuer à utiliser Mouse Dictation", "本次更新让使用体验更顺手。": "Cette mise à jour rend Mouse Dictation plus agréable à utiliser.", "继续使用": "Continuer" },
-  de: { "更新完成": "Update abgeschlossen", "更新内容": "Danke, dass du Mouse Dictation weiter nutzt", "本次更新让使用体验更顺手。": "Dieses Update macht Mouse Dictation noch angenehmer.", "继续使用": "Weiter" },
-  ja: { "更新完成": "更新が完了しました", "更新内容": "Mouse Dictationを引き続きお使いいただきありがとうございます", "本次更新让使用体验更顺手。": "今回の更新でMouse Dictationがさらに使いやすくなりました。", "继续使用": "続ける" },
-  es: { "更新完成": "Actualización completada", "更新内容": "Gracias por seguir usando Mouse Dictation", "本次更新让使用体验更顺手。": "Esta actualización hace que Mouse Dictation sea más fácil de usar.", "继续使用": "Continuar" },
-  ko: { "更新完成": "업데이트 완료", "更新内容": "Mouse Dictation을 계속 사용해 주셔서 감사합니다", "本次更新让使用体验更顺手。": "이번 업데이트로 Mouse Dictation을 더 편리하게 사용할 수 있습니다.", "继续使用": "계속 사용" },
-  pt: { "更新完成": "Atualização concluída", "更新内容": "Obrigado por continuar usando o Mouse Dictation", "本次更新让使用体验更顺手。": "Esta atualização torna o Mouse Dictation mais fácil de usar.", "继续使用": "Continuar" }
+  fr: { "更新完成": "Mise à jour terminée", "本次更新让使用体验更顺手。": "Cette mise à jour rend Mouse Dictation plus agréable à utiliser.", "继续使用": "Continuer" },
+  de: { "更新完成": "Update abgeschlossen", "本次更新让使用体验更顺手。": "Dieses Update macht Mouse Dictation noch angenehmer.", "继续使用": "Weiter" },
+  ja: { "更新完成": "更新が完了しました", "本次更新让使用体验更顺手。": "今回の更新でMouse Dictationがさらに使いやすくなりました。", "继续使用": "続ける" },
+  es: { "更新完成": "Actualización completada", "本次更新让使用体验更顺手。": "Esta actualización hace que Mouse Dictation sea más fácil de usar.", "继续使用": "Continuar" },
+  ko: { "更新完成": "업데이트 완료", "本次更新让使用体验更顺手。": "이번 업데이트로 Mouse Dictation을 더 편리하게 사용할 수 있습니다.", "继续使用": "계속 사용" },
+  pt: { "更新完成": "Atualização concluída", "本次更新让使用体验更顺手。": "Esta atualização torna o Mouse Dictation mais fácil de usar.", "继续使用": "Continuar" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_UPDATE_NOTICE)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -491,6 +523,7 @@ function setLocale(next) {
   if (models.length) renderModels();
   setStatus(currentStatus.title, currentStatus.detail, currentStatus.mode);
   if (onboardingVisible) renderOnboarding();
+  applyLocale();
 }
 
 
@@ -776,18 +809,13 @@ if (isOverlay) {
             <button class="chip" data-ms="2000" type="button">2 秒</button>
             <button class="chip" data-ms="3000" type="button">3 秒</button>
           </div>
-          <div class="field field-gap">
-            <label for="hotkey">录音快捷键</label>
-            <select id="hotkey">
-              <option value="disabled">关闭</option>
-              <option value="primary-alt-space">Ctrl+Alt+Space / ⌘⌥Space</option>
-              <option value="primary-alt-m">Ctrl+Alt+M / ⌘⌥M</option>
-              <option value="custom">自定义…</option>
-            </select>
-          </div>
-          <div class="hotkey-custom" id="hotkey-custom" hidden>
-            <span id="hotkey-display" class="hotkey-display">尚未设置</span>
-            <button id="record-hotkey" class="ghost" type="button">录制</button>
+          <div class="hotkey-setting field-gap">
+            <label>录音快捷键</label>
+            <div class="hotkey-setting-row">
+              <span id="hotkey-display" class="hotkey-display">尚未设置</span>
+              <button id="record-hotkey" class="ghost" type="button">修改</button>
+              <button id="reset-hotkey" class="ghost" type="button">重置</button>
+            </div>
           </div>
           <div class="hotkey-setting field-gap">
             <label>切换识别方式</label>
@@ -956,6 +984,7 @@ if (isOverlay) {
         <span class="footer-support-label">☕ 支持作者</span>
         <button id="support-kofi" class="footer-link footer-link-primary" type="button">Ko-fi</button>
         <button id="support-store" class="footer-link" type="button">Lemon Squeezy</button>
+        <button id="support-coffee" class="footer-link" type="button">Buy Me a Coffee</button>
       </div>
     </footer>
 
@@ -1001,7 +1030,6 @@ if (isOverlay) {
         <div class="update-notice-mark" aria-hidden="true">★</div>
         <div id="update-notice-version" class="update-notice-version"></div>
         <h2 id="update-notice-title"></h2>
-        <p id="update-notice-description"></p>
         <div class="update-notice-panel">
           <strong id="update-notice-panel-title"></strong>
           <p id="update-notice-panel-text"></p>
@@ -1011,6 +1039,7 @@ if (isOverlay) {
           <button id="update-notice-telegram" class="update-notice-link" type="button">💬 加入 Telegram 讨论群</button>
           <button id="update-notice-kofi" class="update-notice-link" type="button">Ko-fi</button>
           <button id="update-notice-store" class="update-notice-link" type="button">Lemon Squeezy</button>
+          <button id="update-notice-coffee" class="update-notice-link" type="button">☕ Buy Me a Coffee</button>
         </div>
         <button id="update-notice-continue" class="primary update-notice-continue" type="button"></button>
       </section>
@@ -1023,7 +1052,8 @@ if (isOverlay) {
 let engine = "online";
 let localMode = "offline";
 let outputMode = "final";
-let hotkeyValue = "disabled";
+const DEFAULT_RECORDING_HOTKEY = "custom:F12";
+let hotkeyValue = DEFAULT_RECORDING_HOTKEY;
 let engineHotkeyValue = "primary-alt-e";
 let translateHotkeyValue = "primary-alt-t";
 let recordingHotkey = false;
@@ -1057,7 +1087,8 @@ const PROVIDERS = {
 
 const SUPPORT_LINKS = {
   kofi: "https://ko-fi.com/kevinlabs",
-  store: "https://kevinlabs.lemonsqueezy.com/checkout/buy/7b60b363-50b5-4233-a982-91a0611eccd6"
+  store: "https://kevinlabs.lemonsqueezy.com/checkout/buy/7b60b363-50b5-4233-a982-91a0611eccd6",
+  coffee: "https://buymeacoffee.com/kevinlabs26"
 };
 const GITHUB_LINK = "https://github.com/Kevinlabs26/Mouse-Dictation";
 const TELEGRAM_LINK = "https://t.me/+nP4l6SwV-OVhOGRk";
@@ -1617,7 +1648,6 @@ function hideUpdateNotice() {
 function showUpdateNotice(version) {
   $("update-notice-version").textContent = `v${version} · ${t("更新")}`;
   $("update-notice-title").textContent = t("更新完成");
-  $("update-notice-description").textContent = t("更新内容");
   $("update-notice-panel-title").textContent = t("本次更新让使用体验更顺手。");
   $("update-notice-panel-text").textContent = t("如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。");
   $("update-notice-github").textContent = `⭐ ${t("在 GitHub 上点 Star")}`;
@@ -1695,10 +1725,8 @@ function hotkeyLabel(value) {
 }
 
 function updateHotkeyUi() {
-  const custom = $("hotkey").value === "custom";
-  $("hotkey-custom").hidden = !custom;
   $("hotkey-display").textContent = hotkeyLabel(hotkeyValue);
-  $("record-hotkey").textContent = recordingHotkey ? t("请按组合键…") : t("录制");
+  $("record-hotkey").textContent = recordingHotkey ? t("请按组合键…") : t("修改");
   $("record-hotkey").classList.toggle("primary-ghost", recordingHotkey);
 }
 
@@ -1729,7 +1757,7 @@ function hotkeysConflict(first, second) {
 }
 
 function recordingShortcut() {
-  return $("hotkey").value === "custom" ? hotkeyValue : $("hotkey").value;
+  return hotkeyValue;
 }
 
 function stopHotkeyCapture() {
@@ -1758,7 +1786,8 @@ function captureHotkey(event) {
   if (event.altKey) modifiers.push("alt");
   if (event.shiftKey) modifiers.push("shift");
   if (event.metaKey) modifiers.push("meta");
-  if (!modifiers.length || !event.code) return;
+  const isFunctionKey = /^F(?:[1-9]|1[0-2])$/.test(event.code);
+  if ((!modifiers.length && !isFunctionKey) || !event.code) return;
   event.preventDefault();
   const next = `custom:${[...modifiers, event.code].join("+")}`;
   if (recordingEngineHotkey) {
@@ -1782,7 +1811,6 @@ function captureHotkey(event) {
       return;
     }
     hotkeyValue = next;
-    $("hotkey").value = "custom";
   }
   stopHotkeyCapture();
   scheduleSave();
@@ -1800,7 +1828,7 @@ async function saveSettings() {
     local_language: $("local-language").value,
     local_mode: localMode,
     output_mode: outputMode,
-    hotkey: $("hotkey").value === "custom" ? (hotkeyValue.startsWith("custom:") ? hotkeyValue : "disabled") : $("hotkey").value,
+    hotkey: hotkeyValue,
     engine_hotkey: engineHotkeyValue,
     translate_hotkey: translateHotkeyValue,
     start_on_login: $("start-on-login").checked,
@@ -2120,7 +2148,9 @@ async function afterModelDirChange() {
   renderModels();
 }
 
+const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 let updateCheckInProgress = false;
+let updateCheckTimer = null;
 
 async function checkForUpdates(manual = false) {
   if (isOverlay || updateCheckInProgress) return;
@@ -2160,6 +2190,12 @@ async function checkForUpdates(manual = false) {
     updateCheckInProgress = false;
   }
 }
+
+function startUpdateCheckTimer() {
+  if (updateCheckTimer) clearInterval(updateCheckTimer);
+  updateCheckTimer = setInterval(() => checkForUpdates(), UPDATE_CHECK_INTERVAL_MS);
+}
+
 async function init() {
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", () => activateTab(tab.dataset.tab));
@@ -2248,19 +2284,6 @@ async function init() {
     if (event.key === "Escape") closeDialog();
   });
   $("hold-ms").addEventListener("input", updateHoldDisplay);
-  $("hotkey").addEventListener("change", (event) => {
-    const next = event.target.value === "custom"
-      ? (hotkeyValue.startsWith("custom:") ? hotkeyValue : "disabled")
-      : event.target.value;
-    if (hotkeysConflict(next, engineHotkeyValue) || hotkeysConflict(next, translateHotkeyValue)) {
-      event.target.value = hotkeyValue.startsWith("custom:") ? "custom" : hotkeyValue;
-      setStatus("快捷键冲突", "请使用不同的组合键。", "error");
-      return;
-    }
-    hotkeyValue = next;
-    updateHotkeyUi();
-    scheduleSave();
-  });
   $("record-hotkey").addEventListener("click", () => {
     recordingEngineHotkey = false;
     recordingTranslateHotkey = false;
@@ -2268,6 +2291,11 @@ async function init() {
     updateHotkeyUi();
     updateEngineHotkeyUi();
     updateTranslateHotkeyUi();
+  });
+  $("reset-hotkey").addEventListener("click", () => {
+    hotkeyValue = DEFAULT_RECORDING_HOTKEY;
+    updateHotkeyUi();
+    scheduleSave();
   });
   $("record-engine-hotkey").addEventListener("click", () => {
     recordingHotkey = false;
@@ -2305,8 +2333,7 @@ async function init() {
   });
   $("reset-hotkeys").addEventListener("click", () => {
     stopHotkeyCapture();
-    hotkeyValue = "disabled";
-    $("hotkey").value = "disabled";
+    hotkeyValue = DEFAULT_RECORDING_HOTKEY;
     engineHotkeyValue = "primary-alt-e";
     translateHotkeyValue = "primary-alt-t";
     updateHotkeyUi();
@@ -2344,6 +2371,7 @@ async function init() {
   $("accent-custom").addEventListener("input", (e) => setAccent(e.target.value));
   $("support-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
+  $("support-coffee").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.coffee));
   $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
   $("footer-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
   $("onboarding-next").addEventListener("click", () => {
@@ -2396,6 +2424,7 @@ async function init() {
   $("update-notice-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
   $("update-notice-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("update-notice-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
+  $("update-notice-coffee").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.coffee));
   $("translate-on").addEventListener("change", updateTranslateUi);
   $("translate-api").addEventListener("change", () => {
     applyTranslateChannel();
@@ -2435,8 +2464,7 @@ async function init() {
   updateOnlineLanguageOptions();
   $("online-language").value = settings.online_language || "auto";
   $("hold-ms").value = settings.hold_ms;
-  hotkeyValue = settings.hotkey || "disabled";
-  $("hotkey").value = hotkeyValue.startsWith("custom:") ? "custom" : hotkeyValue;
+  hotkeyValue = settings.hotkey || DEFAULT_RECORDING_HOTKEY;
   updateHotkeyUi();
   engineHotkeyValue = settings.engine_hotkey || "primary-alt-e";
   updateEngineHotkeyUi();
@@ -2511,8 +2539,7 @@ async function init() {
     $("local-model-dir").value = payload.local_model_dir || "";
     localMode = payload.local_mode || "offline";
     outputMode = payload.output_mode || "final";
-    hotkeyValue = payload.hotkey || "disabled";
-    $("hotkey").value = hotkeyValue.startsWith("custom:") ? "custom" : hotkeyValue;
+    hotkeyValue = payload.hotkey || DEFAULT_RECORDING_HOTKEY;
     updateHotkeyUi();
     engineHotkeyValue = payload.engine_hotkey || "primary-alt-e";
     updateEngineHotkeyUi();
@@ -2550,6 +2577,7 @@ async function init() {
   });
   maybeStartOnboarding();
   maybeShowUpdateNotice(appVersion);
+  startUpdateCheckTimer();
 }
 
 function activateTab(name) {
