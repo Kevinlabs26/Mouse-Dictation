@@ -1690,6 +1690,7 @@ fn start_recording(app: &AppHandle) -> Result<(), String> {
         streaming_stop,
         streaming_done,
     });
+    drop(recorder_slot);
     show_overlay(app);
     emit(app, "dictation-state", "recording");
     Ok(())

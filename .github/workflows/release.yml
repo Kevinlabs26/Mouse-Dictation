@@ -31,8 +31,8 @@ jobs:
           releaseBody: |
             ## What's new
 
-            - Fixed the microphone overlay sometimes staying hidden after long idle or sleep periods.
-            - Disabled the browser context menu inside the application window.
+            - Fixed recording freezing at 00:00 after the microphone overlay appeared.
+            - Fixed the overlay remaining visible after releasing the mouse button.
 
             ## Downloads
 
