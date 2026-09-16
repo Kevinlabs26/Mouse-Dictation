@@ -1311,15 +1311,49 @@ fn position_overlay_at_cursor<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
+fn raise_overlay<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(win) = app.get_webview_window("overlay") {
+        // tao only applies this when the flag changes. Toggle it so Windows
+        // also moves the already-topmost window back above newer topmost windows.
+        let _ = win.set_always_on_top(false);
+        let _ = win.set_always_on_top(true);
+    }
+}
+
+fn keep_overlay_on_top<R: Runtime>(app: &AppHandle<R>, started_at: Instant) {
+    let guard_app = app.clone();
+    thread::spawn(move || loop {
+        thread::sleep(Duration::from_millis(500));
+        let active = guard_app
+            .state::<AppState>()
+            .recorder
+            .lock()
+            .ok()
+            .and_then(|recorder| {
+                recorder
+                    .as_ref()
+                    .map(|recorder| recorder.started_at == started_at)
+            })
+            .unwrap_or(false);
+        if !active {
+            break;
+        }
+        raise_overlay(&guard_app);
+    });
+}
+
 fn show_overlay<R: Runtime>(app: &AppHandle<R>) {
     if let Some(win) = app.get_webview_window("overlay") {
         let _ = win.unminimize();
         let _ = win.set_ignore_cursor_events(true);
         let _ = win.show();
-        // Windows can lose the z-order after another window is activated;
-        // reassert topmost after showing without focusing the overlay.
-        let _ = win.set_always_on_top(true);
+        raise_overlay(app);
         position_overlay_at_cursor(app);
+        if let Ok(recorder) = app.state::<AppState>().recorder.lock() {
+            if let Some(recorder) = recorder.as_ref() {
+                keep_overlay_on_top(app, recorder.started_at);
+            }
+        }
     } else {
         eprintln!("显示录音悬浮层失败：窗口尚未创建");
     }

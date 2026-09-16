@@ -4,6 +4,8 @@ import { getVersion } from "@tauri-apps/api/app";
 import { check } from "@tauri-apps/plugin-updater";
 import "./styles.css";
 
+document.addEventListener("contextmenu", (event) => event.preventDefault());
+
 const $ = (id) => document.querySelector(`#${id}`);
 
 const UI_TEXT_EN = {
