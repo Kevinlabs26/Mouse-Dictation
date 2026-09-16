@@ -31,12 +31,8 @@ jobs:
           releaseBody: |
             ## What's new
 
-            - Added automatic update checks every six hours while the app is running.
-            - Reworked recording shortcut settings into a compact, customizable layout with reset support.
-            - Added single-key F1–F12 recording shortcuts, with F12 as the default.
-            - Improved Japanese and other localized interface labels.
-            - Added Buy Me a Coffee to the app and GitHub funding links.
-            - Simplified the post-update notice by removing redundant update-content text.
+            - Fixed the microphone overlay sometimes staying hidden after long idle or sleep periods.
+            - Disabled the browser context menu inside the application window.
 
             ## Downloads
 
