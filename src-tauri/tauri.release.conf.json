@@ -1,7 +1,13 @@
 {
+  "build": {
+    "beforeBundleCommand": "npm run verify:native"
+  },
   "bundle": {
     "resources": {
-      "target/release/*.dll": ""
+      "target/release/onnxruntime.dll": "",
+      "target/release/onnxruntime_providers_shared.dll": "",
+      "target/release/sherpa-onnx-c-api.dll": "",
+      "target/release/sherpa-onnx-cxx-api.dll": ""
     }
   }
 }

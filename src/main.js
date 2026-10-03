@@ -3,6 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { getVersion } from "@tauri-apps/api/app";
 import { check } from "@tauri-apps/plugin-updater";
 import "./styles.css";
+import { escapeHtml } from "./html.js";
 
 document.addEventListener("contextmenu", (event) => event.preventDefault());
 
@@ -74,11 +75,7 @@ const UI_TEXT_EN = {
   "获取翻译模型中…": "Fetching translation models…",
   "API Key 仅保存在本机。": "The API key is stored locally only.",
   "支持作者": "Support the author",
-  "本次识别体验如何？": "How was this recognition?",
-  "你的反馈会帮助我改进识别体验。": "Your feedback helps improve recognition.",
-  "感谢反馈": "Thanks for the feedback",
   "喜欢这个工具？": "Like this tool?",
-  "关闭反馈": "Dismiss feedback",
   "自由赞助": "Tip on Ko-fi",
   "支持 / 购买": "Support / purchase",
   "Ko-fi · 自由赞助": "Ko-fi · Tip",
@@ -134,7 +131,7 @@ const UI_TEXT_EN = {
   "流式模式不支持翻译。": "Translation is not available in streaming mode.",
   "开启后选择目标语言。": "Turn it on, then choose a target language.",
   "说完自动翻译": "Translate after speaking",
-  "识别后自动翻译，再粘贴。": "Translate the result before inserting it.",
+  "识别后自动翻译，再输入。": "Translate the result before inserting it.",
   "翻译通道": "Translation provider",
   "目标语言": "Target language",
   "翻译模型": "Translation model",
@@ -154,7 +151,7 @@ const UI_TEXT_EN = {
   "说话并松开": "Speak and release",
   "看到录音状态后开始说话，松开左键结束。": "Start speaking when recording begins, then release to finish.",
   "文字自动输入": "Text is inserted automatically",
-  "识别结果会粘贴到当前输入位置。": "The result is pasted into the active input.",
+  "识别结果会输入到当前输入位置。": "The result is inserted into the active input.",
   "Esc 取消录音 · 单次最长 5 分钟": "Esc cancels recording · Maximum 5 minutes per recording",
   "按住鼠标静止，避免拖动文件或选择文字时误触。": "Keep the mouse still to avoid triggering while dragging or selecting text.",
   "键盘快捷键（可选）": "Keyboard shortcut (optional)",
@@ -238,7 +235,6 @@ const UI_TEXT_EN = {
   "如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。": "If this tool helps you, consider starring the project on GitHub.",
   "你的支持会帮助更多人发现它。": "Your support helps more people discover it.",
   "在 GitHub 上点 Star": "Star on GitHub",
-  "加入 Telegram 讨论群": "Join the Telegram community",
   "更新": "Update",
   "检查更新": "Check for updates",
   "查看使用引导": "View setup guide",
@@ -255,16 +251,16 @@ const UI_TEXT_EN = {
   "继续使用": "Continue using",
   "发生错误": "Error",
   "已完成": "Completed",
-  "稳定文字已粘贴到当前输入位置": "Stable text was pasted into the active input",
+  "文字已输入到当前输入位置": "Text was inserted into the active input",
   "已取消": "Cancelled",
   "本次录音已丢弃，没有继续转写": "This recording was discarded",
   "正在录音": "Recording",
   "稳定片段会自动输入，当前内容显示在实时预览": "Stable segments are inserted automatically; current text appears in the live preview",
   "松开鼠标左键完成转写": "Release the left mouse button to finish transcription",
   "正在转写": "Transcribing",
-  "请稍候，完成后会自动粘贴": "Please wait; the result will be pasted automatically",
+  "请稍候，完成后会自动输入": "Please wait; the result will be inserted automatically",
   "正在翻译": "Translating",
-  "翻译完成后会自动粘贴": "The translation will be pasted automatically",
+  "翻译完成后会自动输入": "The translation will be inserted automatically",
   "配置已切换": "Profile switched",
   "新的语言和翻译设置已生效": "The new language and translation settings are active",
   "正在识别…": "Recognizing…",
@@ -410,12 +406,12 @@ const UI_TEXT_ONBOARDING = {
 for (const [locale, entries] of Object.entries(UI_TEXT_ONBOARDING)) Object.assign(UI_TEXTS[locale], entries);
 
 const UI_TEXT_ONBOARDING_MORE = {
-  fr: { "快速输入": "Saisie rapide", "说话即可输入文字": "Parlez pour écrire", "随处可用": "Utilisable partout", "支持任何输入框": "Tous les champs de texte", "按你的方式": "À votre façon", "在线或本地识别": "Reconnaissance en ligne ou locale", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Avant de commencer, saisissez une clé API ou téléchargez un modèle local dans les paramètres.", "加入 Telegram 讨论群": "Rejoindre le groupe Telegram" },
-  de: { "快速输入": "Schnelle Eingabe", "说话即可输入文字": "Sprechen und tippen", "随处可用": "Überall verfügbar", "支持任何输入框": "Jedes Textfeld", "按你的方式": "Deine Wahl", "在线或本地识别": "Online- oder lokale Erkennung", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Gib vor der ersten Nutzung einen API-Key ein oder lade in den Einstellungen ein lokales Modell herunter.", "加入 Telegram 讨论群": "Telegram-Gruppe beitreten" },
-  ja: { "快速输入": "すばやく入力", "说话即可输入文字": "話すだけで入力", "随处可用": "どこでも使える", "支持任何输入框": "すべての入力欄に対応", "按你的方式": "自分の方法で", "在线或本地识别": "オンラインまたはローカル認識", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "初回利用前に、設定で API キーを入力するかローカルモデルをダウンロードしてください。", "加入 Telegram 讨论群": "Telegram グループに参加" },
-  es: { "快速输入": "Entrada rápida", "说话即可输入文字": "Habla para escribir", "随处可用": "Funciona en cualquier lugar", "支持任何输入框": "Cualquier campo de texto", "按你的方式": "A tu manera", "在线或本地识别": "Reconocimiento en línea o local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usarlo, introduce una clave API o descarga un modelo local en Configuración.", "加入 Telegram 讨论群": "Unirse al grupo de Telegram" },
-  ko: { "快速输入": "빠른 입력", "说话即可输入文字": "말하면 입력", "随处可用": "어디서나 사용", "支持任何输入框": "모든 입력창 지원", "按你的方式": "원하는 방식으로", "在线或本地识别": "온라인 또는 로컬 인식", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "처음 사용하기 전에 설정에서 API 키를 입력하거나 로컬 모델을 다운로드하세요.", "加入 Telegram 讨论群": "Telegram 그룹 참여" },
-  pt: { "快速输入": "Entrada rápida", "说话即可输入文字": "Fale para escrever", "随处可用": "Funciona em qualquer lugar", "支持任何输入框": "Qualquer campo de texto", "按你的方式": "Do seu jeito", "在线或本地识别": "Reconhecimento online ou local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usar, insira uma chave de API ou baixe um modelo local nas Configurações.", "加入 Telegram 讨论群": "Entrar no grupo do Telegram" }
+  fr: { "快速输入": "Saisie rapide", "说话即可输入文字": "Parlez pour écrire", "随处可用": "Utilisable partout", "支持任何输入框": "Tous les champs de texte", "按你的方式": "À votre façon", "在线或本地识别": "Reconnaissance en ligne ou locale", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Avant de commencer, saisissez une clé API ou téléchargez un modèle local dans les paramètres." },
+  de: { "快速输入": "Schnelle Eingabe", "说话即可输入文字": "Sprechen und tippen", "随处可用": "Überall verfügbar", "支持任何输入框": "Jedes Textfeld", "按你的方式": "Deine Wahl", "在线或本地识别": "Online- oder lokale Erkennung", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Gib vor der ersten Nutzung einen API-Key ein oder lade in den Einstellungen ein lokales Modell herunter." },
+  ja: { "快速输入": "すばやく入力", "说话即可输入文字": "話すだけで入力", "随处可用": "どこでも使える", "支持任何输入框": "すべての入力欄に対応", "按你的方式": "自分の方法で", "在线或本地识别": "オンラインまたはローカル認識", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "初回利用前に、設定で API キーを入力するかローカルモデルをダウンロードしてください。" },
+  es: { "快速输入": "Entrada rápida", "说话即可输入文字": "Habla para escribir", "随处可用": "Funciona en cualquier lugar", "支持任何输入框": "Cualquier campo de texto", "按你的方式": "A tu manera", "在线或本地识别": "Reconocimiento en línea o local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usarlo, introduce una clave API o descarga un modelo local en Configuración." },
+  ko: { "快速输入": "빠른 입력", "说话即可输入文字": "말하면 입력", "随处可用": "어디서나 사용", "支持任何输入框": "모든 입력창 지원", "按你的方式": "원하는 방식으로", "在线或本地识别": "온라인 또는 로컬 인식", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "처음 사용하기 전에 설정에서 API 키를 입력하거나 로컬 모델을 다운로드하세요." },
+  pt: { "快速输入": "Entrada rápida", "说话即可输入文字": "Fale para escrever", "随处可用": "Funciona em qualquer lugar", "支持任何输入框": "Qualquer campo de texto", "按你的方式": "Do seu jeito", "在线或本地识别": "Reconhecimento online ou local", "首次使用前，请在设置中填写 API Key 或下载本地模型。": "Antes de usar, insira uma chave de API ou baixe um modelo local nas Configurações." }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_ONBOARDING_MORE)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -646,25 +642,6 @@ if (isOverlay) {
     <section class="live-preview" id="live-preview" hidden>
       <span>实时预览</span>
       <p id="live-text">正在等待语音…</p>
-    </section>
-
-    <section class="feedback-card" id="feedback-card" hidden>
-      <div class="feedback-copy">
-        <strong>本次识别体验如何？</strong>
-        <p id="feedback-message">你的反馈会帮助我改进识别体验。</p>
-      </div>
-      <button id="feedback-dismiss" class="feedback-close" type="button" title="关闭反馈" aria-label="关闭反馈">×</button>
-      <div class="feedback-rating" id="feedback-rating" role="group" aria-label="识别体验评分">
-        <button type="button" data-rating="1" aria-label="1 星">★</button>
-        <button type="button" data-rating="2" aria-label="2 星">★</button>
-        <button type="button" data-rating="3" aria-label="3 星">★</button>
-        <button type="button" data-rating="4" aria-label="4 星">★</button>
-        <button type="button" data-rating="5" aria-label="5 星">★</button>
-      </div>
-      <div class="feedback-support" id="feedback-support-row" hidden>
-        <span>喜欢这个工具？</span>
-        <button id="feedback-support" class="footer-link footer-link-primary" type="button">☕ 支持作者</button>
-      </div>
     </section>
 
     <nav class="tabs" role="tablist">
@@ -977,9 +954,8 @@ if (isOverlay) {
 
     <footer class="footer">
       <div class="footer-meta">
-        <span id="app-version" class="app-version">v0.1.21</span>
+        <span id="app-version" class="app-version">v0.1.22</span>
         <button id="footer-check-updates" class="footer-update" type="button" title="检查更新">更新</button>
-        <button id="footer-telegram" class="footer-update" type="button">Telegram</button>
         <span id="saved" class="saved">已保存</span>
       </div>
       <div class="footer-links">
@@ -1038,7 +1014,6 @@ if (isOverlay) {
         </div>
         <div class="update-notice-links">
           <button id="update-notice-github" class="update-notice-link update-notice-link-primary" type="button">⭐ 在 GitHub 上点 Star</button>
-          <button id="update-notice-telegram" class="update-notice-link" type="button">💬 加入 Telegram 讨论群</button>
           <button id="update-notice-kofi" class="update-notice-link" type="button">Ko-fi</button>
           <button id="update-notice-store" class="update-notice-link" type="button">Lemon Squeezy</button>
           <button id="update-notice-coffee" class="update-notice-link" type="button">☕ Buy Me a Coffee</button>
@@ -1093,7 +1068,6 @@ const SUPPORT_LINKS = {
   coffee: "https://buymeacoffee.com/kevinlabs26"
 };
 const GITHUB_LINK = "https://github.com/Kevinlabs26/Mouse-Dictation";
-const TELEGRAM_LINK = "https://t.me/+nP4l6SwV-OVhOGRk";
 const ONBOARDING_STORAGE_KEY = "md-onboarding-completed";
 const UPDATE_NOTICE_STORAGE_KEY = "md-update-notice-version";
 const ONBOARDING_LAST_STEP = 4;
@@ -1411,9 +1385,10 @@ function currentModelReady() {
 function renderProfiles() {
   const select = $("profile-select");
   const active = profiles.find((profile) => profile.active);
-  select.innerHTML = `<option value="">${t("当前设置")}</option>${profiles
-    .map((profile) => `<option value="${profile.id}">${profile.name}</option>`)
-    .join("")}`;
+  select.replaceChildren(
+    new Option(t("当前设置"), ""),
+    ...profiles.map((profile) => new Option(profile.name, profile.id))
+  );
   select.value = active?.id || "";
   $("profile-rename").disabled = !select.value;
   $("profile-delete").disabled = !select.value;
@@ -1607,7 +1582,6 @@ function renderOnboarding() {
       </div>
       <div class="onboarding-community-actions">
         <button class="onboarding-github-button" data-onboarding-github type="button">⭐ ${t("在 GitHub 上点 Star")}</button>
-        <button class="onboarding-telegram-button" data-onboarding-telegram type="button">💬 ${t("加入 Telegram 讨论群")}</button>
       </div>`;
   }
   $("onboarding-back").hidden = onboardingStep === 0;
@@ -1653,7 +1627,6 @@ function showUpdateNotice(version) {
   $("update-notice-panel-title").textContent = t("本次更新让使用体验更顺手。");
   $("update-notice-panel-text").textContent = t("如果这个工具对你有帮助，欢迎在 GitHub 给项目点个 Star。");
   $("update-notice-github").textContent = `⭐ ${t("在 GitHub 上点 Star")}`;
-  $("update-notice-telegram").textContent = `💬 ${t("加入 Telegram 讨论群")}`;
   $("update-notice-continue").textContent = t("继续使用");
   $("update-notice-root").hidden = false;
   document.body.classList.add("update-notice-open");
@@ -1669,35 +1642,6 @@ function maybeShowUpdateNotice(version) {
   if (lastVersion === version || onboardingVisible) return;
   localStorage.setItem(UPDATE_NOTICE_STORAGE_KEY, version);
   showUpdateNotice(version);
-}
-
-const FEEDBACK_MIN_USES = 3;
-const FEEDBACK_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
-
-function hideFeedbackCard(markSeen = true) {
-  $("feedback-card").hidden = true;
-  if (markSeen) localStorage.setItem("md-feedback-last-shown", String(Date.now()));
-}
-
-function maybeShowFeedback() {
-  const uses = Number(localStorage.getItem("md-feedback-successes") || 0) + 1;
-  localStorage.setItem("md-feedback-successes", String(uses));
-  const lastShown = Number(localStorage.getItem("md-feedback-last-shown") || 0);
-  if (uses < FEEDBACK_MIN_USES || Date.now() - lastShown < FEEDBACK_COOLDOWN_MS) return;
-  $("feedback-card").hidden = false;
-  $("feedback-support-row").hidden = true;
-  $("feedback-message").textContent = t("你的反馈会帮助我改进识别体验。");
-  document.querySelectorAll("#feedback-rating button").forEach((button) => button.classList.remove("selected"));
-}
-
-function submitFeedbackRating(rating) {
-  localStorage.setItem("md-feedback-rating", String(rating));
-  document.querySelectorAll("#feedback-rating button").forEach((button) => {
-    button.classList.toggle("selected", Number(button.dataset.rating) <= rating);
-  });
-  $("feedback-message").textContent = t("感谢反馈");
-  $("feedback-support-row").hidden = rating < 4;
-  localStorage.setItem("md-feedback-last-shown", String(Date.now()));
 }
 
 function updateHoldDisplay() {
@@ -2051,18 +1995,18 @@ function renderModels() {
         ? `<div class="model-bar"><div class="model-bar-fill" id="dl-fill"></div></div>`
         : "";
       const actions = ready
-        ? `${isCurrent ? "" : `<button class="ghost" data-act="use" data-mode="${e.mode}" data-dir="${m.dir}" type="button">设为当前</button>`}
-             <button class="ghost" data-act="open" data-dir="${m.dir}" type="button">${t("打开目录")}</button>
-             ${isCurrent ? "" : `<button class="ghost danger" data-act="delete" data-dir="${m.dir}" type="button">${t("删除")}</button>`}`
-        : `<button class="ghost primary-ghost" data-act="download" data-mode="${e.mode}" type="button">${t(m ? "重新下载" : "下载")}</button>
-           ${m ? `<button class="ghost" data-act="open" data-dir="${m.dir}" type="button">${t("打开目录")}</button>
-                 <button class="ghost danger" data-act="delete" data-dir="${m.dir}" type="button">${t("删除")}</button>` : ""}`;
+        ? `${isCurrent ? "" : `<button class="ghost" data-act="use" data-mode="${escapeHtml(e.mode)}" data-dir="${escapeHtml(m.dir)}" type="button">设为当前</button>`}
+             <button class="ghost" data-act="open" data-dir="${escapeHtml(m.dir)}" type="button">${t("打开目录")}</button>
+             ${isCurrent ? "" : `<button class="ghost danger" data-act="delete" data-dir="${escapeHtml(m.dir)}" type="button">${t("删除")}</button>`}`
+        : `<button class="ghost primary-ghost" data-act="download" data-mode="${escapeHtml(e.mode)}" type="button">${t(m ? "重新下载" : "下载")}</button>
+           ${m ? `<button class="ghost" data-act="open" data-dir="${escapeHtml(m.dir)}" type="button">${t("打开目录")}</button>
+                 <button class="ghost danger" data-act="delete" data-dir="${escapeHtml(m.dir)}" type="button">${t("删除")}</button>` : ""}`;
       return `
         <article class="model-card">
           <div class="model-card-top">
             <div>
-              <b>${t(e.title)}</b>
-              <p class="model-desc">${t(e.desc)}</p>
+              <b>${escapeHtml(t(e.title))}</b>
+              <p class="model-desc">${escapeHtml(t(e.desc))}</p>
             </div>
             ${badge}
           </div>
@@ -2375,7 +2319,6 @@ async function init() {
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("support-coffee").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.coffee));
   $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
-  $("footer-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
   $("onboarding-next").addEventListener("click", () => {
     if (onboardingStep === ONBOARDING_LAST_STEP) finishOnboarding();
     else {
@@ -2404,7 +2347,6 @@ async function init() {
       return;
     }
     if (event.target.closest("[data-onboarding-github]")) openSupportLink(GITHUB_LINK);
-    if (event.target.closest("[data-onboarding-telegram]")) openSupportLink(TELEGRAM_LINK);
   });
   $("onboarding-content").addEventListener("change", (event) => {
     if (event.target.id !== "onboarding-language") return;
@@ -2414,16 +2356,9 @@ async function init() {
     updateConfigSummary();
     scheduleSave();
   });
-  $("feedback-dismiss").addEventListener("click", () => hideFeedbackCard());
-  $("feedback-rating").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-rating]");
-    if (button) submitFeedbackRating(Number(button.dataset.rating));
-  });
-  $("feedback-support").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("update-notice-close").addEventListener("click", hideUpdateNotice);
   $("update-notice-continue").addEventListener("click", hideUpdateNotice);
   $("update-notice-github").addEventListener("click", () => openSupportLink(GITHUB_LINK));
-  $("update-notice-telegram").addEventListener("click", () => openSupportLink(TELEGRAM_LINK));
   $("update-notice-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("update-notice-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("update-notice-coffee").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.coffee));
@@ -2496,7 +2431,7 @@ async function init() {
   await refreshModels();
   await refreshProfiles();
   await refreshAudioStatus();
-  let appVersion = "0.1.21";
+  let appVersion = "0.1.22";
   try {
     appVersion = await getVersion();
     $("app-version").textContent = `v${appVersion}`;
@@ -2510,12 +2445,11 @@ async function init() {
       const streaming = engine === "local" && localMode === "streaming";
       $("live-preview").hidden = !streaming;
       setStatus("正在录音", streaming ? "稳定片段会自动输入，当前内容显示在实时预览" : "松开鼠标左键完成转写", "recording");
-    } else if (payload === "processing") setStatus("正在转写", "请稍候，完成后会自动粘贴", "processing");
-    else if (payload === "translating") setStatus("正在翻译", "翻译完成后会自动粘贴", "translating");
+    } else if (payload === "processing") setStatus("正在转写", "请稍候，完成后会自动输入", "processing");
+    else if (payload === "translating") setStatus("正在翻译", "翻译完成后会自动输入", "translating");
     else if (payload === "done") {
       $("live-preview").hidden = true;
-      setStatus("已完成", "稳定文字已粘贴到当前输入位置", "done");
-      maybeShowFeedback();
+      setStatus("已完成", "文字已输入到当前输入位置", "done");
     } else if (payload === "cancelled") {
       $("live-preview").hidden = true;
       setStatus("已取消", "本次录音已丢弃，没有继续转写", "idle");

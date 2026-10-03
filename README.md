@@ -25,7 +25,7 @@ Mouse Dictation is a Windows-first desktop speech input tool for typing speech w
 
 The application icon is shared across the Windows executable, installer, and tray assets.
 
-Current version: `0.1.6`
+Current version: `0.1.22`
 
 ## Features
 
@@ -36,6 +36,7 @@ Current version: `0.1.6`
 - Automatic translation after transcription
 - Configurable recognition languages, models, themes, and profiles
 - API keys stored in the operating system credential manager
+- Windows Unicode text input without replacing the clipboard
 - System tray support and optional launch at startup
 
 ## Development
@@ -64,7 +65,13 @@ npm run tauri:build
 
 Configure an OpenAI-compatible API Base URL, API key, and transcription model in the Recognition tab. The default workflow starts recording after the mouse button is held for one second, then sends the recording to `/audio/transcriptions` when the button is released.
 
+Remote API endpoints must use HTTPS. HTTP is allowed only for `localhost` or literal loopback IP addresses, including `127.0.0.1` and `::1`, so local services such as Ollama continue to work. Plain HTTP on a LAN or public address is rejected before sending credentials or audio.
+
 Realtime streaming depends on the provider and model. The paid API workflow currently uses final output after recording.
+
+The request timeout scales with recording length (90 seconds minimum, 11 minutes maximum). Connection failures and temporary HTTP errors (429, 500, 502, 503, 504) can be retried once. Short numeric `Retry-After` instructions are honored; longer or date-based delays are returned as errors. Upload/response timeouts are not automatically retried because the provider may already have processed the audio.
+
+On Windows, recognized text is entered through Unicode keyboard events without replacing clipboard contents. The target app must accept simulated text input and run with compatible permissions. Other platforms currently use clipboard-based paste.
 
 ### Local offline
 

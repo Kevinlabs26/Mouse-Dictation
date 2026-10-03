@@ -5,21 +5,32 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     permissions:
       contents: write
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: lts/*
           cache: npm
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
       - run: npm ci
+      - name: Test frontend security regressions
+        run: npm test
+      - name: Prepare frontend and verified native libraries
+        run: npm run build:desktop
+      - name: Test Rust security regressions
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked --target-dir src-tauri/target
       - name: Build and publish
-        uses: tauri-apps/tauri-action@v1
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -31,13 +42,23 @@ jobs:
           releaseBody: |
             ## What's new
 
-            - Fixed recording freezing at 00:00 after the microphone overlay appeared.
-            - Fixed the overlay remaining visible after releasing the mouse button.
+            - Updated vulnerable Tauri, rustls, and source-map dependencies.
+            - Hardened WebView permissions, HTML rendering, API redirects, temporary recordings, and credential migration.
+            - Added SHA-256 verification for official model downloads and Windows x64 native libraries.
+            - Improved Windows Unicode text insertion and transcription timeout/retry handling.
+            - Removed Telegram community links and the recognition feedback prompt.
+            - Added tests and native library verification before publishing.
+
+            ## Compatibility
+
+            - Remote transcription, translation, and model-list API endpoints now require HTTPS.
+            - HTTP remains supported for localhost and literal loopback IP addresses such as 127.0.0.1 and ::1.
+            - LAN or public HTTP API endpoints must be configured with TLS before use.
 
             ## Downloads
 
-            - NSIS installer: recommended for most users
-            - MSI installer: Windows installer package
+            - NSIS installer: recommended for most users.
+            - MSI installer: Windows installer package.
           releaseDraft: false
           prerelease: false
           updaterJsonPreferNsis: true

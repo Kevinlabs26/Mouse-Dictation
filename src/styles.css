@@ -139,26 +139,6 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 5px; }
 }
 .live-preview span { display: block; color: var(--accent); font-size: 11px; font-weight: 700; }
 .live-preview p { margin-top: 5px; color: var(--text); font-size: 13px; line-height: 1.5; min-height: 20px; }
-.feedback-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px 16px;
-  margin: 10px 18px 0;
-  padding: 12px 14px;
-  border: 1px solid var(--accent-soft);
-  border-radius: var(--r-md);
-  background: var(--accent-soft);
-}
-.feedback-copy strong { display: block; font-size: 13px; font-weight: 650; }
-.feedback-copy p { margin-top: 3px; color: var(--dim); font-size: 11px; }
-.feedback-close { border: 0; padding: 0 3px; background: transparent; color: var(--faint); font-size: 20px; line-height: 1; cursor: pointer; }
-.feedback-close:hover { color: var(--text); }
-.feedback-rating { display: flex; gap: 3px; align-items: center; }
-.feedback-rating button { border: 0; padding: 1px 3px; background: transparent; color: var(--border); font-size: 22px; line-height: 1; cursor: pointer; transition: color .15s, transform .15s; }
-.feedback-rating button:hover, .feedback-rating button.selected { color: var(--accent); transform: scale(1.08); }
-.feedback-support { grid-column: 1 / -1; display: flex; align-items: center; gap: 9px; color: var(--dim); font-size: 11px; }
-.feedback-support .footer-link { font-size: 11px; }
 @keyframes ping { 0% { transform: scale(.45); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
 @keyframes breathe { from { transform: scale(.8); } to { transform: scale(1.3); } }
 
@@ -558,10 +538,8 @@ body.onboarding-open { overflow: hidden; }
 .onboarding-github-card strong { font-size: 12px; }
 .onboarding-github-button { display: block; width: 100%; margin-top: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
 .onboarding-github-button:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-.onboarding-community-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.onboarding-community-actions { display: grid; grid-template-columns: 1fr; }
 .onboarding-community-actions .onboarding-github-button { margin-top: 12px; }
-.onboarding-telegram-button { width: 100%; margin-top: 12px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
-.onboarding-telegram-button:hover { border-color: #229ed9; background: rgba(34, 158, 217, .12); color: #229ed9; }
 .onboarding-actions { display: flex; justify-content: space-between; gap: 10px; }
 .onboarding-actions .primary { min-width: 104px; padding: 9px 18px; font-size: 12px; }
 .onboarding-skip { display: block; margin: 13px auto 0; border: 0; background: transparent; color: var(--faint); font: inherit; font-size: 11px; cursor: pointer; }

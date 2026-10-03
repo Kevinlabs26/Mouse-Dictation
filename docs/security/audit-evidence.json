@@ -1,0 +1,756 @@
+{
+  "auditDate": "2026-10-03",
+  "osvCheckedAt": "2026-10-03T13:54:46.559Z",
+  "counts": {
+    "rust": 651,
+    "npm": 78,
+    "direct": 23
+  },
+  "manualReview": [
+    {
+      "name": "tauri",
+      "before": "2.11.5",
+      "after": "2.11.6",
+      "id": "GHSA-w28w-mhc8-qvjv",
+      "severity": "High",
+      "patched": "2.11.6",
+      "url": "https://github.com/tauri-apps/tauri/security/advisories/GHSA-w28w-mhc8-qvjv"
+    },
+    {
+      "name": "rustls",
+      "before": "0.23.43",
+      "after": "0.23.45",
+      "id": "RUSTSEC-2026-0285",
+      "severity": "Medium",
+      "patched": "0.23.45",
+      "url": "https://rustsec.org/advisories/RUSTSEC-2026-0285.html"
+    },
+    {
+      "name": "source-map-js",
+      "before": "1.2.1",
+      "after": "1.2.2",
+      "id": "CVE-2026-93749",
+      "severity": "High",
+      "patched": "1.2.2",
+      "url": "https://github.com/7rulnik/source-map-js/commit/4c6fa26"
+    }
+  ],
+  "remainingFindings": [
+    {
+      "ecosystem": "crates.io",
+      "name": "glib",
+      "version": "0.18.5",
+      "vulns": [
+        {
+          "id": "GHSA-wrw7-89jp-8q8g",
+          "modified": "2025-10-28T06:29:26.473225Z"
+        },
+        {
+          "id": "RUSTSEC-2024-0429",
+          "modified": "2025-10-28T06:29:26.473225Z"
+        }
+      ]
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "proc-macro-error",
+      "version": "1.0.4",
+      "vulns": [
+        {
+          "id": "RUSTSEC-2024-0370",
+          "modified": "2026-06-07T20:00:03.923932Z"
+        }
+      ]
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "unic-char-property",
+      "version": "0.9.0",
+      "vulns": [
+        {
+          "id": "RUSTSEC-2025-0081",
+          "modified": "2025-10-21T11:12:59Z"
+        }
+      ]
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "unic-char-range",
+      "version": "0.9.0",
+      "vulns": [
+        {
+          "id": "RUSTSEC-2025-0075",
+          "modified": "2025-10-22T14:41:04Z"
+        }
+      ]
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "unic-common",
+      "version": "0.9.0",
+      "vulns": [
+        {
+          "id": "RUSTSEC-2025-0080",
+          "modified": "2025-10-21T11:12:59Z"
+        }
+      ]
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "unic-ucd-ident",
+      "version": "0.9.0",
+      "vulns": [
+        {
+          "id": "RUSTSEC-2025-0100",
+          "modified": "2025-10-21T11:12:59Z"
+        }
+      ]
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "unic-ucd-version",
+      "version": "0.9.0",
+      "vulns": [
+        {
+          "id": "RUSTSEC-2025-0098",
+          "modified": "2025-10-21T11:12:59Z"
+        }
+      ]
+    }
+  ],
+  "advisories": [
+    {
+      "id": "GHSA-wrw7-89jp-8q8g",
+      "summary": "Unsoundness in `Iterator` and `DoubleEndedIterator` impls for `glib::VariantStrIter`",
+      "details": "The `VariantStrIter::impl_get` function (called internally by implementations of the `Iterator` and `DoubleEndedIterator` traits for this type) was unsound, resulting in undefined behaviour.\n\nAn immutable reference `&p` to a `*mut libc::c_char` pointer initialized to `NULL` was passed as an argument to a C function that that mutates the pointer behind `&p` in-place (i.e. as an out-argument), which was unsound. After changes in recent versions of the Rust compiler, these unsound writes through `&p` now seem to be completely disregarded when building the `glib` crate with optimizations.\n\nThis subsequently caused all calls of `VariantStrIter::impl_get` to violate the safety requirements of the `std::ffi::CStr::from_ptr` function - which requires its argument to be a valid pointer to a C-style string - resulting in crashes due to `NULL` pointer dereferences.\n\nThis was fixed by passing the out-argument pointer explitly as `&mut p` instead of `&p`.\n\nThis issue has been present since this code was initially added in `glib` v0.15.0. The mismatch in mutability was likely missed (and not raised as an error by the compiler) because the C function wrapped by `VariantStrIter::impl_get` is variadic (`glib_sys::g_variant_get_child`), and the pointer in question is one of the variadic arguments.\n\n",
+      "aliases": [
+        "RUSTSEC-2024-0429"
+      ],
+      "modified": "2025-10-28T06:29:26.473225Z",
+      "published": "2024-12-23T20:19:24Z",
+      "database_specific": {
+        "severity": "MODERATE",
+        "github_reviewed": true,
+        "github_reviewed_at": "2024-12-23T20:19:24Z",
+        "nvd_published_at": null,
+        "cwe_ids": []
+      },
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/gtk-rs/gtk-rs-core/pull/1343"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/gtk-rs/gtk-rs-core"
+        },
+        {
+          "type": "WEB",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2024-0429.html"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "glib",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/glib"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.15.0"
+                },
+                {
+                  "fixed": "0.20.0"
+                }
+              ]
+            }
+          ],
+          "database_specific": {
+            "source": "https://github.com/github/advisory-database/blob/main/advisories/github-reviewed/2024/12/GHSA-wrw7-89jp-8q8g/GHSA-wrw7-89jp-8q8g.json"
+          }
+        }
+      ],
+      "schema_version": "1.9.0",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2024-0429",
+      "summary": "Unsoundness in `Iterator` and `DoubleEndedIterator` impls for `glib::VariantStrIter`",
+      "details": "The `VariantStrIter::impl_get` function (called internally by implementations of the `Iterator` and `DoubleEndedIterator` traits for this type) was unsound, resulting in undefined behaviour.\n\nAn immutable reference `&p` to a `*mut libc::c_char` pointer initialized to `NULL` was passed as an argument to a C function that that mutates the pointer behind `&p` in-place (i.e. as an out-argument), which was unsound. After changes in recent versions of the Rust compiler, these unsound writes through `&p` now seem to be completely disregarded when building the `glib` crate with optimizations.\n\nThis subsequently caused all calls of `VariantStrIter::impl_get` to violate the safety requirements of the `std::ffi::CStr::from_ptr` function - which requires its argument to be a valid pointer to a C-style string - resulting in crashes due to `NULL` pointer dereferences.\n\nThis was fixed by passing the out-argument pointer explitly as `&mut p` instead of `&p`.\n\nThis issue has been present since this code was initially added in `glib` v0.15.0. The mismatch in mutability was likely missed (and not raised as an error by the compiler) because the C function wrapped by `VariantStrIter::impl_get` is variadic (`glib_sys::g_variant_get_child`), and the pointer in question is one of the variadic arguments.",
+      "aliases": [
+        "GHSA-wrw7-89jp-8q8g"
+      ],
+      "modified": "2025-10-28T06:29:26.473225Z",
+      "published": "2024-03-30T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/glib"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2024-0429.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/gtk-rs/gtk-rs-core/pull/1343"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "glib",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/glib"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.15.0"
+                },
+                {
+                  "fixed": "0.20.0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affected_functions": null,
+            "affects": {
+              "arch": [],
+              "functions": [
+                "glib::VariantStrIter::last",
+                "glib::VariantStrIter::next",
+                "glib::VariantStrIter::next_back",
+                "glib::VariantStrIter::nth",
+                "glib::VariantStrIter::nth_back"
+              ],
+              "os": []
+            }
+          },
+          "database_specific": {
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2024-0429.json",
+            "categories": [],
+            "cvss": null,
+            "informational": "unsound"
+          }
+        }
+      ],
+      "schema_version": "1.7.3"
+    },
+    {
+      "id": "RUSTSEC-2024-0370",
+      "summary": "proc-macro-error is unmaintained",
+      "details": "proc-macro-error's maintainer seems to be unreachable, with no commits for 2 years, no releases pushed for 4 years, and no activity on the GitLab repo or response to email.\n\nproc-macro-error also depends on `syn 1.x`, which may be bringing duplicate dependencies into dependant build trees.\n\n## Possible Alternative(s)\n\n- [manyhow](https://crates.io/crates/manyhow)\n- [proc-macro2-diagnostics](https://github.com/SergioBenitez/proc-macro2-diagnostics)",
+      "modified": "2026-06-07T20:00:03.923932350Z",
+      "published": "2024-09-01T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/proc-macro-error"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2024-0370.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://gitlab.com/CreepySkeleton/proc-macro-error/-/issues/20"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "proc-macro-error",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/proc-macro-error"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affects": {
+              "os": [],
+              "functions": [],
+              "arch": []
+            },
+            "affected_functions": null
+          },
+          "database_specific": {
+            "categories": [],
+            "cvss": null,
+            "informational": "unmaintained",
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2024-0370.json"
+          }
+        }
+      ],
+      "schema_version": "1.7.5"
+    },
+    {
+      "id": "RUSTSEC-2025-0081",
+      "summary": "`unic-char-property` is unmaintained",
+      "details": "All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.\n\n## Recommended alternatives\n\n- [`icu_properties`](https://crates.io/crates/icu_properties)",
+      "modified": "2025-10-21T11:12:59Z",
+      "published": "2025-10-18T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-char-property"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0081.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "unic-char-property",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/unic-char-property"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affected_functions": null,
+            "affects": {
+              "os": [],
+              "arch": [],
+              "functions": []
+            }
+          },
+          "database_specific": {
+            "cvss": null,
+            "informational": "unmaintained",
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2025-0081.json",
+            "categories": []
+          }
+        }
+      ],
+      "schema_version": "1.7.3"
+    },
+    {
+      "id": "RUSTSEC-2025-0075",
+      "summary": "`unic-char-range` is unmaintained",
+      "details": "All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.\n\n## Recommended alternatives\n\n- Since version [1.45.0](https://releases.rs/docs/1.45.0/#libraries) Rust [supports](https://github.com/rust-lang/rust/pull/72413/) using `char` with `ops::{Range, RangeFrom, RangeFull, RangeInclusive, RangeTo}` to iterate over a range of codepoints.",
+      "modified": "2025-10-22T14:41:04Z",
+      "published": "2025-10-18T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-char-range"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0075.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "unic-char-range",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/unic-char-range"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affected_functions": null,
+            "affects": {
+              "os": [],
+              "arch": [],
+              "functions": []
+            }
+          },
+          "database_specific": {
+            "categories": [],
+            "cvss": null,
+            "informational": "unmaintained",
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2025-0075.json"
+          }
+        }
+      ],
+      "schema_version": "1.7.3"
+    },
+    {
+      "id": "RUSTSEC-2025-0080",
+      "summary": "`unic-common` is unmaintained",
+      "details": "All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.",
+      "modified": "2025-10-21T11:12:59Z",
+      "published": "2025-10-18T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-common"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0080.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "unic-common",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/unic-common"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affected_functions": null,
+            "affects": {
+              "arch": [],
+              "functions": [],
+              "os": []
+            }
+          },
+          "database_specific": {
+            "categories": [],
+            "cvss": null,
+            "informational": "unmaintained",
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2025-0080.json"
+          }
+        }
+      ],
+      "schema_version": "1.7.3"
+    },
+    {
+      "id": "RUSTSEC-2025-0100",
+      "summary": "`unic-ucd-ident` is unmaintained",
+      "details": "All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.\n\n## Recommended alternatives\n\n- [`icu_properties`](https://crates.io/crates/icu_properties)\n- [`unicode-ident`](https://crates.io/crates/unicode-ident)",
+      "modified": "2025-10-21T11:12:59Z",
+      "published": "2025-10-18T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-ucd-ident"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0100.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "unic-ucd-ident",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/unic-ucd-ident"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affected_functions": null,
+            "affects": {
+              "arch": [],
+              "functions": [],
+              "os": []
+            }
+          },
+          "database_specific": {
+            "informational": "unmaintained",
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2025-0100.json",
+            "categories": [],
+            "cvss": null
+          }
+        }
+      ],
+      "schema_version": "1.7.3"
+    },
+    {
+      "id": "RUSTSEC-2025-0098",
+      "summary": "`unic-ucd-version` is unmaintained",
+      "details": "All Unicode crates that are part of https://github.com/open-i18n/rust-unic are unmaintained.",
+      "modified": "2025-10-21T11:12:59Z",
+      "published": "2025-10-18T12:00:00Z",
+      "database_specific": {
+        "license": "CC0-1.0"
+      },
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-ucd-version"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0098.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ],
+      "affected": [
+        {
+          "package": {
+            "name": "unic-ucd-version",
+            "ecosystem": "crates.io",
+            "purl": "pkg:cargo/unic-ucd-version"
+          },
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "ecosystem_specific": {
+            "affected_functions": null,
+            "affects": {
+              "arch": [],
+              "functions": [],
+              "os": []
+            }
+          },
+          "database_specific": {
+            "source": "https://github.com/rustsec/advisory-db/blob/osv/crates/RUSTSEC-2025-0098.json",
+            "categories": [],
+            "cvss": null,
+            "informational": "unmaintained"
+          }
+        }
+      ],
+      "schema_version": "1.7.3"
+    }
+  ],
+  "officialMetadata": {
+    "actions": [
+      {
+        "repo": "actions/checkout",
+        "ref": "v4",
+        "sha": "11d5960a326750d5838078e36cf38b85af677262"
+      },
+      {
+        "repo": "actions/setup-node",
+        "ref": "v4",
+        "sha": "49933ea5288caeca8642d1e84afbd3f7d6820020"
+      },
+      {
+        "repo": "dtolnay/rust-toolchain",
+        "ref": "stable",
+        "sha": "89b12181fb390509a0842a86cc55eeb8eb928c1d"
+      },
+      {
+        "repo": "tauri-apps/tauri-action",
+        "ref": "v1",
+        "sha": "1deb371b0cd8bd54025b384f1cd735e725c4060f"
+      }
+    ],
+    "crates": [
+      {
+        "name": "rdev",
+        "repository": "https://github.com/Narsil/rdev",
+        "newest_version": "0.5.3",
+        "updated_at": "2023-06-26T09:20:11.289928Z",
+        "latest_release": "2023-06-26T09:20:11.289928Z"
+      },
+      {
+        "name": "hound",
+        "repository": "https://github.com/ruuda/hound",
+        "newest_version": "3.5.1",
+        "updated_at": "2023-09-25T20:36:49.665784Z",
+        "latest_release": "2023-09-25T20:36:49.665784Z"
+      },
+      {
+        "name": "dirs-next",
+        "repository": "https://github.com/xdg-rs/dirs",
+        "newest_version": "2.0.0",
+        "updated_at": "2020-10-22T03:34:04.786339Z",
+        "latest_release": "2020-10-22T03:34:04.786339Z"
+      },
+      {
+        "name": "cpal",
+        "repository": "https://github.com/RustAudio/cpal",
+        "newest_version": "0.18.2",
+        "updated_at": "2026-08-16T18:02:02.361461Z",
+        "latest_release": "2026-08-16T18:02:02.361461Z"
+      },
+      {
+        "name": "sherpa-onnx",
+        "repository": "https://github.com/k2-fsa/sherpa-onnx",
+        "newest_version": "1.13.8",
+        "updated_at": "2026-09-11T01:53:31.586793Z",
+        "latest_release": "2026-09-11T01:53:31.586793Z"
+      }
+    ],
+    "models": [
+      {
+        "name": "sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2",
+        "size": 511274346,
+        "digest": null,
+        "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2"
+      },
+      {
+        "name": "sherpa-onnx-whisper-small.tar.bz2",
+        "size": 639387718,
+        "digest": null,
+        "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-whisper-small.tar.bz2"
+      },
+      {
+        "name": "sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2",
+        "size": 163002883,
+        "digest": "sha256:7d1efa2138a65b0b488df37f8b89e3d91a60676e416f515b952358d83dfd347e",
+        "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2"
+      }
+    ]
+  },
+  "historySecretScan": {
+    "commits": 23,
+    "checkedBlobs": 150,
+    "findings": []
+  },
+  "npmAudit": {
+    "total": 0,
+    "dependencies": 78
+  },
+  "assetVerification": {
+    "developerDecision": "establish reviewed model/DLL checksum baseline",
+    "manifest": "docs/security/asset-checksums.json",
+    "verifiedAt": "2026-10-03T14:07:20.261Z",
+    "modelArchives": 3,
+    "nativeArchives": 1,
+    "nativeFiles": 7,
+    "runtimeDLLs": 4,
+    "platformScope": "Windows x64 native libraries; model archives apply to all application platforms",
+    "checks": [
+      "official native archive digest matched",
+      "existing native cache and release DLLs matched reviewed archive",
+      "fresh cache download/extraction verified",
+      "one-byte DLL tampering rejected without execution"
+    ],
+    "initialTrustLimitation": "official GitHub account and HTTPS; no independent publisher signature established",
+    "rustTests": 17,
+    "nodeTests": 4
+  },
+  "transportPolicy": {
+    "status": "implemented",
+    "remote": "HTTPS required",
+    "localHTTP": "parsed localhost or literal IPv4/IPv6 loopback",
+    "tests": "loopback variants and remote host rejection across API endpoint paths",
+    "legacyRemoteHTTP": "rejected before request; no automatic URL rewriting"
+  },
+  "deferredDependencies": {
+    "decision": "retain compatible versions and assess framework migration separately",
+    "unresolved": [
+      "glib 0.18.5 on Linux GTK; affected method reachability unconfirmed",
+      "proc-macro-error and five unic packages unmaintained"
+    ]
+  },
+  "desktopVerification": {
+    "build": "latest production executable copy",
+    "startup": "passed; main window rendered; no Telegram footer link",
+    "navigation": "not completed; developer pressed Escape and Computer Use stopped",
+    "notVerified": [
+      "real recording",
+      "paid API requests",
+      "keyboard text injection",
+      "updater end-to-end",
+      "macOS/Linux builds",
+      "signed installer"
+    ]
+  },
+  "releaseTestGate": {
+    "workflow": ".github/workflows/release.yml",
+    "commands": [
+      "npm test",
+      "npm run build:desktop",
+      "cargo test --manifest-path src-tauri/Cargo.toml --locked --target-dir src-tauri/target"
+    ],
+    "localResults": {
+      "nodeTests": 4,
+      "rustTests": 17,
+      "frontendBuild": "passed",
+      "nativeFilesVerified": 7
+    },
+    "workflowReview": "commands precede publish; no continue-on-error or always() bypass",
+    "hostedRun": "not run; no release tag created"
+  }
+}

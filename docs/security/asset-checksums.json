@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-03T14:07:20.261Z",
+  "repository": "https://github.com/k2-fsa/sherpa-onnx",
+  "scope": "three application model archives and Windows x64 native archive; unsigned assets use first verification over official HTTPS, not independent publisher authentication",
+  "assets": [
+    {
+      "kind": "model",
+      "name": "sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2",
+      "assetApi": "https://api.github.com/repos/k2-fsa/sherpa-onnx/releases/assets/170453803",
+      "assetId": 170453803,
+      "size": 511274346,
+      "createdAt": "2024-05-28T03:49:55Z",
+      "updatedAt": "2024-05-28T03:50:08Z",
+      "uploader": "csukuangfj",
+      "officialDigest": null,
+      "sha256": "27ffbd9ee24ad186d99acc2f6354d7992b27bcab490812510665fa8f9389c5f8",
+      "verification": "downloaded from official release over HTTPS; size and asset metadata unchanged before/after; initial trust anchor is GitHub account and TLS"
+    },
+    {
+      "kind": "model",
+      "name": "sherpa-onnx-whisper-small.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-whisper-small.tar.bz2",
+      "assetApi": "https://api.github.com/repos/k2-fsa/sherpa-onnx/releases/assets/179373989",
+      "assetId": 179373989,
+      "size": 639387718,
+      "createdAt": "2024-07-13T13:31:04Z",
+      "updatedAt": "2024-07-13T13:33:21Z",
+      "uploader": "csukuangfj",
+      "officialDigest": null,
+      "sha256": "486a46afbb7ba798507190ffe02fea2dd726049af212e774537efac6afb210a6",
+      "verification": "downloaded from official release over HTTPS; size and asset metadata unchanged before/after; initial trust anchor is GitHub account and TLS"
+    },
+    {
+      "kind": "model",
+      "name": "sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17.tar.bz2",
+      "assetApi": "https://api.github.com/repos/k2-fsa/sherpa-onnx/releases/assets/288366523",
+      "assetId": 288366523,
+      "size": 163002883,
+      "createdAt": "2025-09-01T08:32:52Z",
+      "updatedAt": "2025-09-01T08:32:59Z",
+      "uploader": "csukuangfj",
+      "officialDigest": "sha256:7d1efa2138a65b0b488df37f8b89e3d91a60676e416f515b952358d83dfd347e",
+      "sha256": "7d1efa2138a65b0b488df37f8b89e3d91a60676e416f515b952358d83dfd347e",
+      "verification": "official GitHub asset digest"
+    },
+    {
+      "kind": "native-windows-x64",
+      "name": "sherpa-onnx-v1.13.7-win-x64-shared-MT-Release-lib.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.7/sherpa-onnx-v1.13.7-win-x64-shared-MT-Release-lib.tar.bz2",
+      "assetApi": "https://api.github.com/repos/k2-fsa/sherpa-onnx/releases/assets/539089143",
+      "assetId": 539089143,
+      "size": 7891223,
+      "createdAt": "2026-09-01T06:14:20Z",
+      "updatedAt": "2026-09-01T06:14:21Z",
+      "uploader": "github-actions[bot]",
+      "officialDigest": "sha256:7a362a9f339a2937e7f8806e904f3e8a031a7774982eea08bca8336b2c257529",
+      "sha256": "7a362a9f339a2937e7f8806e904f3e8a031a7774982eea08bca8336b2c257529",
+      "verification": "official GitHub asset digest",
+      "files": [
+        {
+          "name": "onnxruntime.dll",
+          "size": 17378304,
+          "sha256": "b9f6713c3602a4742680a7e6a77e3f9ac4a676ad9447bce609e53efcda795d7e"
+        },
+        {
+          "name": "onnxruntime.lib",
+          "size": 2124,
+          "sha256": "b9fc3cd678257d88a111b0773ede4bfceaf0fe95daab4379f2b2b37348a68781"
+        },
+        {
+          "name": "onnxruntime_providers_shared.dll",
+          "size": 104960,
+          "sha256": "1f8b8ebfb07aad2c692669ba77c45b5a24e72b9c708bc3f2be4103ff29370c60"
+        },
+        {
+          "name": "sherpa-onnx-c-api.dll",
+          "size": 4593664,
+          "sha256": "f80a93e69fda12aaab23581f71097010c70fb8b8c042fec7c0efead04be5c441"
+        },
+        {
+          "name": "sherpa-onnx-c-api.lib",
+          "size": 75604,
+          "sha256": "ff29efcc1af67ecdd860905025cde2c48915d6c1060ca1a43cc2e442a138e401"
+        },
+        {
+          "name": "sherpa-onnx-cxx-api.dll",
+          "size": 258560,
+          "sha256": "019634407ab4ea0f80152ffa988835abecc72f7e27dee4a1ff78c0b7eb1fe81e"
+        },
+        {
+          "name": "sherpa-onnx-cxx-api.lib",
+          "size": 224714,
+          "sha256": "fbad731250ed1c688c76da5ea92c67c2b26cac07d87dd0478c4dcb96f864feee"
+        }
+      ]
+    }
+  ]
+}

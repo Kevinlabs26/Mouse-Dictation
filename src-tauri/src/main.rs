@@ -1,8 +1,13 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+#[cfg(not(target_os = "windows"))]
 use arboard::Clipboard;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use rdev::{listen, simulate, Button, Event, EventType, Key};
+#[cfg(not(target_os = "windows"))]
+use rdev::simulate;
+use rdev::{listen, Button, Event, EventType, Key};
+#[cfg(target_os = "windows")]
+mod text_input;
 use serde::{Deserialize, Serialize};
 use sherpa_onnx::{
     OfflineRecognizer, OfflineRecognizerConfig, OfflineSenseVoiceModelConfig,
@@ -184,10 +189,16 @@ fn dir_size(path: &Path) -> u64 {
                 .flatten()
                 .map(|entry| {
                     let child = entry.path();
-                    if child.is_dir() {
+                    let Ok(kind) = entry.file_type() else {
+                        return 0;
+                    };
+                    // A junction/symlink can point back to an ancestor or outside the model tree.
+                    if kind.is_dir() {
                         dir_size(&child)
-                    } else {
+                    } else if kind.is_file() {
                         entry.metadata().map(|m| m.len()).unwrap_or(0)
+                    } else {
+                        0
                     }
                 })
                 .sum()
@@ -214,6 +225,7 @@ struct Recorder {
 }
 
 const MAX_RECORDING_TIME: Duration = Duration::from_secs(5 * 60);
+#[cfg(not(target_os = "windows"))]
 const PASTE_SETTLE_TIME: Duration = Duration::from_millis(90);
 
 struct StreamingAudio {
@@ -244,6 +256,7 @@ struct AppState {
     recorder: Mutex<Option<Recorder>>,
     local_recognizer: Mutex<Option<LocalRecognizerCache>>,
     streaming_recognizer: Mutex<Option<StreamingRecognizerCache>>,
+    model_download: Mutex<()>,
 }
 
 struct MouseSession {
@@ -520,16 +533,39 @@ fn load_profiles() -> Vec<Profile> {
         .and_then(|path| fs::read_to_string(path).ok())
         .and_then(|data| serde_json::from_str(&data).ok())
         .unwrap_or_default();
+    let had_legacy_secrets = profiles.iter().any(|profile| {
+        !profile.settings.api_key.is_empty() || !profile.settings.translate_key.is_empty()
+    });
+    let mut all_secrets_secured = true;
     for profile in &mut profiles {
         if let Some(secret) =
             read_secret(&profile_secret_name(&profile.id, "transcription-api-key"))
         {
             profile.settings.api_key = secret;
+        } else if !profile.settings.api_key.is_empty() {
+            all_secrets_secured &= write_secret(
+                &profile_secret_name(&profile.id, "transcription-api-key"),
+                &profile.settings.api_key,
+            )
+            .is_ok();
         }
         if let Some(secret) = read_secret(&profile_secret_name(&profile.id, "translation-api-key"))
         {
             profile.settings.translate_key = secret;
+        } else if !profile.settings.translate_key.is_empty() {
+            all_secrets_secured &= write_secret(
+                &profile_secret_name(&profile.id, "translation-api-key"),
+                &profile.settings.translate_key,
+            )
+            .is_ok();
         }
+    }
+    if had_legacy_secrets && all_secrets_secured {
+        if save_profiles_file(&profiles).is_err() {
+            eprintln!("旧方案明文凭据清理失败，请检查配置文件权限");
+        }
+    } else if had_legacy_secrets {
+        eprintln!("旧方案凭据迁移失败，保留原文件以避免丢失凭据");
     }
     profiles.retain(|profile| !profile.id.is_empty() && !profile.name.trim().is_empty());
     profiles
@@ -568,23 +604,24 @@ fn load_settings() -> Settings {
         .and_then(|path| fs::read_to_string(path).ok())
         .and_then(|data| serde_json::from_str(&data).ok())
         .unwrap_or_default();
-    let mut migrated = false;
+    let had_legacy_secrets = !settings.api_key.is_empty() || !settings.translate_key.is_empty();
+    let mut all_secrets_secured = true;
     if let Some(secret) = read_secret("transcription-api-key") {
         settings.api_key = secret;
-    } else if !settings.api_key.is_empty()
-        && write_secret("transcription-api-key", &settings.api_key).is_ok()
-    {
-        migrated = true;
+    } else if !settings.api_key.is_empty() {
+        all_secrets_secured &= write_secret("transcription-api-key", &settings.api_key).is_ok();
     }
     if let Some(secret) = read_secret("translation-api-key") {
         settings.translate_key = secret;
-    } else if !settings.translate_key.is_empty()
-        && write_secret("translation-api-key", &settings.translate_key).is_ok()
-    {
-        migrated = true;
+    } else if !settings.translate_key.is_empty() {
+        all_secrets_secured &= write_secret("translation-api-key", &settings.translate_key).is_ok();
     }
-    if migrated {
-        let _ = save_settings_file(&settings);
+    if had_legacy_secrets && all_secrets_secured {
+        if save_settings_file(&settings).is_err() {
+            eprintln!("旧设置明文凭据清理失败，请检查配置文件权限");
+        }
+    } else if had_legacy_secrets {
+        eprintln!("旧设置凭据迁移失败，保留原文件以避免丢失凭据");
     }
     settings
 }
@@ -1056,7 +1093,10 @@ fn delete_local_model(dir: String, state: State<'_, AppState>) -> Result<(), Str
 
 #[tauri::command]
 fn open_model_folder(dir: String) -> Result<(), String> {
-    let path = PathBuf::from(&dir);
+    // Absolute paths cannot be interpreted as command-line options by open/xdg-open.
+    let path = PathBuf::from(&dir)
+        .canonicalize()
+        .map_err(|_| "目录不存在")?;
     if !path.is_dir() {
         return Err("目录不存在".into());
     }
@@ -1110,6 +1150,14 @@ fn open_external_url(url: String) -> Result<(), String> {
 }
 
 fn download_local_model_blocking(app: AppHandle, mode: String) -> Result<String, String> {
+    if !matches!(mode.as_str(), "offline" | "streaming" | "whisper") {
+        return Err("未知的模型类型".into());
+    }
+    let state = app.state::<AppState>();
+    let _download = state
+        .model_download
+        .try_lock()
+        .map_err(|_| "已有模型正在下载")?;
     let streaming = mode == "streaming";
     let whisper = mode == "whisper";
     let model_dir = default_model_dir(&mode);
@@ -1120,6 +1168,7 @@ fn download_local_model_blocking(app: AppHandle, mode: String) -> Result<String,
     } else {
         SENSEVOICE_MODEL_URL
     };
+    let expected_sha256 = model_archive_digest(model_url)?;
     fs::create_dir_all(&model_dir).map_err(|e| format!("创建本地模型目录失败：{e}"))?;
     let archive_name = model_dir
         .file_name()
@@ -1159,6 +1208,11 @@ fn download_local_model_blocking(app: AppHandle, mode: String) -> Result<String,
         let resumed = resume_from > 0 && response.status() == reqwest::StatusCode::PARTIAL_CONTENT;
         let mut downloaded = if resumed { resume_from } else { 0 };
         let total = response.content_length().map(|length| length + downloaded);
+        if downloaded > MAX_MODEL_ARCHIVE_BYTES
+            || total.is_some_and(|n| n > MAX_MODEL_ARCHIVE_BYTES)
+        {
+            return Err("模型压缩包超过安全大小限制".into());
+        }
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
@@ -1174,6 +1228,9 @@ fn download_local_model_blocking(app: AppHandle, mode: String) -> Result<String,
             if count == 0 {
                 break;
             }
+            if downloaded + count as u64 > MAX_MODEL_ARCHIVE_BYTES {
+                return Err("模型压缩包超过安全大小限制".into());
+            }
             file.write_all(&buffer[..count])
                 .map_err(|e| format!("保存模型下载内容失败：{e}"))?;
             downloaded += count as u64;
@@ -1184,51 +1241,29 @@ fn download_local_model_blocking(app: AppHandle, mode: String) -> Result<String,
             );
         }
         file.flush().map_err(|e| format!("写入模型文件失败：{e}"))?;
+        drop(file);
 
+        verify_model_archive(&partial_path, &expected_sha256)?;
         let archive_file =
             File::open(&partial_path).map_err(|e| format!("打开模型压缩包失败：{e}"))?;
         let decoder = bzip2::read::BzDecoder::new(archive_file);
-        let mut archive = tar::Archive::new(decoder);
-        let mut found_files = 0;
-        for entry in archive
-            .entries()
-            .map_err(|e| format!("读取模型压缩包失败：{e}"))?
-        {
-            let mut entry = entry.map_err(|e| format!("读取模型文件失败：{e}"))?;
-            let filename = entry
-                .path()
-                .map_err(|e| format!("读取模型文件名失败：{e}"))?
-                .file_name()
-                .and_then(|name| name.to_str())
-                .map(str::to_owned);
-            let wanted = if streaming {
-                matches!(
-                    filename.as_deref(),
-                    Some(
-                        "encoder-epoch-99-avg-1.int8.onnx"
-                            | "decoder-epoch-99-avg-1.onnx"
-                            | "joiner-epoch-99-avg-1.int8.onnx"
-                            | "tokens.txt"
-                    )
-                )
-            } else if whisper {
-                matches!(
-                    filename.as_deref(),
-                    Some(
-                        "small-encoder.int8.onnx" | "small-decoder.int8.onnx" | "small-tokens.txt"
-                    )
-                )
-            } else {
-                matches!(filename.as_deref(), Some("model.int8.onnx" | "tokens.txt"))
-            };
-            if wanted {
-                let filename = filename.expect("wanted model archive entry has a filename");
-                entry
-                    .unpack(model_dir.join(filename))
-                    .map_err(|e| format!("解压模型文件失败：{e}"))?;
-                found_files += 1;
-            }
-        }
+        let names: &[&str] = if streaming {
+            &[
+                "encoder-epoch-99-avg-1.int8.onnx",
+                "decoder-epoch-99-avg-1.onnx",
+                "joiner-epoch-99-avg-1.int8.onnx",
+                "tokens.txt",
+            ]
+        } else if whisper {
+            &[
+                "small-encoder.int8.onnx",
+                "small-decoder.int8.onnx",
+                "small-tokens.txt",
+            ]
+        } else {
+            &["model.int8.onnx", "tokens.txt"]
+        };
+        let found_files = extract_model_files(decoder, &model_dir, names)?;
         let ready = if streaming {
             found_files == 4 && streaming_model_is_ready(&model_dir)
         } else if whisper {
@@ -1290,8 +1325,101 @@ async fn download_local_model(app: AppHandle, mode: Option<String>) -> Result<St
         .map_err(|e| format!("本地模型下载任务失败：{e}"))?
 }
 
+const MAX_MODEL_ARCHIVE_BYTES: u64 = 1024 * 1024 * 1024;
+const MAX_MODEL_EXPANDED_BYTES: u64 = 4 * 1024 * 1024 * 1024;
+const MAX_MODEL_FILE_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+
+fn model_archive_digest(url: &str) -> Result<String, String> {
+    let manifest: serde_json::Value =
+        serde_json::from_str(include_str!("../../docs/security/asset-checksums.json"))
+            .map_err(|_| "模型摘要清单无效")?;
+    manifest["assets"]
+        .as_array()
+        .and_then(|assets| {
+            assets
+                .iter()
+                .find(|asset| asset["kind"] == "model" && asset["url"] == url)
+        })
+        .and_then(|asset| asset["sha256"].as_str())
+        .filter(|hash| hash.len() == 64 && hash.bytes().all(|byte| byte.is_ascii_hexdigit()))
+        .map(str::to_owned)
+        .ok_or_else(|| "模型没有经过审核的 SHA-256 摘要".into())
+}
+
+fn verify_model_archive(path: &Path, expected_sha256: &str) -> Result<(), String> {
+    use sha2::Digest;
+    let mut file = File::open(path).map_err(|e| format!("打开模型压缩包失败：{e}"))?;
+    let mut hash = sha2::Sha256::new();
+    let mut buffer = [0_u8; 64 * 1024];
+    loop {
+        let count = file
+            .read(&mut buffer)
+            .map_err(|e| format!("读取模型校验内容失败：{e}"))?;
+        if count == 0 {
+            break;
+        }
+        hash.update(&buffer[..count]);
+    }
+    if format!("{:x}", hash.finalize()) != expected_sha256 {
+        // Discard a corrupt resumable download so the next attempt starts cleanly.
+        drop(file);
+        let _ = fs::remove_file(path);
+        return Err("模型 SHA-256 校验失败，请重新下载".into());
+    }
+    Ok(())
+}
+
+fn extract_model_files(
+    reader: impl Read,
+    model_dir: &Path,
+    names: &[&str],
+) -> Result<usize, String> {
+    let mut archive = tar::Archive::new(reader.take(MAX_MODEL_EXPANDED_BYTES + 1));
+    let mut found = std::collections::HashSet::new();
+    for entry in archive
+        .entries()
+        .map_err(|e| format!("读取模型压缩包失败：{e}"))?
+    {
+        let mut entry = entry.map_err(|e| format!("读取模型文件失败：{e}"))?;
+        let path = entry
+            .path()
+            .map_err(|e| format!("读取模型文件名失败：{e}"))?
+            .into_owned();
+        let Some(filename) = path.file_name().and_then(|name| name.to_str()) else {
+            continue;
+        };
+        if !names.contains(&filename) {
+            continue;
+        }
+        // Archives are model data: never materialize links, devices, or archive paths.
+        if !entry.header().entry_type().is_file()
+            || path
+                .components()
+                .any(|part| !matches!(part, std::path::Component::Normal(_)))
+            || !found.insert(filename.to_string())
+            || entry.size() > MAX_MODEL_FILE_BYTES
+        {
+            return Err("模型压缩包包含链接、非法路径、重复文件或过大的文件".into());
+        }
+        let mut file = tempfile::NamedTempFile::new_in(model_dir)
+            .map_err(|e| format!("创建模型临时文件失败：{e}"))?;
+        std::io::copy(&mut entry, &mut file).map_err(|e| format!("解压模型文件失败：{e}"))?;
+        file.persist(model_dir.join(filename))
+            .map_err(|e| format!("保存模型文件失败：{e}"))?;
+    }
+    if archive.into_inner().limit() == 0 {
+        return Err("模型解压内容超过安全大小限制".into());
+    }
+    Ok(found.len())
+}
+
 fn emit<R: Runtime>(app: &AppHandle<R>, event: &str, payload: impl Serialize + Clone) {
-    let _ = app.emit(event, payload);
+    if event == "settings-changed" {
+        // Settings contain API keys; only the settings window needs them.
+        let _ = app.emit_to("main", event, payload);
+    } else {
+        let _ = app.emit(event, payload);
+    }
 }
 
 fn position_overlay_at_cursor<R: Runtime>(app: &AppHandle<R>) {
@@ -1697,7 +1825,7 @@ fn start_recording(app: &AppHandle) -> Result<(), String> {
 }
 
 struct StoppedRecording {
-    path: PathBuf,
+    path: tempfile::TempPath,
     streaming_result: Option<Result<(), String>>,
 }
 
@@ -1732,11 +1860,6 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
         return Err("没有录到声音，请检查麦克风权限".into());
     }
 
-    let stamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis();
-    let path = std::env::temp_dir().join(format!("mouse-dictation-{stamp}.wav"));
     let samples = normalize_audio(&samples, sample_rate, channels);
     if !has_voice_energy(&samples) {
         return Err("没有检测到语音".into());
@@ -1747,8 +1870,13 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
         bits_per_sample: 16,
         sample_format: hound::SampleFormat::Int,
     };
-    let mut writer =
-        hound::WavWriter::create(&path, spec).map_err(|e| format!("无法写入录音：{e}"))?;
+    let mut file = tempfile::Builder::new()
+        .prefix("mouse-dictation-")
+        .suffix(".wav")
+        .tempfile()
+        .map_err(|e| format!("无法创建录音临时文件：{e}"))?;
+    let mut writer = hound::WavWriter::new(std::io::BufWriter::new(file.as_file_mut()), spec)
+        .map_err(|e| format!("无法写入录音：{e}"))?;
     for sample in samples {
         writer
             .write_sample(sample)
@@ -1758,7 +1886,7 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
         .finalize()
         .map_err(|e| format!("无法完成录音：{e}"))?;
     Ok(StoppedRecording {
-        path,
+        path: file.into_temp_path(),
         streaming_result,
     })
 }
@@ -1867,6 +1995,74 @@ fn api_model_id(model: &serde_json::Value) -> Option<&str> {
         .find_map(|key| model.get(*key).and_then(serde_json::Value::as_str))
 }
 
+fn api_endpoint(base: &str, endpoint: &str) -> Result<reqwest::Url, String> {
+    let base = base.trim().trim_end_matches('/');
+    let parsed = reqwest::Url::parse(base).map_err(|_| "API 地址不是有效的 URL")?;
+    if !matches!(parsed.scheme(), "https" | "http")
+        || parsed.host_str().is_none()
+        || !parsed.username().is_empty()
+        || parsed.password().is_some()
+        || parsed.query().is_some()
+        || parsed.fragment().is_some()
+    {
+        return Err("API 地址必须是 HTTP(S) 地址，且不能包含凭据、查询参数或片段".into());
+    }
+    let is_loopback = parsed.host_str().is_some_and(|host| {
+        host == "localhost"
+            || host
+                .trim_start_matches('[')
+                .trim_end_matches(']')
+                .parse::<std::net::IpAddr>()
+                .is_ok_and(|address| address.is_loopback())
+    });
+    if parsed.scheme() == "http" && !is_loopback {
+        return Err("远程 API 必须使用 HTTPS；仅本机地址允许 HTTP".into());
+    }
+    let url = if base.ends_with(endpoint) {
+        base.to_string()
+    } else {
+        format!("{base}{endpoint}")
+    };
+    reqwest::Url::parse(&url).map_err(|_| "API 地址不是有效的 URL".into())
+}
+
+fn api_client(
+    timeout: Duration,
+    connect_timeout: Duration,
+) -> Result<reqwest::blocking::Client, String> {
+    reqwest::blocking::Client::builder()
+        .timeout(timeout)
+        .connect_timeout(connect_timeout)
+        .redirect(reqwest::redirect::Policy::custom(|attempt| {
+            if attempt.previous().len() >= 5 {
+                attempt.error("API 重定向次数过多")
+            } else if attempt
+                .previous()
+                .first()
+                .is_some_and(|url| url.origin() != attempt.url().origin())
+            {
+                attempt.error("拒绝向不同来源重定向录音、文本或凭据")
+            } else {
+                attempt.follow()
+            }
+        }))
+        .build()
+        .map_err(|error| format!("创建 API 客户端失败：{}", error.without_url()))
+}
+
+fn read_api_body(response: reqwest::blocking::Response) -> Result<String, String> {
+    const MAX_API_RESPONSE_BYTES: u64 = 1024 * 1024;
+    let mut body = String::new();
+    response
+        .take(MAX_API_RESPONSE_BYTES + 1)
+        .read_to_string(&mut body)
+        .map_err(|_| "读取 API 响应失败")?;
+    if body.len() as u64 > MAX_API_RESPONSE_BYTES {
+        return Err("API 响应超过安全大小限制".into());
+    }
+    Ok(body)
+}
+
 fn is_speech_to_text_model(model: &serde_json::Value, id: &str) -> bool {
     let text = format!("{} {}", id, model).to_lowercase();
     [
@@ -1885,8 +2081,19 @@ fn is_speech_to_text_model(model: &serde_json::Value, id: &str) -> bool {
     .any(|term| text.contains(term))
 }
 
-fn api_error_message(status: reqwest::StatusCode, body: &str, fallback: &str) -> String {
-    let message = serde_json::from_str::<serde_json::Value>(body)
+fn api_error_message(
+    status: reqwest::StatusCode,
+    body: &str,
+    fallback: &str,
+    api_key: &str,
+) -> String {
+    // Some providers echo Authorization values in their error responses.
+    let body = if api_key.is_empty() {
+        body.to_string()
+    } else {
+        body.replace(api_key, "[REDACTED]")
+    };
+    let message = serde_json::from_str::<serde_json::Value>(&body)
         .ok()
         .and_then(|json| {
             json.get("error")
@@ -1902,6 +2109,12 @@ fn api_error_message(status: reqwest::StatusCode, body: &str, fallback: &str) ->
                 .map(str::to_string)
         });
     if let Some(message) = message {
+        let message = if api_key.is_empty() {
+            message
+        } else {
+            message.replace(api_key, "[REDACTED]")
+        };
+        let message: String = message.chars().take(160).collect();
         return format!("HTTP {}：{message}", status.as_u16());
     }
     let preview: String = body.trim().chars().take(160).collect();
@@ -1919,29 +2132,21 @@ fn fetch_api_models(base: &str, api_key: &str) -> Result<Vec<serde_json::Value>,
         return Err("请先填写 API Base URL".into());
     }
     let api_key = normalize_api_key(api_key);
-    let url = if base.ends_with("/models") {
-        base.to_string()
-    } else {
-        format!("{base}/models")
-    };
-    let client = reqwest::blocking::Client::builder()
-        .connect_timeout(Duration::from_secs(10))
-        .timeout(Duration::from_secs(20))
-        .build()
-        .map_err(|e| format!("创建模型客户端失败：{e}"))?;
+    let url = api_endpoint(base, "/models")?;
+    let client = api_client(Duration::from_secs(20), Duration::from_secs(10))?;
     let request = client.get(url);
     let request = if api_key.is_empty() {
         request
     } else {
-        request.bearer_auth(api_key)
+        request.bearer_auth(&api_key)
     };
     let response = request
         .send()
-        .map_err(|e| format!("获取模型失败：{e}"))?;
+        .map_err(|e| format!("获取模型失败：{}", e.without_url()))?;
     let status = response.status();
-    let body = response.text().unwrap_or_default();
+    let body = read_api_body(response)?;
     if !status.is_success() {
-        return Err(api_error_message(status, &body, "获取模型失败"));
+        return Err(api_error_message(status, &body, "获取模型失败", &api_key));
     }
     let json = serde_json::from_str::<serde_json::Value>(&body)
         .map_err(|e| format!("模型接口返回格式错误：{e}"))?;
@@ -1973,7 +2178,10 @@ fn list_api_models(settings: Settings, include_all: bool) -> Result<Vec<String>,
 }
 
 fn translation_connection(settings: &Settings) -> (String, String, String) {
-    let follow = matches!(settings.translate_api.as_str(), "follow" | "auto" | "google");
+    let follow = matches!(
+        settings.translate_api.as_str(),
+        "follow" | "auto" | "google"
+    );
     let base = if follow {
         settings.api_url.clone()
     } else {
@@ -2005,6 +2213,7 @@ fn list_translation_models(settings: Settings) -> Result<Vec<String>, String> {
 fn transcription_prompt(language: &str) -> Option<&'static str> {
     match language {
         "zh" => Some("中文语音转写，使用自然的中文标点。"),
+        "auto" => Some("Transcribe the speech with natural punctuation in the spoken language."),
         "en" => Some("English speech transcription with natural punctuation."),
         "fr" => Some("Transcription audio en français avec une ponctuation naturelle."),
         "de" => Some("Deutsche Audiotranskription mit natürlicher Zeichensetzung."),
@@ -2015,6 +2224,31 @@ fn transcription_prompt(language: &str) -> Option<&'static str> {
     }
 }
 
+fn transcription_timeout(audio_seconds: u64) -> Duration {
+    Duration::from_secs(
+        audio_seconds
+            .saturating_mul(2)
+            .saturating_add(30)
+            .clamp(90, 660),
+    )
+}
+
+fn transcription_retry_delay(
+    status: reqwest::StatusCode,
+    retry_after: Option<&str>,
+) -> Option<Duration> {
+    if !matches!(status.as_u16(), 429 | 500 | 502 | 503 | 504) {
+        return None;
+    }
+    // Leave long or date-based Retry-After instructions to the user instead of
+    // retrying before the provider permits it or keeping dictation busy for minutes.
+    let seconds = match retry_after {
+        Some(value) => value.trim().parse::<u64>().ok()?,
+        None => 1,
+    };
+    (seconds <= 5).then(|| Duration::from_secs(seconds))
+}
+
 fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
     let api_key = normalize_api_key(&settings.api_key);
     if api_key.is_empty() {
@@ -2023,37 +2257,71 @@ fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
         );
     }
     let base = settings.api_url.trim_end_matches('/');
-    let url = if base.ends_with("/audio/transcriptions") {
-        base.to_string()
-    } else {
-        format!("{base}/audio/transcriptions")
+    let url = api_endpoint(base, "/audio/transcriptions")?;
+    let audio_seconds = hound::WavReader::open(path)
+        .map(|reader| {
+            u64::from(reader.duration()).div_ceil(u64::from(reader.spec().sample_rate.max(1)))
+        })
+        .unwrap_or(0);
+    let client = api_client(
+        transcription_timeout(audio_seconds),
+        Duration::from_secs(15),
+    )?;
+    let mut retried = false;
+    let response = loop {
+        // Multipart bodies are consumed by send; reopen the recording on retry.
+        let file = reqwest::blocking::multipart::Part::file(path)
+            .map_err(|e| format!("读取录音失败：{e}"))?;
+        let mut form = reqwest::blocking::multipart::Form::new()
+            .text("model", settings.model.clone())
+            .text("temperature", "0")
+            .part("file", file);
+        if settings.online_language != "auto" {
+            form = form.text("language", settings.online_language.clone());
+        }
+        if let Some(prompt) = transcription_prompt(&settings.online_language) {
+            form = form.text("prompt", prompt);
+        }
+        let response = match client
+            .post(url.clone())
+            .bearer_auth(&api_key)
+            .multipart(form)
+            .send()
+        {
+            Ok(response) => response,
+            Err(error) if !retried && error.is_connect() => {
+                retried = true;
+                thread::sleep(Duration::from_secs(1));
+                continue;
+            }
+            // A timeout after uploading may already have been billed; do not resend it.
+            Err(error) => return Err(format!("请求转写接口失败：{}", error.without_url())),
+        };
+        if !retried {
+            if let Some(delay) = transcription_retry_delay(
+                response.status(),
+                response
+                    .headers()
+                    .get(reqwest::header::RETRY_AFTER)
+                    .map(|value| value.to_str().unwrap_or("")),
+            ) {
+                retried = true;
+                drop(response);
+                thread::sleep(delay);
+                continue;
+            }
+        }
+        break response;
     };
-    let file =
-        reqwest::blocking::multipart::Part::file(path).map_err(|e| format!("读取录音失败：{e}"))?;
-    let mut form = reqwest::blocking::multipart::Form::new()
-        .text("model", settings.model.clone())
-        .text("temperature", "0")
-        .part("file", file);
-    if settings.online_language != "auto" {
-        form = form.text("language", settings.online_language.clone());
-    }
-    if let Some(prompt) = transcription_prompt(&settings.online_language) {
-        form = form.text("prompt", prompt);
-    }
-    let response = reqwest::blocking::Client::builder()
-        .connect_timeout(Duration::from_secs(15))
-        .timeout(Duration::from_secs(90))
-        .build()
-        .map_err(|e| format!("创建转写客户端失败：{e}"))?
-        .post(url)
-        .bearer_auth(api_key)
-        .multipart(form)
-        .send()
-        .map_err(|e| format!("请求转写接口失败：{e}"))?;
     let status = response.status();
-    let body_text = response.text().unwrap_or_default();
+    let body_text = read_api_body(response)?;
     if !status.is_success() {
-        return Err(api_error_message(status, &body_text, "转写接口返回错误"));
+        return Err(api_error_message(
+            status,
+            &body_text,
+            "转写接口返回错误",
+            &api_key,
+        ));
     }
     let body: serde_json::Value =
         serde_json::from_str(&body_text).map_err(|e| format!("接口返回格式错误：{e}"))?;
@@ -2077,24 +2345,16 @@ fn test_api(settings: Settings) -> Result<String, String> {
             "当前使用付费 API，请先填写识别 API Key；也可以切换到“本地离线”使用本地模型".into(),
         );
     }
-    let url = if base.ends_with("/models") {
-        base.to_string()
-    } else {
-        format!("{base}/models")
-    };
-    let response = reqwest::blocking::Client::builder()
-        .connect_timeout(Duration::from_secs(10))
-        .timeout(Duration::from_secs(20))
-        .build()
-        .map_err(|e| format!("创建测试客户端失败：{e}"))?
+    let url = api_endpoint(base, "/models")?;
+    let response = api_client(Duration::from_secs(20), Duration::from_secs(10))?
         .get(url)
-        .bearer_auth(api_key)
+        .bearer_auth(&api_key)
         .send()
-        .map_err(|e| format!("连接 API 失败：{e}"))?;
+        .map_err(|e| format!("连接 API 失败：{}", e.without_url()))?;
     let status = response.status();
-    let body = response.text().unwrap_or_default();
+    let body = read_api_body(response)?;
     if !status.is_success() {
-        return Err(api_error_message(status, &body, "连接 API 失败"));
+        return Err(api_error_message(status, &body, "连接 API 失败", &api_key));
     }
     Ok(format!("连接成功 · HTTP {}", status.as_u16()))
 }
@@ -2155,24 +2415,27 @@ fn chat_translate(
             { "role": "user", "content": text }
         ]
     });
-    let client = reqwest::blocking::Client::builder()
-        .timeout(Duration::from_secs(60))
-        .build()
-        .map_err(|e| e.to_string())?;
-    let request = client.post(format!("{base}/chat/completions"));
+    let url = api_endpoint(base, "/chat/completions")?;
+    let client = api_client(Duration::from_secs(60), Duration::from_secs(10))?;
+    let request = client.post(url);
     let request = if api_key.is_empty() {
         request
     } else {
-        request.bearer_auth(api_key)
+        request.bearer_auth(&api_key)
     };
     let response = request
         .json(&body)
         .send()
-        .map_err(|e| format!("请求翻译接口失败：{e}"))?;
+        .map_err(|e| format!("请求翻译接口失败：{}", e.without_url()))?;
     let status = response.status();
-    let body_text = response.text().unwrap_or_default();
+    let body_text = read_api_body(response)?;
     if !status.is_success() {
-        return Err(api_error_message(status, &body_text, "翻译接口返回错误"));
+        return Err(api_error_message(
+            status,
+            &body_text,
+            "翻译接口返回错误",
+            &api_key,
+        ));
     }
     let parsed: serde_json::Value =
         serde_json::from_str(&body_text).map_err(|e| format!("翻译接口返回格式错误：{e}"))?;
@@ -2263,7 +2526,9 @@ fn translate_with_available_model(
             Err(error) => last_error = format!("{model}: {error}"),
         }
     }
-    Err(format!("翻译模型不可用：{last_error}。请点击“获取模型”后选择可用的文本模型"))
+    Err(format!(
+        "翻译模型不可用：{last_error}。请点击“获取模型”后选择可用的文本模型"
+    ))
 }
 
 fn translate_text(text: &str, settings: &Settings) -> Result<String, String> {
@@ -2276,13 +2541,15 @@ fn translate_text(text: &str, settings: &Settings) -> Result<String, String> {
             text,
             &settings.translate_target,
         ),
-        "custom" | "deepseek" | "zhipu" | "dashscope" | "siliconflow" | "groq" | "openai" => translate_with_available_model(
-            settings.translate_url.trim().trim_end_matches('/'),
-            &settings.translate_key,
-            model,
-            text,
-            &settings.translate_target,
-        ),
+        "custom" | "deepseek" | "zhipu" | "dashscope" | "siliconflow" | "groq" | "openai" => {
+            translate_with_available_model(
+                settings.translate_url.trim().trim_end_matches('/'),
+                &settings.translate_key,
+                model,
+                text,
+                &settings.translate_target,
+            )
+        }
         _ => Err("请先选择翻译通道".into()),
     }
 }
@@ -2387,6 +2654,12 @@ fn transcribe_local(app: &AppHandle, path: &Path, settings: &Settings) -> Result
         .ok_or("本地模型没有识别到文字".into())
 }
 
+#[cfg(target_os = "windows")]
+fn paste_text(text: &str) -> Result<(), String> {
+    text_input::insert_text(text)
+}
+
+#[cfg(not(target_os = "windows"))]
 fn paste_text(text: &str) -> Result<(), String> {
     let mut clipboard = Clipboard::new().map_err(|e| format!("无法访问剪贴板：{e}"))?;
     let previous_text = clipboard.get_text().ok();
@@ -2443,13 +2716,15 @@ fn finish_dictation(app: AppHandle) {
             });
             text.and_then(|text| paste_text(&text).map(|_| ()))
         };
-        let _ = fs::remove_file(recording.path);
+        // TempPath deletes the recording on success and on every error return.
         result
     });
     match result {
         Ok(_) => emit(&app, "dictation-state", "done"),
         Err(error) if error == "当前没有录音" => {}
-        Err(error) if error == "没有检测到语音" => emit(&app, "dictation-state", "cancelled"),
+        Err(error) if error == "没有检测到语音" => {
+            emit(&app, "dictation-state", "cancelled")
+        }
         Err(error) => emit(&app, "dictation-error", error),
     }
     hide_overlay(&app);
@@ -2926,22 +3201,22 @@ fn tray_menu<R: Runtime, M: Manager<R>>(
         labels.translation_languages,
     )
     .items(&[
-            &english,
-            &french,
-            &japanese,
-            &german,
-            &spanish,
-            &portuguese,
-            &italian,
-            &dutch,
-            &russian,
-            &chinese,
-            &korean,
-            &arabic,
-            &hindi,
-            &thai,
-        ])
-        .build()?;
+        &english,
+        &french,
+        &japanese,
+        &german,
+        &spanish,
+        &portuguese,
+        &italian,
+        &dutch,
+        &russian,
+        &chinese,
+        &korean,
+        &arabic,
+        &hindi,
+        &thai,
+    ])
+    .build()?;
 
     let mut builder = MenuBuilder::new(manager)
         .item(&engines)
@@ -3227,6 +3502,7 @@ fn main() {
                 recorder: Mutex::new(None),
                 local_recognizer: Mutex::new(None),
                 streaming_recognizer: Mutex::new(None),
+                model_download: Mutex::new(()),
             });
             let profiles = profile_summaries(&app.state::<AppState>());
             let menu = tray_menu(app, &settings, &profiles, "zh")?;
@@ -3311,10 +3587,217 @@ fn main() {
 mod tests {
     use super::{
         has_voice_energy, hotkey_matches, is_speech_to_text_model, normalize_api_key,
-        normalize_audio,
-        resample_available, transcription_prompt, StreamingAudio,
+        normalize_audio, resample_available, transcription_prompt, transcription_retry_delay,
+        transcription_timeout, StreamingAudio,
     };
     use rdev::Key;
+
+    #[test]
+    fn all_downloadable_models_have_reviewed_digests() {
+        for url in [
+            super::SENSEVOICE_MODEL_URL,
+            super::STREAMING_MODEL_URL,
+            super::WHISPER_MODEL_URL,
+        ] {
+            let hash = super::model_archive_digest(url).unwrap();
+            assert_eq!(hash.len(), 64);
+            assert!(hash.bytes().all(|byte| byte.is_ascii_hexdigit()));
+        }
+        assert!(super::model_archive_digest("https://unreviewed.example/model.tar.bz2").is_err());
+    }
+
+    #[test]
+    fn corrupted_model_downloads_are_rejected_and_discarded() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("download.tar.bz2");
+        std::fs::write(&path, b"abc").unwrap();
+        super::verify_model_archive(
+            &path,
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+        )
+        .unwrap();
+        assert!(path.exists());
+        assert!(super::verify_model_archive(&path, &"0".repeat(64)).is_err());
+        assert!(!path.exists());
+    }
+
+    #[test]
+    fn model_extraction_only_writes_unique_regular_model_files() {
+        use std::io::Cursor;
+        fn archive(kind: tar::EntryType, name: &str, duplicate: bool) -> Vec<u8> {
+            let mut builder = tar::Builder::new(Vec::new());
+            let mut header = tar::Header::new_gnu();
+            header.set_path("tokens.txt").unwrap();
+            header.set_mode(0o600);
+            header.set_entry_type(kind);
+            header.set_size(if kind.is_file() { 5 } else { 0 });
+            if kind.is_symlink() || kind.is_hard_link() {
+                header.set_link_name("../outside").unwrap();
+            }
+            header.as_mut_bytes()[..100].fill(0);
+            header.as_mut_bytes()[..name.len()].copy_from_slice(name.as_bytes());
+            header.set_cksum();
+            let data: &[u8] = if kind.is_file() { b"model" } else { b"" };
+            builder.append(&header, data).unwrap();
+            if duplicate {
+                builder.append(&header, data).unwrap();
+            }
+            builder.into_inner().unwrap()
+        }
+        let directory = tempfile::tempdir().unwrap();
+        let models = directory.path().join("models");
+        std::fs::create_dir(&models).unwrap();
+        let extract =
+            |bytes| super::extract_model_files(Cursor::new(bytes), &models, &["tokens.txt"]);
+        for kind in [
+            tar::EntryType::Symlink,
+            tar::EntryType::Link,
+            tar::EntryType::Directory,
+        ] {
+            assert!(extract(archive(kind, "tokens.txt", false)).is_err());
+            assert!(!models.join("tokens.txt").exists());
+        }
+        assert!(extract(archive(tar::EntryType::Regular, "../tokens.txt", false)).is_err());
+        assert!(extract(archive(tar::EntryType::Regular, "/tokens.txt", false)).is_err());
+        assert!(!directory.path().join("tokens.txt").exists());
+        assert_eq!(
+            extract(archive(tar::EntryType::Regular, "model/tokens.txt", false)).unwrap(),
+            1
+        );
+        assert_eq!(std::fs::read(models.join("tokens.txt")).unwrap(), b"model");
+        assert!(extract(archive(tar::EntryType::Regular, "tokens.txt", true)).is_err());
+    }
+
+    #[test]
+    fn api_http_is_restricted_to_literal_loopback_hosts() {
+        for base in [
+            "http://localhost:11434/v1",
+            "http://LOCALHOST:11434/v1",
+            "http://127.0.0.1:11434/v1",
+            "http://127.0.0.2:11434/v1",
+            "http://127.1:11434/v1",
+            "http://[::1]:11434/v1",
+            "http://[0:0:0:0:0:0:0:1]:11434/v1",
+            "https://example.com/v1",
+        ] {
+            for endpoint in ["/models", "/audio/transcriptions", "/chat/completions"] {
+                assert!(
+                    super::api_endpoint(base, endpoint).is_ok(),
+                    "{base}{endpoint}"
+                );
+            }
+        }
+        for base in [
+            "http://example.com/v1",
+            "http://localhost.evil.example/v1",
+            "http://evil.localhost/v1",
+            "http://localhost./v1",
+            "http://127.0.0.1.nip.io/v1",
+            "http://192.168.1.10/v1",
+            "http://10.0.0.1/v1",
+            "http://0.0.0.0/v1",
+            "http://[::]/v1",
+            "http://[2001:db8::1]/v1",
+            "http://[::ffff:127.0.0.1]/v1",
+        ] {
+            for endpoint in ["/models", "/audio/transcriptions", "/chat/completions"] {
+                assert!(
+                    super::api_endpoint(base, endpoint).is_err(),
+                    "{base}{endpoint}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn api_addresses_and_provider_errors_do_not_expose_credentials() {
+        for base in [
+            "file:///etc/passwd",
+            "https://user:password@example.com",
+            "https://example.com?key=secret",
+            "https://example.com#fragment",
+        ] {
+            assert!(super::api_endpoint(base, "/models").is_err());
+        }
+        assert_eq!(
+            super::api_endpoint("https://example.com/v1/", "/models")
+                .unwrap()
+                .as_str(),
+            "https://example.com/v1/models"
+        );
+        assert_eq!(
+            super::api_endpoint("http://127.0.0.1:11434/v1", "/models")
+                .unwrap()
+                .scheme(),
+            "http"
+        );
+        let key = "test-only-secret";
+        for body in [
+            r#"{"error":{"message":"test-only-secret"}}"#,
+            r#"{"message":"\u0074est-only-secret"}"#,
+            "test-only-secret",
+        ] {
+            let message =
+                super::api_error_message(reqwest::StatusCode::BAD_REQUEST, body, "error", key);
+            assert!(!message.contains(key));
+            assert!(message.contains("[REDACTED]"));
+        }
+    }
+
+    #[test]
+    fn api_refuses_cross_origin_redirects_without_forwarding_the_upload() {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+        let source = TcpListener::bind("127.0.0.1:0").unwrap();
+        let target = TcpListener::bind("127.0.0.1:0").unwrap();
+        target.set_nonblocking(true).unwrap();
+        let url = format!("http://{}/models", source.local_addr().unwrap());
+        let redirect = format!("http://{}/stolen", target.local_addr().unwrap());
+        let server = std::thread::spawn(move || {
+            let (mut stream, _) = source.accept().unwrap();
+            stream
+                .set_read_timeout(Some(std::time::Duration::from_secs(5)))
+                .unwrap();
+            let mut headers = Vec::new();
+            while !headers.ends_with(b"\r\n\r\n") {
+                let mut byte = [0];
+                stream.read_exact(&mut byte).unwrap();
+                headers.push(byte[0]);
+            }
+            let length: usize = String::from_utf8(headers)
+                .unwrap()
+                .lines()
+                .find_map(|line| {
+                    line.to_ascii_lowercase()
+                        .strip_prefix("content-length:")
+                        .map(str::to_owned)
+                })
+                .unwrap()
+                .trim()
+                .parse()
+                .unwrap();
+            let mut body = vec![0; length];
+            stream.read_exact(&mut body).unwrap();
+            assert_eq!(body, b"private recording");
+            write!(stream, "HTTP/1.1 307 Temporary Redirect\r\nLocation: {redirect}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").unwrap();
+        });
+        let client = super::api_client(
+            std::time::Duration::from_secs(5),
+            std::time::Duration::from_secs(2),
+        )
+        .unwrap();
+        assert!(client
+            .post(url)
+            .body("private recording")
+            .send()
+            .unwrap_err()
+            .is_redirect());
+        server.join().unwrap();
+        assert_eq!(
+            target.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock
+        );
+    }
 
     #[test]
     fn normalizes_stereo_to_mono() {
@@ -3366,7 +3849,132 @@ mod tests {
             transcription_prompt("fr"),
             Some("Transcription audio en français avec une ponctuation naturelle.")
         );
-        assert_eq!(transcription_prompt("auto"), None);
+        assert_eq!(
+            transcription_prompt("auto"),
+            Some("Transcribe the speech with natural punctuation in the spoken language.")
+        );
+    }
+
+    #[test]
+    fn transcription_limits_allow_long_recordings_without_unbounded_retries() {
+        use reqwest::StatusCode;
+        use std::time::Duration;
+        assert_eq!(transcription_timeout(0), Duration::from_secs(90));
+        assert_eq!(transcription_timeout(300), Duration::from_secs(630));
+        assert_eq!(transcription_timeout(u64::MAX), Duration::from_secs(660));
+        assert_eq!(
+            transcription_retry_delay(StatusCode::SERVICE_UNAVAILABLE, None),
+            Some(Duration::from_secs(1))
+        );
+        assert_eq!(
+            transcription_retry_delay(StatusCode::TOO_MANY_REQUESTS, Some("3")),
+            Some(Duration::from_secs(3))
+        );
+        for delay in ["60", "Wed, 21 Oct 2030 07:28:00 GMT", "invalid"] {
+            assert_eq!(
+                transcription_retry_delay(StatusCode::TOO_MANY_REQUESTS, Some(delay)),
+                None
+            );
+        }
+        for status in [
+            StatusCode::OK,
+            StatusCode::BAD_REQUEST,
+            StatusCode::UNAUTHORIZED,
+            StatusCode::FORBIDDEN,
+        ] {
+            assert_eq!(transcription_retry_delay(status, None), None);
+        }
+    }
+
+    #[test]
+    fn transcription_retries_once_with_the_complete_audio_and_prompt() {
+        use std::{
+            io::{Read, Write},
+            net::TcpListener,
+            time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+        };
+        let stamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("mouse-dictation-test-{stamp}.wav"));
+        let spec = hound::WavSpec {
+            channels: 1,
+            sample_rate: 16000,
+            bits_per_sample: 16,
+            sample_format: hound::SampleFormat::Int,
+        };
+        let mut writer = hound::WavWriter::create(&path, spec).unwrap();
+        writer.write_sample(1000_i16).unwrap();
+        writer.finalize().unwrap();
+        for statuses in [vec![503, 200], vec![503, 503], vec![401]] {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let address = listener.local_addr().unwrap();
+            listener.set_nonblocking(true).unwrap();
+            let succeeds = statuses.last() == Some(&200);
+            let server = std::thread::spawn(move || {
+                for status in statuses {
+                    let deadline = Instant::now() + Duration::from_secs(5);
+                    let mut socket = loop {
+                        match listener.accept() {
+                            Ok((socket, _)) => break socket,
+                            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                                assert!(
+                                    Instant::now() < deadline,
+                                    "expected a transcription request"
+                                );
+                                std::thread::sleep(Duration::from_millis(10));
+                            }
+                            Err(error) => panic!("{error}"),
+                        }
+                    };
+                    socket
+                        .set_read_timeout(Some(Duration::from_secs(5)))
+                        .unwrap();
+                    let mut headers = Vec::new();
+                    while !headers.ends_with(b"\r\n\r\n") {
+                        let mut byte = [0];
+                        socket.read_exact(&mut byte).unwrap();
+                        headers.push(byte[0]);
+                    }
+                    let headers = String::from_utf8(headers).unwrap().to_lowercase();
+                    assert!(headers.starts_with("post /v1/audio/transcriptions "));
+                    let length: usize = headers
+                        .lines()
+                        .find_map(|line| line.strip_prefix("content-length:"))
+                        .unwrap()
+                        .trim()
+                        .parse()
+                        .unwrap();
+                    let mut body = vec![0; length];
+                    socket.read_exact(&mut body).unwrap();
+                    let body = String::from_utf8_lossy(&body);
+                    assert!(body.contains("RIFF"));
+                    assert!(body.contains("name=\"file\""));
+                    assert!(body.contains(super::transcription_prompt("zh").unwrap()));
+                    let response = if status == 200 {
+                        r#"{"text":"你好，世界。"}"#
+                    } else {
+                        r#"{"error":{"message":"temporary failure"}}"#
+                    };
+                    write!(socket, "HTTP/1.1 {status} Test\r\nContent-Length: {}\r\nRetry-After: 0\r\nConnection: close\r\n\r\n{response}", response.len()).unwrap();
+                }
+            });
+            let settings = super::Settings {
+                api_url: format!("http://{address}/v1"),
+                api_key: "test-only".into(),
+                online_language: "zh".into(),
+                ..Default::default()
+            };
+            let result = super::transcribe(&path, &settings);
+            server.join().unwrap();
+            if succeeds {
+                assert_eq!(result.unwrap(), "你好，世界。");
+            } else {
+                assert!(result.unwrap_err().contains("temporary failure"));
+            }
+        }
+        std::fs::remove_file(path).unwrap();
     }
 
     #[test]
@@ -3409,7 +4017,14 @@ mod tests {
             false,
             Key::KeyK
         ));
-        assert!(hotkey_matches("custom:F9", false, false, false, false, Key::F9));
+        assert!(hotkey_matches(
+            "custom:F9",
+            false,
+            false,
+            false,
+            false,
+            Key::F9
+        ));
         assert!(!hotkey_matches(
             "custom:KeyA",
             false,

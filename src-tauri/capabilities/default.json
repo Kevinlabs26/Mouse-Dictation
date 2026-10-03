@@ -1,13 +1,34 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Allow the main window to read dictation status events.",
+  "description": "Allow the local settings window to configure dictation and updates.",
   "windows": [
     "main"
   ],
   "permissions": [
-    "core:default",
+    "core:app:allow-version",
     "core:event:allow-listen",
-    "updater:default"
+    "core:event:allow-unlisten",
+    "updater:default",
+    "allow-get-settings",
+    "allow-set-ui-locale",
+    "allow-get-profiles",
+    "allow-create-profile",
+    "allow-rename-profile",
+    "allow-delete-profile",
+    "allow-apply-profile",
+    "allow-save-settings",
+    "allow-test-api",
+    "allow-list-api-models",
+    "allow-test-translation-api",
+    "allow-list-translation-models",
+    "allow-get-local-model-status",
+    "allow-get-audio-status",
+    "allow-get-recording-elapsed",
+    "allow-download-local-model",
+    "allow-list-local-models",
+    "allow-delete-local-model",
+    "allow-open-model-folder",
+    "allow-open-external-url"
   ]
 }
