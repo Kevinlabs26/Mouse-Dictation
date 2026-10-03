@@ -1,6 +1,6 @@
 # Mouse Dictation 安全审核报告
 
-审核日期：2026-10-03。对象：当前工作目录及审核前已有的未提交修改。安全修复保留了原有的文字输入、界面及文档修改；审核阶段未提交、发布应用或轮换密钥；之后开发者授权发布 v0.1.22，发布准备包括本报告列出的修复及原有输入/界面改动。
+审核日期：2026-10-03。对象：当前工作目录及审核前已有的未提交修改。安全修复保留了原有的文字输入、界面及文档修改；审核阶段未提交、发布应用或轮换密钥；之后开发者授权发布 v0.1.22，已通过 GitHub CI 完成发布，包含本报告列出的修复及原有输入/界面改动。
 
 结论：发现并修复了 Tauri 高危 IPC 漏洞、rustls 协议状态校验漏洞和 source-map-js 高危构建依赖漏洞，并加固 HTML 输出、桌面 IPC、模型解压、录音临时文件、API 请求及凭据迁移。远程 API 已强制 HTTPS，仅本机回环地址允许 HTTP。剩余事项包括 Linux/glib 迁移及停止维护的间接包、未完成的运行验证、其他平台原生库的验证和初始信任局限。不能据此宣称项目没有任何漏洞。
 
@@ -161,7 +161,7 @@ open/xdg-open 对以连字符开头的相对路径可能按选项解释；目录
 
 修改：四个 Action 固定到通过 GitHub API 核实的完整 commit SHA；默认 contents:read，仅发布 job 保留所需 contents:write；checkout 禁用 persist-credentials。原 workflow 仅 tag push 触发，没有发现 pull_request_target 或将 PR 标题等不可信内容插入 shell。Node lts/*、Rust stable、windows-latest 仍浮动，属于后续可复现性改进项。
 
-补充发布测试门禁：release job 在发布前依次执行 npm test、npm run build:desktop（前端构建及原生库校验）、cargo test --manifest-path src-tauri/Cargo.toml --locked --target-dir src-tauri/target。没有 continue-on-error 或 always() 绕过失败；任一步失败均阻止后续发布。复用已有命令，没有引入新 Action 或依赖。本地逐项运行通过；GitHub 托管 runner 上的完整流程尚未运行，未创建发布 tag。
+补充发布测试门禁：release job 在发布前依次执行 npm test、npm run build:desktop（前端构建及原生库校验）、cargo test --manifest-path src-tauri/Cargo.toml --locked --target-dir src-tauri/target。没有 continue-on-error 或 always() 绕过失败；任一步失败均阻止后续发布。复用已有命令，没有引入新 Action 或依赖。本地逐项运行通过；v0.1.22 tag 已触发 GitHub 托管 runner，测试、原生校验、生产构建和发布步骤全部成功。
 
 ### K01/K02 — 明文迁移与本地签名材料
 
@@ -210,7 +210,7 @@ proc-macro-error 1.0.4 命中 [RUSTSEC-2024-0370](https://rustsec.org/advisories
 
 SHA-256 防止基线建立后的字节替换，不证明初始发行者未失陷；未取得独立发行方签名，初始信任仍依赖官方 GitHub 账号及 TLS。[官方模型 release](https://github.com/k2-fsa/sherpa-onnx/releases/tag/asr-models)与[官方原生 release](https://github.com/k2-fsa/sherpa-onnx/releases/tag/v1.13.7)为核验来源。
 
-当前原生基线只覆盖 Windows x64 标准构建；其他平台/架构明确提示未验证。直接 cargo 命令不执行 Tauri 的前置 hook，应先运行准备脚本。已安装或用户手工选取的模型文件不自动覆盖；下载校验不能认证任意本地自定义模型。安装包完整打包/签名流程未实际运行，打包前命令已单独验证并通过本地 CLI 配置 schema 核对。
+当前原生基线只覆盖 Windows x64 标准构建；其他平台/架构明确提示未验证。直接 cargo 命令不执行 Tauri 的前置 hook，应先运行准备脚本。已安装或用户手工选取的模型文件不自动覆盖；下载校验不能认证任意本地自定义模型。v0.1.22 的 GitHub CI 已实际完成 NSIS/MSI 打包及更新签名，两个安装包均使用应用内置公钥独立验证通过；实际安装和更新交互仍未验证。这里的更新签名是 Minisign，不代表 Windows Authenticode 代码签名。
 
 ## 5. 密钥搜索结果
 
@@ -240,10 +240,10 @@ D06：crates.io 官方元数据记录 rdev 0.5.3 最后发布 2023-06-26、hound
 | OSV 全量最终查询 | 729 项；剩余 7 个受提示包：glib 和 6 个停止维护包，GHSA/RUSTSEC 别名已去重解释 |
 | 原生库验证 | 全新缓存 7 个文件通过；release 4 个 DLL 通过；单字节篡改被拒绝 |
 | node --check src/main.js、Cargo 格式、git diff --check | 通过 |
-| CI 发布测试门禁 | 步骤顺序及失败绕过检查通过；三个新增步骤对应命令本地运行通过；GitHub Actions 实际运行待确认 |
+| CI 发布测试门禁 | 步骤顺序及失败绕过检查通过；对应命令本地和 v0.1.22 GitHub Actions 均通过 |
 | Windows 桌面启动 | 最新生产构建副本成功启动，主窗口正常渲染且 Telegram 链接不存在；页面切换操作因开发者按 Escape 中止，未判定通过 |
 
-没有进行真实麦克风录制、付费 API 请求、实际键盘发送、Windows 页面切换及 GUI/CSP/更新器全流程、macOS/Linux 构建或安装包签名验证。桌面检查已按开发者 Escape 操作停止。单元测试、静态清单检查和成功编译不能替代这些测试。以上为审核阶段验证记录；v0.1.22 发布另由 tag 触发的 CI 执行测试、构建及签名打包，不代表未验证的交互流程已通过。
+没有进行真实麦克风录制、付费 API 请求、实际键盘发送、Windows 页面切换及 GUI/CSP/更新器安装全流程、macOS/Linux 构建。Windows 安装包打包及更新签名已由发布 CI 和下载后独立验证确认通过。桌面检查已按开发者 Escape 操作停止。单元测试、静态清单检查和成功编译不能替代这些测试。以上为审核阶段验证记录；v0.1.22 发布另由 tag 触发的 CI 执行测试、构建及签名打包，不代表未验证的交互流程已通过。
 
 ## 8. 剩余风险与后续建议
 
@@ -254,3 +254,13 @@ D06：crates.io 官方元数据记录 rdev 0.5.3 最后发布 2023-06-26、hound
 5. 固定 Action SHA 后仍需维护更新；按团队规则增加发布 tag/环境审批、固定工具链及扩展其他平台原生摘要。未擅自更改团队发布政策或引入新外部服务。
 
 参考版本判断还核对了 [Vite Windows 公告](https://github.com/vitejs/vite/security/advisories/GHSA-fx2h-pf6j-xcff)、[Vite 支持策略](https://vite.dev/releases)、[esbuild 的 Deno 公告](https://github.com/evanw/esbuild/security/advisories/GHSA-gv7w-rqvm-qjhr)、[picomatch 公告](https://github.com/advisories/GHSA-c2c7-rcm5-vvqj)、[time RFC2822 公告](https://github.com/advisories/GHSA-r6v5-fh4h-64xc)。尚无法确定的调用链、真实 GUI 行为和原生资产来源均已标为待确认或验证限制，没有编造漏洞编号或修复版本。
+
+## 9. v0.1.22 发布验证
+
+发布提交：893348901cdcefc0c6ca636c2cb49a679ca15f24。开发者授权后推送 main 与 v0.1.22 标签。
+
+- [GitHub 发布流程](https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/37135409456)：全部成功，包含前端/Rust 测试、原生库校验及生产构建和安装包上传。
+- [正式发布页](https://github.com/Kevinlabs26/Mouse-Dictation/releases/tag/v0.1.22)：NSIS、MSI、对应更新签名及 latest.json 均已上传，GitHub latest 已为 v0.1.22。
+- 两个安装包的大小与 GitHub asset 元数据一致，SHA-256 与 GitHub digest 一致；使用应用已有 minisign-verify 库和内置 updater 公钥验证更新签名通过。
+- latest.json 的版本、NSIS 签名及下载对象一致；按更新器实际 application/octet-stream 请求头下载的字节摘要与已验证的安装包相同。
+- 没有执行下载的安装包；真实安装、卸载和更新安装流程仍待验证。

@@ -751,6 +751,31 @@
       "nativeFilesVerified": 7
     },
     "workflowReview": "commands precede publish; no continue-on-error or always() bypass",
-    "hostedRun": "not run; no release tag created"
+    "hostedRun": "success for v0.1.22; https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/37135409456"
+  },
+  "releaseVerification": {
+    "releaseURL": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/tag/v0.1.22",
+    "version": "0.1.22",
+    "verifiedAt": "2026-10-03T16:15:46.800Z",
+    "updater": "NSIS URL/signature match latest.json",
+    "assets": [
+      {
+        "name": "Mouse.Dictation_0.1.22_x64-setup.exe",
+        "size": 9549414,
+        "sha256": "328d341d3d501343fa1be6f6b941db22e554d301e4e4b05cd9fe051c143af1ea",
+        "signature": "verified against embedded updater public key"
+      },
+      {
+        "name": "Mouse.Dictation_0.1.22_x64_en-US.msi",
+        "size": 14020608,
+        "sha256": "2e701660f7125c35b52e747c327c462ceba8ba5d9b15456ed25d5637b6bfd69b",
+        "signature": "verified against embedded updater public key"
+      }
+    ],
+    "runURL": "https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/37135409456",
+    "runConclusion": "success",
+    "commit": "893348901cdcefc0c6ca636c2cb49a679ca15f24",
+    "signatureType": "Minisign updater signatures; no Authenticode claim",
+    "installerExecution": "not performed"
   }
 }

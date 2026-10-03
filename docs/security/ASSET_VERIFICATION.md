@@ -17,7 +17,7 @@ SenseVoice 和 Windows 归档具有官方 GitHub asset digest。其余两份模�
 
 Windows x64 的 Tauri 开发/构建前运行 `node scripts/verify-native.mjs --prepare`。脚本核对 Cargo.lock 中 sherpa-onnx-sys 的版本，验证归档后才首次解压，逐个验证缓存中的 DLL/导入库；额外的 DLL/导入库也会被拒绝。`SHERPA_ONNX_LIB_DIR` 自定义库目录仍必须匹配该基线。`CARGO_TARGET_DIR` 可选择缓存根目录。
 
-发布配置的 beforeBundleCommand 运行 `npm run verify:native`，验证 release 目录的四个 DLL；bundle.resources 只包含这四个明确文件。验证脚本只读取这些库，不加载或执行它们。当前安装包/签名全过程没有实际运行。
+发布配置的 beforeBundleCommand 运行 `npm run verify:native`，验证 release 目录的四个 DLL；bundle.resources 只包含这四个明确文件。验证脚本只读取这些库，不加载或执行它们。v0.1.22 发布 CI 已完成 NSIS/MSI 打包和 Minisign 更新签名；下载后的两个安装包均已使用内置公钥独立验证通过，实际安装/更新执行仍未验证。
 
 直接使用 Cargo 时，不会执行 Tauri hook；先手工运行准备脚本。其他平台/架构会明确提示当前没有对应原生摘要基线，不假装已经验证。当前基线针对正常 Windows x64 输出布局，特殊交叉编译输出需要另行适配。
 
