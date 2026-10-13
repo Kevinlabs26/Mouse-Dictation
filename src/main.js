@@ -957,7 +957,7 @@ if (isOverlay) {
 
     <footer class="footer">
       <div class="footer-meta">
-        <span id="app-version" class="app-version">v0.1.22</span>
+        <span id="app-version" class="app-version">v0.1.23</span>
         <button id="footer-check-updates" class="footer-update" type="button" title="检查更新">更新</button>
         <span id="saved" class="saved">已保存</span>
       </div>
@@ -2434,7 +2434,7 @@ async function init() {
   await refreshModels();
   await refreshProfiles();
   await refreshAudioStatus();
-  let appVersion = "0.1.22";
+  let appVersion = "0.1.23";
   try {
     appVersion = await getVersion();
     $("app-version").textContent = `v${appVersion}`;

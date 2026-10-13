@@ -25,7 +25,7 @@ Mouse Dictation is a Windows-first desktop speech input tool for typing speech w
 
 The application icon is shared across the Windows executable, installer, and tray assets.
 
-Current version: `0.1.22`
+Current version: `0.1.23`
 
 ## Features
 

@@ -47,6 +47,7 @@ jobs:
             - Added SHA-256 verification for official model downloads and Windows x64 native libraries.
             - Improved Windows Unicode text insertion and transcription timeout/retry handling.
             - Removed Telegram community links and the recognition feedback prompt.
+            - Show audio waves only when recent microphone input contains speech-level energy.
             - Added tests and native library verification before publishing.
 
             ## Compatibility
