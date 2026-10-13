@@ -45,7 +45,7 @@ test('profile renderer treats hostile names and IDs as option text and values', 
   assert.equal(nodes['profile-select'].value, profile.id);
 });
 
-test('every registered IPC command has an explicit main-window permission; overlay has only a timer', () => {
+test('every registered IPC command has an explicit main-window permission; overlay has only recording status', () => {
   const root = new URL('../', import.meta.url);
   const source = fs.readFileSync(new URL('src-tauri/src/main.rs', root), 'utf8');
   const build = fs.readFileSync(new URL('src-tauri/build.rs', root), 'utf8');
@@ -61,4 +61,14 @@ test('every registered IPC command has an explicit main-window permission; overl
   assert.deepEqual(overlay.permissions, ['allow-get-recording-elapsed']);
   assert.equal(main.remote, undefined);
   assert.equal(overlay.remote, undefined);
+});
+
+test('overlay only displays audio waves when recent microphone audio is active', () => {
+  const root = new URL('../', import.meta.url);
+  const source = fs.readFileSync(new URL('src/main.js', root), 'utf8');
+  const styles = fs.readFileSync(new URL('src/styles.css', root), 'utf8');
+  assert.match(source, /classList\.toggle\("voice-active", status\?\.has_voice === true\)/);
+  assert.match(source, /catch \(_\) \{\s*\/\/ The overlay can start before the backend is ready\.\s*overlay\.classList\.remove\("voice-active"\);/);
+  assert.match(styles, /\.overlay-rings\s*\{[^}]*visibility:\s*hidden/s);
+  assert.match(styles, /\.overlay\.voice-active \.overlay-rings\s*\{\s*visibility:\s*visible;/);
 });

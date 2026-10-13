@@ -212,6 +212,12 @@ struct ModelDownloadProgress {
     total: Option<u64>,
 }
 
+#[derive(Serialize)]
+struct RecordingStatus {
+    elapsed: u64,
+    has_voice: bool,
+}
+
 struct Recorder {
     stop: mpsc::Sender<()>,
     done: mpsc::Receiver<()>,
@@ -1014,13 +1020,14 @@ fn get_audio_status() -> AudioStatus {
 }
 
 #[tauri::command]
-fn get_recording_elapsed(state: State<'_, AppState>) -> Option<u64> {
-    state
-        .recorder
-        .lock()
-        .ok()?
-        .as_ref()
-        .map(|recorder| recorder.started_at.elapsed().as_secs())
+fn get_recording_elapsed(state: State<'_, AppState>) -> Option<RecordingStatus> {
+    let recorder = state.recorder.lock().ok()?;
+    let recorder = recorder.as_ref()?;
+    let samples = recorder.samples.lock().ok()?;
+    Some(RecordingStatus {
+        elapsed: recorder.started_at.elapsed().as_secs(),
+        has_voice: has_recent_voice_energy(&samples, recorder.sample_rate, recorder.channels),
+    })
 }
 
 #[tauri::command]
@@ -1974,6 +1981,11 @@ fn has_voice_energy(samples: &[i16]) -> bool {
         .sum::<f64>()
         / samples.len() as f64;
     active_samples >= 160 && mean_square.sqrt() >= 180.0
+}
+
+fn has_recent_voice_energy(samples: &[i16], sample_rate: u32, channels: u16) -> bool {
+    let window_samples = (sample_rate as usize / 4).max(1) * usize::from(channels.max(1));
+    has_voice_energy(&samples[samples.len().saturating_sub(window_samples)..])
 }
 
 fn normalize_api_key(value: &str) -> String {
@@ -3825,6 +3837,20 @@ mod tests {
             *sample = 1_200;
         }
         assert!(has_voice_energy(&samples));
+    }
+
+    #[test]
+    fn overlay_wave_uses_only_recent_voice_energy() {
+        let mut samples = vec![0_i16; 8_000];
+        samples[..320].fill(1_200);
+        assert!(!super::has_recent_voice_energy(&samples, 16_000, 1));
+        samples[7_600..].fill(1_200);
+        assert!(super::has_recent_voice_energy(&samples, 16_000, 1));
+        assert!(!super::has_recent_voice_energy(
+            &vec![100_i16; 8_000],
+            16_000,
+            1
+        ));
     }
 
     #[test]

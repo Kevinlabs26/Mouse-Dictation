@@ -610,13 +610,16 @@ if (isOverlay) {
     applyAccent(nextAccent);
   };
   const formatDuration = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  const overlay = document.querySelector(".overlay");
   const updateOverlayTimer = async () => {
     syncOverlayAppearance();
     try {
-      const elapsed = await invoke("get_recording_elapsed");
-      $("overlay-label").textContent = `${t("说话中")} · ${formatDuration(elapsed || 0)}`;
+      const status = await invoke("get_recording_elapsed");
+      overlay.classList.toggle("voice-active", status?.has_voice === true);
+      $("overlay-label").textContent = `${t("说话中")} · ${formatDuration(status?.elapsed || 0)}`;
     } catch (_) {
       // The overlay can start before the backend is ready.
+      overlay.classList.remove("voice-active");
     }
   };
   setInterval(updateOverlayTimer, 250);

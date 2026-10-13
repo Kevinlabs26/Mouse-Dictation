@@ -575,7 +575,8 @@ button:focus-visible, a:focus-visible {
 /* ── 光标涟漪悬浮层 ─────────────────────── */
 body.overlay-mode { background: transparent !important; }
 .overlay { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 10; }
-.overlay-rings { position: absolute; inset: 0; }
+.overlay-rings { position: absolute; inset: 0; visibility: hidden; }
+.overlay.voice-active .overlay-rings { visibility: visible; }
 .ripple {
   position: absolute; top: 50%; left: 50%;
   width: 56px; height: 56px; margin: -28px 0 0 -28px;

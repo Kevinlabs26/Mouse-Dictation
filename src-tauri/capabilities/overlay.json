@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "overlay",
-  "description": "The recording overlay can only read the recording timer.",
+  "description": "The recording overlay can only read the timer and recent voice activity for its wave indicator.",
   "windows": ["overlay"],
   "permissions": ["allow-get-recording-elapsed"]
 }
