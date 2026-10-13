@@ -264,3 +264,12 @@ D06：crates.io 官方元数据记录 rdev 0.5.3 最后发布 2023-06-26、hound
 - 两个安装包的大小与 GitHub asset 元数据一致，SHA-256 与 GitHub digest 一致；使用应用已有 minisign-verify 库和内置 updater 公钥验证更新签名通过。
 - latest.json 的版本、NSIS 签名及下载对象一致；按更新器实际 application/octet-stream 请求头下载的字节摘要与已验证的安装包相同。
 - 没有执行下载的安装包；真实安装、卸载和更新安装流程仍待验证。
+
+## 10. v0.1.23 发布验证
+
+发布提交：4d61cd3bed24c7d088f090e3ad463f06aec9324a。开发者授权后推送 main 与 v0.1.23 标签，包含仅在麦克风近期检测到语音能量时显示光波的修正。
+
+- [GitHub 发布流程](https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/38420054212)：全部成功，前端及 Rust 安全回归、原生库校验、生产构建和发布均通过。
+- [正式发布页](https://github.com/Kevinlabs26/Mouse-Dictation/releases/tag/v0.1.23)：NSIS、MSI、对应更新签名及 latest.json 均已发布。
+- 下载的两个安装包均与 GitHub asset 大小及 SHA-256 digest 一致；Minisign 更新签名通过应用内置公钥验证，latest.json 的 NSIS URL/签名也已核对。
+- 没有执行下载的安装包；真实安装、卸载和更新交互仍待验证。签名是更新器 Minisign，不代表 Windows Authenticode 代码签名。
