@@ -18,6 +18,8 @@ jobs:
           - runner: macos-15-intel
             arch: x64
     runs-on: ${{ matrix.runner }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "15.5"
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -31,6 +33,8 @@ jobs:
       - run: npm run build:desktop
       - run: npm test
       - run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+        env:
+          DYLD_LIBRARY_PATH: ${{ github.workspace }}/src-tauri/target/macos-native
       - name: Build app and DMG with ad-hoc signature
         run: npm run tauri -- build --config src-tauri/tauri.macos.conf.json
       - name: Verify app bundle

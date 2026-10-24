@@ -3,7 +3,10 @@
     "beforeBundleCommand": "npm run verify:native"
   },
   "bundle": {
-    "targets": ["app", "dmg"],
+    "targets": [
+      "app",
+      "dmg"
+    ],
     "createUpdaterArtifacts": false,
     "macOS": {
       "minimumSystemVersion": "15.5",
@@ -15,5 +18,8 @@
         "target/macos-native/libonnxruntime.dylib"
       ]
     }
+  },
+  "app": {
+    "macOSPrivateApi": true
   }
 }
