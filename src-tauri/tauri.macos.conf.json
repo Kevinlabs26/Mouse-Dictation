@@ -1,0 +1,19 @@
+{
+  "build": {
+    "beforeBundleCommand": "npm run verify:native"
+  },
+  "bundle": {
+    "targets": ["app", "dmg"],
+    "createUpdaterArtifacts": false,
+    "macOS": {
+      "minimumSystemVersion": "15.5",
+      "signingIdentity": "-",
+      "entitlements": "Entitlements.plist",
+      "frameworks": [
+        "target/release/libsherpa-onnx-c-api.dylib",
+        "target/release/libsherpa-onnx-cxx-api.dylib",
+        "target/release/libonnxruntime.dylib"
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+name: Build macOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: macOS ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - uses: dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d # stable
+      - run: npm ci
+      - run: npm run build:desktop
+      - run: npm test
+      - run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+      - name: Build app and DMG with ad-hoc signature
+        run: npm run tauri -- build --config src-tauri/tauri.macos.conf.json
+      - name: Verify app bundle
+        run: |
+          codesign --verify --deep --strict --verbose=2 'src-tauri/target/release/bundle/macos/Mouse Dictation.app'
+          plutil -lint 'src-tauri/target/release/bundle/macos/Mouse Dictation.app/Contents/Info.plist'
+          test -f 'src-tauri/target/release/bundle/macos/Mouse Dictation.app/Contents/Frameworks/libonnxruntime.dylib'
+          test -f 'src-tauri/target/release/bundle/macos/Mouse Dictation.app/Contents/Frameworks/libsherpa-onnx-c-api.dylib'
+          otool -L 'src-tauri/target/release/bundle/macos/Mouse Dictation.app/Contents/MacOS/mouse-dictation'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Mouse-Dictation-macos-${{ matrix.arch }}
+          path: src-tauri/target/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+          retention-days: 30

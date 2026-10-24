@@ -6,14 +6,21 @@ import {execFileSync} from 'node:child_process';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'docs/security/asset-checksums.json')));
-const asset = manifest.assets.find(a => a.kind === 'native-windows-x64');
+const macos = process.platform === 'darwin';
+const asset = manifest.assets.find(a => a.kind === (macos ? `native-macos-${process.arch}` : 'native-windows-x64'));
 const digest = file => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const targetDir = path.resolve(root, process.env.CARGO_TARGET_DIR || 'src-tauri/target');
 const windowsX64 = process.platform === 'win32' && process.arch === 'x64'
   && (!process.env.TAURI_ENV_PLATFORM || ['windows', 'win32'].includes(process.env.TAURI_ENV_PLATFORM))
   && (!process.env.TAURI_ENV_ARCH || ['x86_64', 'x64'].includes(process.env.TAURI_ENV_ARCH));
+const supported = windowsX64 || (macos && ['arm64', 'x64'].includes(process.arch));
+if (macos && !asset) throw new Error('No reviewed native libraries for this macOS architecture.');
+if (macos && process.env.TAURI_ENV_ARCH && ![process.arch, process.arch === 'arm64' ? 'aarch64' : 'x86_64'].includes(process.env.TAURI_ENV_ARCH)) {
+  throw new Error('macOS native verification requires a runner matching the target architecture.');
+}
+const runtimeLibrary = name => macos ? name.endsWith('.dylib') : name.endsWith('.dll');
 
-if (windowsX64) {
+if (supported) {
   const lock = fs.readFileSync(path.join(root, 'src-tauri/Cargo.lock'), 'utf8');
   const nativePackage = lock.split('[[package]]').find(block => /^name = "sherpa-onnx-sys"$/m.test(block));
   const lockedVersion = nativePackage?.match(/^version = "([^"]+)"$/m)?.[1];
@@ -23,7 +30,7 @@ if (windowsX64) {
 }
 
 function verifyFiles(dir, runtimeOnly = false) {
-  const expected = asset.files.filter(file => !runtimeOnly || file.name.endsWith('.dll'));
+  const expected = asset.files.filter(file => !runtimeOnly || runtimeLibrary(file.name));
   for (const file of expected) {
     const location = path.join(dir, file.name);
     const stat = fs.lstatSync(location);
@@ -31,8 +38,8 @@ function verifyFiles(dir, runtimeOnly = false) {
       throw new Error(`Native library checksum mismatch: ${location}`);
     }
   }
-  for (const name of fs.readdirSync(dir).filter(name => /\.(dll|lib)$/i.test(name))) {
-    if (runtimeOnly && !name.endsWith('.dll')) continue;
+  for (const name of fs.readdirSync(dir).filter(name => /\.(dll|lib|dylib)$/i.test(name))) {
+    if (runtimeOnly && !runtimeLibrary(name)) continue;
     if (!expected.some(file => file.name === name)) throw new Error(`Unreviewed native library: ${name}`);
   }
   console.log(`Verified ${expected.length} native libraries: ${dir}`);
@@ -42,9 +49,9 @@ const checkIndex = process.argv.indexOf('--check-dir');
 if (checkIndex !== -1) {
   if (!process.argv[checkIndex + 1]) throw new Error('--check-dir requires a directory');
   verifyFiles(path.resolve(root, process.argv[checkIndex + 1]), true);
-} else if (windowsX64 && process.argv.includes('--release')) {
+} else if (supported && process.argv.includes('--release')) {
   verifyFiles(path.join(targetDir, 'release'), true);
-} else if (windowsX64) {
+} else if (supported) {
   // Populate the exact cache used by sherpa-onnx-sys before its build script runs.
   // Cargo's downloaded crate checksum does not cover this native archive.
   const cache = path.join(targetDir, 'sherpa-onnx-prebuilt');
@@ -86,5 +93,5 @@ if (checkIndex !== -1) {
     verifyFiles(path.join(extracted, 'lib'));
   }
 } else {
-  console.log('Native checksum baseline currently covers Windows x64 only; other targets remain unverified.');
+  console.log('Native checksum baselines cover Windows x64 and macOS arm64/x64; this target remains unverified.');
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "verifiedAt": "2026-10-03T14:07:20.261Z",
   "repository": "https://github.com/k2-fsa/sherpa-onnx",
-  "scope": "three application model archives and Windows x64 native archive; unsigned assets use first verification over official HTTPS, not independent publisher authentication",
+  "scope": "Three model archives; Windows x64 and macOS arm64/x64 native archives. Initial asset trust is official GitHub release metadata and HTTPS, not an independent publisher signature.",
   "assets": [
     {
       "kind": "model",
@@ -96,6 +96,65 @@
           "sha256": "fbad731250ed1c688c76da5ea92c67c2b26cac07d87dd0478c4dcb96f864feee"
         }
       ]
+    },
+    {
+      "kind": "native-macos-arm64",
+      "name": "sherpa-onnx-v1.13.7-osx-arm64-shared-lib.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.7/sherpa-onnx-v1.13.7-osx-arm64-shared-lib.tar.bz2",
+      "assetId": 539031930,
+      "size": 8745701,
+      "createdAt": "2026-09-01T05:24:20Z",
+      "updatedAt": "2026-09-01T05:24:21Z",
+      "officialDigest": "sha256:c51e220217f2ce5d3de211887dc13ad49bf22346a2025a4159591d892008242d",
+      "sha256": "c51e220217f2ce5d3de211887dc13ad49bf22346a2025a4159591d892008242d",
+      "verification": "Downloaded from official versioned release; byte count and SHA-256 independently match GitHub asset digest. Mach-O architectures verified; bundled ONNX Runtime requires macOS 15.5.",
+      "files": [
+        {
+          "name": "libsherpa-onnx-c-api.dylib",
+          "size": 4153504,
+          "sha256": "29f43b6d737f75a19c153e94aa16451404a3e29d20c07f462dbbbc8888fcf5bd"
+        },
+        {
+          "name": "libsherpa-onnx-cxx-api.dylib",
+          "size": 180048,
+          "sha256": "2e6fcdd2042411c6672e7ad16926385db9ae145bcb7c845d41c407b183c6c94c"
+        },
+        {
+          "name": "libonnxruntime.dylib",
+          "size": 28661744,
+          "sha256": "59665a56e6a95118606bebe583efa8a3528362fc1078f69fc27f36def905bb2c"
+        }
+      ]
+    },
+    {
+      "kind": "native-macos-x64",
+      "name": "sherpa-onnx-v1.13.7-osx-x64-shared-lib.tar.bz2",
+      "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.7/sherpa-onnx-v1.13.7-osx-x64-shared-lib.tar.bz2",
+      "assetId": 539031719,
+      "size": 9943323,
+      "createdAt": "2026-09-01T05:24:11Z",
+      "updatedAt": "2026-09-01T05:24:12Z",
+      "officialDigest": "sha256:24182aef70b889868dbfd943a7f2246383dd1cd196b9b86c20b9642e7b2c396f",
+      "sha256": "24182aef70b889868dbfd943a7f2246383dd1cd196b9b86c20b9642e7b2c396f",
+      "verification": "Downloaded from official versioned release; byte count and SHA-256 independently match GitHub asset digest. Mach-O architectures verified; bundled ONNX Runtime requires macOS 15.5.",
+      "files": [
+        {
+          "name": "libsherpa-onnx-c-api.dylib",
+          "size": 4523360,
+          "sha256": "c586e2370cb14bcf7d31e6ba41b63ac4909f497c9a95aa1b8851b2adfe3c24dc"
+        },
+        {
+          "name": "libsherpa-onnx-cxx-api.dylib",
+          "size": 143776,
+          "sha256": "8be450df9c372060bc570b7db93d6a71b962b9061945728f180465937cdcb4b3"
+        },
+        {
+          "name": "libonnxruntime.dylib",
+          "size": 32172656,
+          "sha256": "df4bdef23b46a2d7733dcc4dc939e5647cfbd172f9c8a9228cd46efb659c7e6b"
+        }
+      ]
     }
-  ]
+  ],
+  "macosVerifiedAt": "2026-10-24T16:02:51.441Z"
 }
