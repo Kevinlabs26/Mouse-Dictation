@@ -10,9 +10,9 @@
       "signingIdentity": "-",
       "entitlements": "Entitlements.plist",
       "frameworks": [
-        "target/release/libsherpa-onnx-c-api.dylib",
-        "target/release/libsherpa-onnx-cxx-api.dylib",
-        "target/release/libonnxruntime.dylib"
+        "target/macos-native/libsherpa-onnx-c-api.dylib",
+        "target/macos-native/libsherpa-onnx-cxx-api.dylib",
+        "target/macos-native/libonnxruntime.dylib"
       ]
     }
   }

@@ -92,6 +92,13 @@ if (checkIndex !== -1) {
     }
     verifyFiles(path.join(extracted, 'lib'));
   }
+  if (macos) {
+    const prepared = path.join(targetDir, 'macos-native');
+    fs.mkdirSync(prepared, {recursive: true});
+    const source = override ? path.resolve(root, override) : path.join(extracted, 'lib');
+    for (const file of asset.files) fs.copyFileSync(path.join(source, file.name), path.join(prepared, file.name));
+    verifyFiles(prepared);
+  }
 } else {
   console.log('Native checksum baselines cover Windows x64 and macOS arm64/x64; this target remains unverified.');
 }
