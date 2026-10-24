@@ -21,13 +21,16 @@ The portable version requires [WebView2 Runtime](https://developer.microsoft.com
 
 ## Screenshots
 
-<p align="center">
-  <img src="docs/images/recognition-en.png" width="620" alt="English recognition settings with API and local offline modes">
-</p>
-
-<p align="center">
-  <img src="docs/images/speaking-overlay.png" width="240" alt="Recording overlay with microphone and timer">
-</p>
+<table>
+  <tr>
+    <td align="center" width="70%">
+      <img src="docs/images/recognition-en.png" width="620" alt="English recognition settings with API and local offline modes">
+    </td>
+    <td align="center" width="30%">
+      <img src="docs/images/speaking-overlay.png" width="240" alt="Recording overlay with microphone and timer">
+    </td>
+  </tr>
+</table>
 
 ## Features
 
