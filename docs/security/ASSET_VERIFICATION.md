@@ -8,6 +8,7 @@
 
 - 应用的三个模型压缩包：SenseVoice、Streaming Zipformer、Whisper Small。
 - Windows x64 sherpa-onnx v1.13.7 共享库归档，以及其中 4 个 DLL 和 3 个导入库。
+- 2026-10-24 新增 macOS arm64/x64 的同版本共享库归档，每份包含 3 个 dylib。下载字节数和 SHA-256 与官方 GitHub asset digest 独立核对；Mach-O 架构和最低系统版本也已检查。
 
 SenseVoice 和 Windows 归档具有官方 GitHub asset digest。其余两份模型没有该字段：从官方 release 通过 HTTPS 流式下载，核对完整字节数和下载前后不变的资产元数据，再计算摘要。清单中分别记录了这两种依据。这不是独立的发行方签名验证；初始信任仍依赖 GitHub 账号、TLS 和此次核验。摘要可检测基线建立之后的资产替换。
 
@@ -19,7 +20,9 @@ Windows x64 的 Tauri 开发/构建前运行 `node scripts/verify-native.mjs --p
 
 发布配置的 beforeBundleCommand 运行 `npm run verify:native`，验证 release 目录的四个 DLL；bundle.resources 只包含这四个明确文件。验证脚本只读取这些库，不加载或执行它们。v0.1.23 发布 CI 已完成 NSIS/MSI 打包和 Minisign 更新签名；下载后的两个安装包均已使用内置公钥独立验证通过，实际安装/更新执行仍未验证。摘要和发布记录见 [审核证据](audit-evidence.json)。
 
-直接使用 Cargo 时，不会执行 Tauri hook；先手工运行准备脚本。其他平台/架构会明确提示当前没有对应原生摘要基线，不假装已经验证。当前基线针对正常 Windows x64 输出布局，特殊交叉编译输出需要另行适配。
+macOS 的准备脚本按当前主机架构核验归档和三个 dylib，并复制到 `target/macos-native` 供 Tauri 测试与打包使用；打包前还会检查 release 目录中的库。应用打包时会修改库的加载路径并临时签名，因此包内 dylib 摘要会不同于原始库；CI 另用 codesign 和动态库引用检查验证打包结果。最低系统版本为 15.5，具体构建、签名和测试范围见 [Mac 构建记录](macos-build-2026-10-24.json)。
+
+直接使用 Cargo 时，不会执行 Tauri hook；先手工运行准备脚本。未覆盖的平台/架构仍会明确提示缺少基线。Mac 构建要求主机架构与目标匹配；特殊交叉编译和自定义输出布局需要另行适配。
 
 ## 更新流程
 
