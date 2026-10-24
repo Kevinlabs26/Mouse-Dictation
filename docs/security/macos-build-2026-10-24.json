@@ -1,6 +1,6 @@
 {
   "version": "0.1.24",
-  "kind": "macOS test builds, not a notarized public release",
+  "kind": "macOS test builds with ad-hoc signatures, published as supplemental Release assets",
   "checkedAt": "2026-10-24T16:31:38.662623+00:00",
   "sourceCommit": "e707cea40586b17a6066d07a4c97405a428ba42f",
   "workflowURL": "https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/40110887285",
@@ -54,6 +54,32 @@
     "Microphone capture, permission prompts, personal Keychain migration and automatic input were not manually tested.",
     "Clipboard-based Mac automatic input does not verify the original target; switching windows can expose text to the wrong window.",
     "No macOS updater package was added to the Windows updater feed.",
-    "GitHub Actions artifacts expire after 30 days; local verified DMGs were retained."
-  ]
+    "Actions artifacts expire after 30 days; the verified DMGs are also published as separate Release attachments."
+  ],
+  "releasePublication": {
+    "releaseURL": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/tag/v0.1.24",
+    "tag": "v0.1.24",
+    "published": true,
+    "checkedAt": "2026-10-24T16:55:05.533Z",
+    "assets": [
+      {
+        "architecture": "arm64",
+        "name": "Mouse-Dictation_0.1.24_arm64.dmg",
+        "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation_0.1.24_arm64.dmg",
+        "assetId": 672801776,
+        "bytes": 14834936,
+        "sha256": "4d520f516123269dd5d58b90fba6fd7f67331849086a0764ba13033cc9ddb87c"
+      },
+      {
+        "architecture": "x64",
+        "name": "Mouse-Dictation_0.1.24_x64.dmg",
+        "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation_0.1.24_x64.dmg",
+        "assetId": 672801936,
+        "bytes": 16411587,
+        "sha256": "05ca3096e78dea8b6af9b587e425c75dc969f1740937d44e4ed4a0e34a0700eb"
+      }
+    ],
+    "existingAssetsPreserved": 7,
+    "updaterFeed": "Existing Windows latest.json unchanged"
+  }
 }

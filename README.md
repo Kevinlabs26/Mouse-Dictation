@@ -19,7 +19,7 @@ For **Windows 10/11 · x64**.
 
 The portable version requires [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Update it by replacing the extracted files; the in-app updater uses an installer. New or unsigned apps may show a Windows SmartScreen warning.
 
-**macOS 15.5+ test builds:** [Apple Silicon / Intel downloads](https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/40110887285) · [Setup and limitations](docs/MACOS.md). These builds are not notarized by Apple.
+**macOS 15.5+ test builds:** [Apple Silicon DMG](https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation_0.1.24_arm64.dmg) · [Intel DMG](https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation_0.1.24_x64.dmg) · [Setup and limitations](docs/MACOS.md). These builds are not notarized by Apple.
 
 ## Screenshots
 

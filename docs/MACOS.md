@@ -1,10 +1,10 @@
 # macOS test builds
 
-The **Build macOS** GitHub Actions workflow builds separate DMGs for Apple Silicon (`arm64`) and Intel (`x64`). Download the matching artifact from a successful workflow run, unzip it, then open the DMG and copy Mouse Dictation to Applications.
+Download the DMG matching your Mac, open it, then copy Mouse Dictation to Applications. Both test builds are attached to the [v0.1.24 Release](https://github.com/Kevinlabs26/Mouse-Dictation/releases/tag/v0.1.24).
 
-Verified builds: [Apple Silicon](https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/40110887285/artifacts/12566925902) · [Intel](https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/40110887285/artifacts/12566842652). Both passed 35 applicable JavaScript tests and 59 Rust tests, app signature checks, bundled-library checks, and download verification. [Checksums and build record](security/macos-build-2026-10-24.json).
+Verified builds: [Apple Silicon DMG](https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation_0.1.24_arm64.dmg) · [Intel DMG](https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation_0.1.24_x64.dmg). Both passed 35 applicable JavaScript tests and 59 Rust tests, app signature checks, bundled-library checks, and download verification. [Checksums and build record](security/macos-build-2026-10-24.json).
 
-GitHub Actions artifacts are retained for 30 days. Run the workflow again to produce new test builds after they expire.
+The Release links above are separate from the temporary, 30-day Actions artifacts. The **Build macOS** workflow can create new test builds.
 
 - Requires **macOS 15.5 or later**: the pinned upstream ONNX Runtime libraries target 15.5.
 - Uses an **ad-hoc signature**, without Apple Developer ID signing or notarization. macOS may block the first launch; use its Privacy & Security approval flow only if you trust this build.
