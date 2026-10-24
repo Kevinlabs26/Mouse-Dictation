@@ -1,0 +1,173 @@
+{
+  "releaseURL": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/tag/v0.1.24",
+  "version": "0.1.24",
+  "verifiedAt": "2026-10-24T15:48:48.267Z",
+  "updater": "NSIS URL/signature match latest.json",
+  "assets": [
+    {
+      "name": "Mouse.Dictation_0.1.24_x64-setup.exe",
+      "size": 9561782,
+      "sha256": "393461b1446d2ae68899443278f0bbbb58b41998e9dee6130860c1ac3e6d4172",
+      "signature": "verified against embedded updater public key"
+    },
+    {
+      "name": "Mouse.Dictation_0.1.24_x64_en-US.msi",
+      "size": 14049280,
+      "sha256": "39574b3f6a4c0493172e2d545b49aa16c8b1ca35bcba0b740df5b038ed465949",
+      "signature": "verified against embedded updater public key"
+    },
+    {
+      "name": "Mouse-Dictation-windows-x64-setup.exe",
+      "size": 9561782,
+      "sha256": "393461b1446d2ae68899443278f0bbbb58b41998e9dee6130860c1ac3e6d4172",
+      "verification": "Matches signed NSIS installer"
+    },
+    {
+      "name": "Mouse-Dictation-windows-x64-portable.zip",
+      "size": 13736229,
+      "sha256": "e68a1404f5040a5ab075fb260035b67940f74da24b2132cc4013d0bea4e8eb98",
+      "verification": "8 allowed entries; four native DLLs and documentation hashes verified"
+    }
+  ],
+  "commit": "c7855d264a92ea9a412d69d0052925b9073e0d3e",
+  "ci": {
+    "url": "https://github.com/Kevinlabs26/Mouse-Dictation/actions/runs/40108078330",
+    "runId": 40108078330,
+    "conclusion": "success",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run dtolnay/rust-toolchain@89b12181fb390509a0842a86cc55eeb8eb928c1d",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm ci",
+        "conclusion": "success"
+      },
+      {
+        "name": "Test frontend security regressions",
+        "conclusion": "success"
+      },
+      {
+        "name": "Prepare frontend and verified native libraries",
+        "conclusion": "success"
+      },
+      {
+        "name": "Test portable archive packaging",
+        "conclusion": "success"
+      },
+      {
+        "name": "Test Rust security regressions",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build installers and updater signatures in draft release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Package portable app and stable installer alias",
+        "conclusion": "success"
+      },
+      {
+        "name": "Upload portable app and stable installer alias",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish complete release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "publishedAt": "2026-10-24T15:48:49Z",
+  "latest": true,
+  "releaseAssets": [
+    {
+      "name": "latest.json",
+      "bytes": 3317,
+      "digest": "sha256:e34577fb4ca33abbddf017182cf030e0acccf4807f2cbceb855a034fa268ca07",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/latest.json"
+    },
+    {
+      "name": "Mouse-Dictation-windows-x64-portable.zip",
+      "bytes": 13736229,
+      "digest": "sha256:e68a1404f5040a5ab075fb260035b67940f74da24b2132cc4013d0bea4e8eb98",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation-windows-x64-portable.zip"
+    },
+    {
+      "name": "Mouse-Dictation-windows-x64-setup.exe",
+      "bytes": 9561782,
+      "digest": "sha256:393461b1446d2ae68899443278f0bbbb58b41998e9dee6130860c1ac3e6d4172",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse-Dictation-windows-x64-setup.exe"
+    },
+    {
+      "name": "Mouse.Dictation_0.1.24_x64-setup.exe",
+      "bytes": 9561782,
+      "digest": "sha256:393461b1446d2ae68899443278f0bbbb58b41998e9dee6130860c1ac3e6d4172",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse.Dictation_0.1.24_x64-setup.exe"
+    },
+    {
+      "name": "Mouse.Dictation_0.1.24_x64-setup.exe.sig",
+      "bytes": 428,
+      "digest": "sha256:af281846a6531410dc81a57834750bdddc2d82b73edc9657bcf2125331bb62ba",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse.Dictation_0.1.24_x64-setup.exe.sig"
+    },
+    {
+      "name": "Mouse.Dictation_0.1.24_x64_en-US.msi",
+      "bytes": 14049280,
+      "digest": "sha256:39574b3f6a4c0493172e2d545b49aa16c8b1ca35bcba0b740df5b038ed465949",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse.Dictation_0.1.24_x64_en-US.msi"
+    },
+    {
+      "name": "Mouse.Dictation_0.1.24_x64_en-US.msi.sig",
+      "bytes": 428,
+      "digest": "sha256:8ead8579835a6fbf716c8e1ab4f77a524856529f03f67c81866a3c98311b07e3",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/download/v0.1.24/Mouse.Dictation_0.1.24_x64_en-US.msi.sig"
+    }
+  ],
+  "stableDownloads": [
+    {
+      "name": "Mouse-Dictation-windows-x64-setup.exe",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/latest/download/Mouse-Dictation-windows-x64-setup.exe",
+      "status": 200
+    },
+    {
+      "name": "Mouse-Dictation-windows-x64-portable.zip",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/latest/download/Mouse-Dictation-windows-x64-portable.zip",
+      "status": 200
+    },
+    {
+      "name": "latest.json",
+      "url": "https://github.com/Kevinlabs26/Mouse-Dictation/releases/latest/download/latest.json",
+      "status": 200
+    }
+  ],
+  "limits": [
+    "Installation and upgrade were not executed on the personal system.",
+    "Runtime verification covers Windows x64; macOS/Linux remain unverified.",
+    "Tauri updater signatures do not imply Windows Authenticode signing.",
+    "Upstream maintenance warnings and local dependency-patch maintenance remain documented in the security audit."
+  ]
+}
