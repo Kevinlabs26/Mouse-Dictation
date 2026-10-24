@@ -4,10 +4,13 @@ import { getVersion } from "@tauri-apps/api/app";
 import { check } from "@tauri-apps/plugin-updater";
 import "./styles.css";
 import { escapeHtml } from "./html.js";
+import { inputToolsMarkup, createInputTools } from "./input-tools.js";
 
 document.addEventListener("contextmenu", (event) => event.preventDefault());
 
 const $ = (id) => document.querySelector(`#${id}`);
+let inputTools;
+let pendingText = "";
 
 const UI_TEXT_EN = {
   "说话中": "Speaking",
@@ -75,6 +78,7 @@ const UI_TEXT_EN = {
   "获取翻译模型中…": "Fetching translation models…",
   "API Key 仅保存在本机。": "The API key is stored locally only.",
   "支持作者": "Support the author",
+  "反馈": "Feedback",
   "喜欢这个工具？": "Like this tool?",
   "自由赞助": "Tip on Ko-fi",
   "支持 / 购买": "Support / purchase",
@@ -254,6 +258,21 @@ const UI_TEXT_EN = {
   "文字已输入到当前输入位置": "Text was inserted into the active input",
   "已取消": "Cancelled",
   "本次录音已丢弃，没有继续转写": "This recording was discarded",
+  "听写已取消": "Dictation cancelled",
+  "未输入的结果已丢弃": "Pending text was discarded",
+  "正在准备录音": "Preparing to record",
+  "正在启动麦克风，Esc 可取消": "Starting microphone; press Esc to cancel",
+  "上一段听写尚未完成，请等待完成或按 Esc 取消": "Previous dictation is still processing. Wait or press Esc to cancel.",
+  "Esc 可取消录音或处理 · 单次最长 5 分钟": "Esc cancels recording or processing · Maximum 5 minutes per recording",
+  "已输入的实时文字不会撤回。": "Already inserted streaming text is kept.",
+  "这段文字尚未输入": "This text has not been inserted",
+  "可复制后手动粘贴；开始下一次听写会清除这段文字。": "Copy and paste manually. Starting another dictation clears this text.",
+  "复制文字": "Copy text",
+  "丢弃文字": "Discard text",
+  "已复制，请切换到目标窗口粘贴": "Copied. Switch to the target window and paste.",
+  "复制失败": "Copy failed",
+  "文字未输入：输入目标已切换或不可用，请回到目标输入框重新听写。": "Text was not inserted: the input target changed or is unavailable. Return to the intended input field and dictate again.",
+  "无法确认当前输入目标，请先点击目标输入框后重试。": "Could not confirm the current input target. Click the intended input field and try again.",
   "正在录音": "Recording",
   "稳定片段会自动输入，当前内容显示在实时预览": "Stable segments are inserted automatically; current text appears in the live preview",
   "松开鼠标左键完成转写": "Release the left mouse button to finish transcription",
@@ -267,6 +286,21 @@ const UI_TEXT_EN = {
   "测试中…": "Testing…",
   "未检测到麦克风": "No microphone detected",
   "默认麦克风：": "Default microphone: ",
+  "跟随系统默认": "Use system default",
+  "不可用": "Unavailable",
+  "刷新麦克风": "Refresh microphones",
+  "当前麦克风：": "Current microphone: ",
+  "正在检查麦克风…": "Checking microphones…",
+  "系统没有可用的默认麦克风，请检查设备连接和系统权限。": "No system-default microphone is available. Check the device connection and microphone permissions.",
+  "找不到已选麦克风：": "Selected microphone not found: ",
+  "。请重新连接设备或选择其他麦克风。": ". Reconnect it or select another microphone.",
+  "麦克风已断开，请重新选择。": "The microphone was disconnected. Select it again.",
+  "无法读取麦克风列表：": "Unable to list microphones: ",
+  "无法读取麦克风配置：": "Unable to read microphone configuration: ",
+  "未选择麦克风": "No microphone selected",
+  "录音未开始": "Recording has not started",
+  "录音已结束": "Recording ended",
+  "无法读取录音状态": "Recording status unavailable",
   "正在下载模型": "Downloading model",
   "模型已就绪": "Model ready",
   "模型下载失败": "Model download failed",
@@ -364,12 +398,12 @@ const UI_TEXT_COMMON = {
 for (const [locale, entries] of Object.entries(UI_TEXT_COMMON)) Object.assign(UI_TEXTS[locale], entries);
 
 const UI_TEXT_FOOTER = {
-  fr: { "支持作者": "Soutenir l’auteur", "☕ 支持作者": "☕ Soutenir l’auteur" },
-  de: { "支持作者": "Autor unterstützen", "☕ 支持作者": "☕ Autor unterstützen" },
-  ja: { "更新": "アップデート", "支持作者": "作者をサポート", "☕ 支持作者": "☕ 作者をサポート" },
-  es: { "支持作者": "Apoyar al autor", "☕ 支持作者": "☕ Apoyar al autor" },
-  ko: { "支持作者": "제작자 후원", "☕ 支持作者": "☕ 제작자 후원" },
-  pt: { "支持作者": "Apoiar o autor", "☕ 支持作者": "☕ Apoiar o autor" }
+  fr: { "反馈": "Signaler un problème", "支持作者": "Soutenir l’auteur", "☕ 支持作者": "☕ Soutenir l’auteur" },
+  de: { "反馈": "Feedback", "支持作者": "Autor unterstützen", "☕ 支持作者": "☕ Autor unterstützen" },
+  ja: { "反馈": "フィードバック", "更新": "アップデート", "支持作者": "作者をサポート", "☕ 支持作者": "☕ 作者をサポート" },
+  es: { "反馈": "Comentarios", "支持作者": "Apoyar al autor", "☕ 支持作者": "☕ Apoyar al autor" },
+  ko: { "反馈": "피드백", "支持作者": "제작자 후원", "☕ 支持作者": "☕ 제작자 후원" },
+  pt: { "反馈": "Feedback", "支持作者": "Apoiar o autor", "☕ 支持作者": "☕ Apoiar o autor" }
 };
 for (const [locale, entries] of Object.entries(UI_TEXT_FOOTER)) Object.assign(UI_TEXTS[locale], entries);
 
@@ -478,7 +512,7 @@ function applyLocale() {
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   for (const node of nodes) {
-    if (node.parentElement?.closest("#ui-language")) continue;
+    if (node.parentElement?.closest("#ui-language, #pane-input-tools, [data-user-content]")) continue;
     const trimmed = node.nodeValue.trim();
     if (!trimmed) continue;
     const source = node._mdSource || UI_TEXT_ZH[trimmed] || trimmed;
@@ -518,6 +552,10 @@ function setLocale(next) {
   updateTranslateHotkeyUi();
   renderAccentSwatches();
   renderProfiles();
+  renderAudioDevices();
+  inputTools.render();
+  $("input-tools-tab-label").textContent = uiLocale === "zh" ? "输入助手" : "Input tools";
+  $("open-recent-results").textContent = uiLocale === "zh" ? "查看最近结果，复制可恢复的文字" : "Open recent results to copy available text";
   if (models.length) renderModels();
   setStatus(currentStatus.title, currentStatus.detail, currentStatus.mode);
   if (onboardingVisible) renderOnboarding();
@@ -571,6 +609,7 @@ function applyTheme(next) {
   theme = next;
   document.documentElement.dataset.theme = next;
   localStorage.setItem("md-theme", next);
+  localStorage.setItem("md-accent", accentColor);
   document.querySelectorAll(".seg[data-theme-mode]").forEach((b) => b.classList.toggle("active", b.dataset.themeMode === next));
   applyAccent(accentColor);
 }
@@ -596,7 +635,7 @@ if (isOverlay) {
     <div class="overlay-mic">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><path d="M12 18v4"/></svg>
     </div>
-    <div id="overlay-label" class="overlay-label">${t("说话中")} · 00:00</div>
+    <div id="overlay-label" class="overlay-label">${t("录音未开始")}</div>
   </div>`;
   let overlayTheme = localStorage.getItem("md-theme") || "dark";
   let overlayAccent = localStorage.getItem("md-accent") || "#8b7cff";
@@ -611,15 +650,21 @@ if (isOverlay) {
   };
   const formatDuration = (seconds) => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const overlay = document.querySelector(".overlay");
+  const renderOverlayStatus = (status) => {
+    overlay.classList.toggle("voice-active", status?.has_voice === true);
+    $("overlay-label").textContent = status
+      ? `${t("正在录音")} · ${formatDuration(status.elapsed)}`
+      : t("录音已结束");
+  };
   const updateOverlayTimer = async () => {
     syncOverlayAppearance();
     try {
       const status = await invoke("get_recording_elapsed");
-      overlay.classList.toggle("voice-active", status?.has_voice === true);
-      $("overlay-label").textContent = `${t("说话中")} · ${formatDuration(status?.elapsed || 0)}`;
+      renderOverlayStatus(status);
     } catch (_) {
       // The overlay can start before the backend is ready.
       overlay.classList.remove("voice-active");
+      $("overlay-label").textContent = t("无法读取录音状态");
     }
   };
   setInterval(updateOverlayTimer, 250);
@@ -647,6 +692,19 @@ if (isOverlay) {
       <p id="live-text">正在等待语音…</p>
     </section>
 
+    <div id="recovery-notice" class="recovery-notice" hidden><button id="open-recent-results" class="ghost" type="button" data-user-content>${uiLocale === "zh" ? "查看最近结果，复制可恢复的文字" : "Open recent results to copy available text"}</button></div>
+    <section id="pending-result" class="recovery-notice" hidden aria-live="polite">
+      <article class="recent-result">
+        <strong>这段文字尚未输入</strong>
+        <p class="hint">可复制后手动粘贴；开始下一次听写会清除这段文字。</p>
+        <pre id="pending-result-text" data-user-content></pre>
+        <div class="tools-actions">
+          <button id="copy-pending-result" class="ghost" type="button">复制文字</button>
+          <button id="discard-pending-result" class="ghost" type="button">丢弃文字</button>
+        </div>
+      </article>
+    </section>
+
     <nav class="tabs" role="tablist">
       <button class="tab active" data-tab="engine" type="button" role="tab">
         <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><path d="M12 18v4"/></svg><span>识别</span>
@@ -660,6 +718,7 @@ if (isOverlay) {
       <button class="tab" data-tab="translate" type="button" role="tab">
         <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.66 2.5 15.34 0 18"/><path d="M12 3c-2.5 2.66-2.5 15.34 0 18"/></svg><span>翻译</span>
       </button>
+      <button class="tab" data-tab="input-tools" type="button" role="tab"><svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h4"/></svg><span id="input-tools-tab-label" data-user-content>${uiLocale === "zh" ? "输入助手" : "Input tools"}</span></button>
       <button class="tab" data-tab="appearance" type="button" role="tab">
         <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 2.5 2.5 0 0 0 2.5-2.5c0-.7-.3-1.3-.7-1.7a2.5 2.5 0 0 1 1.7-4.3H17a5 5 0 0 0 5-5c0-3.5-4.5-6.5-10-6.5z"/><circle cx="7.5" cy="10.5" r="1.5"/><circle cx="12" cy="7.5" r="1.5"/><circle cx="16.5" cy="10.5" r="1.5"/></svg><span>外观</span>
       </button>
@@ -771,7 +830,21 @@ if (isOverlay) {
             </select>
           </div>
         </div>
+        <div class="group">
+          <div class="field">
+            <label for="input-device">麦克风</label>
+            <div class="model-control">
+              <select id="input-device" aria-describedby="microphone-status" data-user-content>
+                <option value="">跟随系统默认</option>
+              </select>
+              <button id="refresh-microphones" class="ghost" type="button">刷新麦克风</button>
+            </div>
+            <p id="microphone-status" class="hint" role="status" data-user-content>正在检查麦克风…</p>
+          </div>
+        </div>
       </section>
+
+      ${inputToolsMarkup()}
 
       <section class="pane" id="pane-trigger">
         <div class="group">
@@ -815,7 +888,8 @@ if (isOverlay) {
               <button id="reset-translate-hotkey" class="ghost" type="button">重置</button>
             </div>
           </div>
-          <p class="hint">Esc 取消录音 · 单次最长 5 分钟</p>
+          <p class="hint">Esc 可取消录音或处理 · 单次最长 5 分钟</p>
+          <p class="hint">已输入的实时文字不会撤回。</p>
         </div>
       </section>
 
@@ -959,9 +1033,11 @@ if (isOverlay) {
       <div class="footer-meta">
         <span id="app-version" class="app-version">v0.1.23</span>
         <button id="footer-check-updates" class="footer-update" type="button" title="检查更新">更新</button>
+        <button id="footer-github" class="footer-update" type="button" title="在 GitHub 上点 Star">GitHub</button>
+        <button id="footer-feedback" class="footer-update" type="button">反馈</button>
         <span id="saved" class="saved">已保存</span>
       </div>
-      <div class="footer-links">
+      <div class="footer-links" hidden>
         <span class="footer-support-label">☕ 支持作者</span>
         <button id="support-kofi" class="footer-link footer-link-primary" type="button">Ko-fi</button>
         <button id="support-store" class="footer-link" type="button">Lemon Squeezy</button>
@@ -1071,6 +1147,7 @@ const SUPPORT_LINKS = {
   coffee: "https://buymeacoffee.com/kevinlabs26"
 };
 const GITHUB_LINK = "https://github.com/Kevinlabs26/Mouse-Dictation";
+const FEEDBACK_LINK = `${GITHUB_LINK}/issues/new/choose`;
 const ONBOARDING_STORAGE_KEY = "md-onboarding-completed";
 const UPDATE_NOTICE_STORAGE_KEY = "md-update-notice-version";
 const ONBOARDING_LAST_STEP = 4;
@@ -1475,8 +1552,11 @@ async function deleteProfile() {
     danger: true
   });
   if (!confirmed) return;
-  await invoke("delete_profile", { id });
-  await refreshProfiles();
+  try {
+    await invoke("delete_profile", { id });
+  } finally {
+    await refreshProfiles();
+  }
   setStatus("方案已删除", "当前设置仍然保留", "idle");
 }
 
@@ -1765,9 +1845,13 @@ function captureHotkey(event) {
   scheduleSave();
 }
 
+inputTools = createInputTools({ invoke, locale: () => uiLocale, save: () => saveSettings(), status: setStatus });
+
 async function saveSettings() {
   const settings = {
+    ...inputTools.values(),
     engine,
+    input_device: $("input-device").value,
     api_url: $("api-url").value.trim(),
     api_key: $("api-key").value.trim(),
     online_language: $("online-language").value,
@@ -2029,17 +2113,38 @@ async function refreshModels() {
   updateConfigSummary();
 }
 
-async function refreshAudioStatus() {
+function renderAudioDevices(selected = $("input-device").value) {
+  const devices = audioStatus?.devices || [];
+  const select = $("input-device");
+  select.replaceChildren(
+    new Option(t("跟随系统默认"), ""),
+    ...devices.map((name) => new Option(name, name)),
+    ...(selected && !devices.includes(selected)
+      ? [new Option(`${selected} (${t("不可用")})`, selected)] : [])
+  );
+  select.value = selected;
+  $("microphone-status").textContent = audioStatus
+    ? audioStatus.available ? `${t("当前麦克风：")}${audioStatus.detail}` : t(audioStatus.detail)
+    : t("正在检查麦克风…");
+  $("microphone-status").classList.toggle("error", audioStatus?.available === false);
+}
+
+async function refreshAudioStatus(updateStatus = false) {
+  const selected = $("input-device").value;
   try {
-    audioStatus = await invoke("get_audio_status");
-    if (!audioStatus.available) {
+    const status = await invoke("get_audio_status");
+    if ($("input-device").value !== selected) return;
+    audioStatus = status;
+    if (updateStatus && !audioStatus.available) {
       setStatus("未检测到麦克风", audioStatus.detail, "error");
-    } else if (audioStatus.detail) {
-      setStatus("正在等待鼠标", `默认麦克风：${audioStatus.detail} · 按住左键超过设定时间即可开始录音`, "idle");
+    } else if (updateStatus && audioStatus.detail) {
+      setStatus("正在等待鼠标", `当前麦克风：${audioStatus.detail} · 按住左键超过设定时间即可开始录音`, "idle");
     }
   } catch (error) {
-    audioStatus = { available: false, detail: `无法检查麦克风：${error}` };
+    if ($("input-device").value !== selected) return;
+    audioStatus = { available: false, devices: audioStatus?.devices || [], detail: `无法检查麦克风：${error}` };
   }
+  renderAudioDevices(selected);
 }
 
 async function onModelAction(event) {
@@ -2145,13 +2250,41 @@ function startUpdateCheckTimer() {
   updateCheckTimer = setInterval(() => checkForUpdates(), UPDATE_CHECK_INTERVAL_MS);
 }
 
+function setPendingResult(text = "") {
+  pendingText = typeof text === "string" ? text : "";
+  $("pending-result-text").textContent = pendingText;
+  $("pending-result").hidden = !pendingText;
+}
+
 async function init() {
+  $("open-recent-results").addEventListener("click", () => { activateTab("input-tools"); void inputTools.refresh(); $("recent-results").scrollIntoView({ block: "nearest" }); });
+  $("remember-results").addEventListener("change", () => { if (!$("remember-results").checked) $("recovery-notice").hidden = true; });
+  $("copy-pending-result").addEventListener("click", async () => {
+    if (!pendingText) return;
+    const button = $("copy-pending-result");
+    button.disabled = true;
+    try {
+      await invoke("copy_pending_result", { text: pendingText });
+      setStatus("已复制，请切换到目标窗口粘贴", "", "done");
+    } catch (error) {
+      setStatus("复制失败", String(error), "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+  $("discard-pending-result").addEventListener("click", () => setPendingResult());
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", () => activateTab(tab.dataset.tab));
   });
   const panes = document.querySelector(".panes");
   panes.addEventListener("input", scheduleSave);
   panes.addEventListener("change", scheduleSave);
+  $("input-device").addEventListener("change", (event) => {
+    event.stopPropagation();
+    clearTimeout(saveTimer);
+    saveSettings().then(() => refreshAudioStatus()).catch((error) => setStatus("保存失败", String(error), "error"));
+  });
+  $("refresh-microphones").addEventListener("click", () => refreshAudioStatus());
   document.querySelectorAll(".seg[data-engine]").forEach((seg) => seg.addEventListener("click", () => { setEngine(seg.dataset.engine); scheduleSave(); }));
   document.querySelectorAll(".mini-seg").forEach((button) => button.addEventListener("click", () => {
     if (!button.disabled) {
@@ -2321,6 +2454,8 @@ async function init() {
   $("support-kofi").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.kofi));
   $("support-store").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.store));
   $("support-coffee").addEventListener("click", () => openSupportLink(SUPPORT_LINKS.coffee));
+  $("footer-github").addEventListener("click", () => openSupportLink(GITHUB_LINK));
+  $("footer-feedback").addEventListener("click", () => openSupportLink(FEEDBACK_LINK));
   $("footer-check-updates").addEventListener("click", () => checkForUpdates(true));
   $("onboarding-next").addEventListener("click", () => {
     if (onboardingStep === ONBOARDING_LAST_STEP) finishOnboarding();
@@ -2394,6 +2529,9 @@ async function init() {
   });
 
   const settings = await invoke("get_settings");
+  inputTools.load(settings);
+  inputTools.render();
+  renderAudioDevices(settings.input_device || "");
   await invoke("set_ui_locale", { locale: uiLocale });
   setEngine(settings.engine);
   $("api-url").value = settings.api_url;
@@ -2433,7 +2571,7 @@ async function init() {
 
   await refreshModels();
   await refreshProfiles();
-  await refreshAudioStatus();
+  await refreshAudioStatus(true);
   let appVersion = "0.1.23";
   try {
     appVersion = await getVersion();
@@ -2443,34 +2581,53 @@ async function init() {
   }
 
   await listen("check-for-updates", () => checkForUpdates(true));
+  await listen("recent-results-changed", () => inputTools.refresh());
   await listen("dictation-state", ({ payload }) => {
-    if (payload === "recording") {
+    if (payload === "starting") {
+      setPendingResult();
+      $("recovery-notice").hidden = true;
+      $("live-preview").hidden = true;
+      setStatus("正在准备录音", "正在启动麦克风，Esc 可取消", "processing");
+    } else if (payload === "recording") {
+      setPendingResult();
+      $("recovery-notice").hidden = true;
       const streaming = engine === "local" && localMode === "streaming";
       $("live-preview").hidden = !streaming;
       setStatus("正在录音", streaming ? "稳定片段会自动输入，当前内容显示在实时预览" : "松开鼠标左键完成转写", "recording");
     } else if (payload === "processing") setStatus("正在转写", "请稍候，完成后会自动输入", "processing");
     else if (payload === "translating") setStatus("正在翻译", "翻译完成后会自动输入", "translating");
     else if (payload === "done") {
+      void inputTools.refresh();
       $("live-preview").hidden = true;
       setStatus("已完成", "文字已输入到当前输入位置", "done");
     } else if (payload === "cancelled") {
+      setPendingResult();
       $("live-preview").hidden = true;
-      setStatus("已取消", "本次录音已丢弃，没有继续转写", "idle");
+      setStatus("听写已取消", "未输入的结果已丢弃", "idle");
     } else {
       $("live-preview").hidden = true;
       setStatus("正在等待鼠标", "按住左键超过设定时间即可开始录音", "idle");
     }
   });
+  await listen("dictation-recovery", ({ payload }) => setPendingResult(payload?.text));
   await listen("dictation-error", ({ payload }) => {
+    $("recovery-notice").hidden = !$("remember-results").checked || (engine === "local" && localMode === "streaming");
+    void inputTools.refresh();
     $("live-preview").hidden = true;
     setStatus("发生错误", payload, "error");
   });
   await listen("settings-changed", ({ payload }) => {
     if (!payload) return;
+    inputTools.load(payload);
+    renderAudioDevices(payload.input_device || "");
+    void refreshAudioStatus();
+    if (!payload.remember_results) $("recovery-notice").hidden = true;
     setEngine(payload.engine || "online");
     $("api-url").value = payload.api_url || "";
     $("api-key").value = payload.api_key || "";
     $("online-language").value = payload.online_language || "auto";
+    $("hold-ms").value = payload.hold_ms;
+    updateHoldDisplay();
     setManualModelMode(false);
     setModelOptions([], payload.model || "whisper-1");
     $("provider").value = matchProvider(payload.api_url || PROVIDERS.openai.url);
@@ -2494,6 +2651,9 @@ async function init() {
     $("translate-api").value = matchTranslateChannel(payload);
     $("translate-url").value = payload.translate_url || "";
     $("translate-key").value = payload.translate_key || "";
+    accentColor = payload.accent || "#8b7cff";
+    applyTheme(payload.theme || "dark");
+    updateAccentUi();
     updateTranslateUi();
     updateOutputModeUi();
     refreshProfiles().catch(() => {});

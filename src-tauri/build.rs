@@ -10,6 +10,11 @@ fn main() {
         .windows_attributes(windows)
         .app_manifest(tauri_build::AppManifest::new().commands(&[
             "get_settings",
+            "preview_text_rules",
+            "get_recent_results",
+            "clear_recent_results",
+            "copy_recent_result",
+            "copy_pending_result",
             "set_ui_locale",
             "get_profiles",
             "create_profile",

@@ -1,0 +1,2 @@
+src-tauri/vendor/** text=auto eol=lf whitespace=-blank-at-eof
+docs/security/*.tsv whitespace=-blank-at-eol

@@ -45,6 +45,22 @@ test('profile renderer treats hostile names and IDs as option text and values', 
   assert.equal(nodes['profile-select'].value, profile.id);
 });
 
+test('a credential cleanup failure refreshes the deleted profile without claiming success', async () => {
+  const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8');
+  const code = source.slice(source.indexOf('async function deleteProfile()'), source.indexOf('async function applySelectedProfile()'));
+  let refreshed = false;
+  const failure = Error('credential cleanup failed');
+  const context = vm.createContext({
+    $: () => ({value: 'profile-1'}), profiles: [{id: 'profile-1', name: 'Example'}],
+    uiLocale: 'zh', t: value => value, showDialog: async () => true,
+    invoke: async () => { throw failure; }, refreshProfiles: async () => { refreshed = true; },
+    setStatus: () => assert.fail('must not claim credentials were removed')
+  });
+  vm.runInContext(code, context);
+  await assert.rejects(vm.runInContext('deleteProfile()', context), error => error === failure);
+  assert.equal(refreshed, true);
+});
+
 test('every registered IPC command has an explicit main-window permission; overlay has only recording status', () => {
   const root = new URL('../', import.meta.url);
   const source = fs.readFileSync(new URL('src-tauri/src/main.rs', root), 'utf8');

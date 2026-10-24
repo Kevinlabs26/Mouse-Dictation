@@ -1,0 +1,3755 @@
+{
+  "date": "2026-10-24",
+  "platform": "Windows x64",
+  "counts": {
+    "direct": 24,
+    "cargo": 633,
+    "npm": 78
+  },
+  "direct": [
+    {
+      "ecosystem": "npm",
+      "name": "@tauri-apps/api",
+      "range": "^2.0.0",
+      "version": "2.11.1"
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@tauri-apps/plugin-updater",
+      "range": "^2.11.0",
+      "version": "2.11.0"
+    },
+    {
+      "ecosystem": "npm",
+      "name": "@tauri-apps/cli",
+      "range": "^2.0.0",
+      "version": "2.11.4"
+    },
+    {
+      "ecosystem": "npm",
+      "name": "vite",
+      "range": "^6.4.5",
+      "version": "6.4.5"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "arboard",
+      "version": "3.6.1"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "bzip2",
+      "version": "0.5.2"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "cpal",
+      "version": "0.15.3"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "dirs-next",
+      "version": "2.0.0"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "hound",
+      "version": "3.5.1"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "keyring",
+      "version": "4.2.0"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "rdev",
+      "version": "0.5.3"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "reqwest",
+      "version": "0.12.28"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "serde",
+      "version": "1.0.229"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "serde_json",
+      "version": "1.0.151"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "sha2",
+      "version": "0.10.9"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "sherpa-onnx",
+      "version": "1.13.7"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "tar",
+      "version": "0.4.46"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "tauri",
+      "version": "2.11.6"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "tauri-build",
+      "version": "2.6.3"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "tauri-plugin-autostart",
+      "version": "2.5.1"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "tauri-plugin-updater",
+      "version": "2.11.0"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "tempfile",
+      "version": "3.27.0"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "uuid",
+      "version": "1.26.0"
+    },
+    {
+      "ecosystem": "crates.io",
+      "name": "windows-sys",
+      "version": "0.61.2"
+    }
+  ],
+  "npmAuditBefore": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {
+      "vite": {
+        "name": "vite",
+        "severity": "high",
+        "isDirect": true,
+        "via": [
+          {
+            "source": 1242622,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "launch-editor: escapeCmdArgs() omits % escaping on Windows",
+            "url": "https://github.com/advisories/GHSA-698v-4r3x-3vcv",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-78"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.3"
+          },
+          {
+            "source": 1242651,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "launch-editor: Editor CLI flag misinterpretation causing arbitrary command execution for some editors",
+            "url": "https://github.com/advisories/GHSA-r825-w8mm-5pxw",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-88"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.3"
+          },
+          {
+            "source": 1242658,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "launch-editor: `fs.existsSync()` existence check can be bypassed on Windows",
+            "url": "https://github.com/advisories/GHSA-587h-7wmj-h5pm",
+            "severity": "high",
+            "cwe": [
+              "CWE-77"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.3"
+          },
+          {
+            "source": 1242724,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "Vite: Cross origin script execution through Vite custom middleware",
+            "url": "https://github.com/advisories/GHSA-9jrq-w75r-8gcw",
+            "severity": "low",
+            "cwe": [
+              "CWE-80"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.3"
+          },
+          {
+            "source": 1242730,
+            "name": "vite",
+            "dependency": "vite",
+            "title": "Vite: Files outside `server.fs.allow` could be served when project paths match system paths on non-Windows machine",
+            "url": "https://github.com/advisories/GHSA-rq7h-c2jc-7f22",
+            "severity": "moderate",
+            "cwe": [
+              "CWE-22",
+              "CWE-284"
+            ],
+            "cvss": {
+              "score": 0,
+              "vectorString": null
+            },
+            "range": "<=6.4.3"
+          }
+        ],
+        "effects": [],
+        "range": "<=6.4.3",
+        "nodes": [
+          "node_modules/vite"
+        ],
+        "fixAvailable": true
+      }
+    },
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 1,
+        "critical": 0,
+        "total": 1
+      },
+      "dependencies": {
+        "prod": 3,
+        "dev": 76,
+        "optional": 64,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 78
+      }
+    }
+  },
+  "npmAuditAfter": {
+    "auditReportVersion": 2,
+    "vulnerabilities": {},
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 0
+      },
+      "dependencies": {
+        "prod": 3,
+        "dev": 76,
+        "optional": 64,
+        "peer": 0,
+        "peerOptional": 0,
+        "total": 78
+      }
+    }
+  },
+  "osvBefore": {
+    "at": "2026-10-24T09:36:47.024Z",
+    "findings": [
+      {
+        "ecosystem": "crates.io",
+        "name": "ctutils",
+        "version": "0.4.2",
+        "ids": [
+          "RUSTSEC-2026-0385"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "glib",
+        "version": "0.18.5",
+        "ids": [
+          "GHSA-wrw7-89jp-8q8g",
+          "RUSTSEC-2024-0429"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "proc-macro-error",
+        "version": "1.0.4",
+        "ids": [
+          "RUSTSEC-2024-0370"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "quinn-proto",
+        "version": "0.11.17",
+        "ids": [
+          "RUSTSEC-2026-0338",
+          "RUSTSEC-2026-0340",
+          "RUSTSEC-2026-0343"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "rustls",
+        "version": "0.23.45",
+        "ids": [
+          "RUSTSEC-2026-0346",
+          "RUSTSEC-2026-0347",
+          "RUSTSEC-2026-0348",
+          "RUSTSEC-2026-0349"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "rustls-webpki",
+        "version": "0.103.15",
+        "ids": [
+          "RUSTSEC-2026-0382"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "tokio",
+        "version": "1.53.1",
+        "ids": [
+          "RUSTSEC-2026-0386"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-char-property",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0081"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-char-range",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0075"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-common",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0080"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-ucd-ident",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0100"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-ucd-version",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0098"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "webpki-root-certs",
+        "version": "1.0.9",
+        "ids": [
+          "RUSTSEC-2026-0383"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "webpki-roots",
+        "version": "1.0.9",
+        "ids": [
+          "RUSTSEC-2026-0381"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zbus_names",
+        "version": "4.3.4",
+        "ids": [
+          "RUSTSEC-2026-0371"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zip",
+        "version": "2.4.2",
+        "ids": [
+          "RUSTSEC-2026-0367",
+          "RUSTSEC-2026-0368",
+          "RUSTSEC-2026-0369"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zip",
+        "version": "4.6.1",
+        "ids": [
+          "RUSTSEC-2026-0367",
+          "RUSTSEC-2026-0368",
+          "RUSTSEC-2026-0369"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zvariant",
+        "version": "5.15.0",
+        "ids": [
+          "RUSTSEC-2026-0370"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zvariant_derive",
+        "version": "5.15.0",
+        "ids": [
+          "RUSTSEC-2026-0372"
+        ]
+      },
+      {
+        "ecosystem": "npm",
+        "name": "vite",
+        "version": "6.4.3",
+        "ids": [
+          "GHSA-587h-7wmj-h5pm",
+          "GHSA-698v-4r3x-3vcv",
+          "GHSA-9jrq-w75r-8gcw",
+          "GHSA-r825-w8mm-5pxw",
+          "GHSA-rq7h-c2jc-7f22"
+        ]
+      }
+    ]
+  },
+  "osvAfter": {
+    "at": "2026-10-24T14:59:09.390Z",
+    "findings": [
+      {
+        "ecosystem": "crates.io",
+        "name": "glib",
+        "version": "0.18.5",
+        "ids": [
+          "GHSA-wrw7-89jp-8q8g",
+          "RUSTSEC-2024-0429"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "proc-macro-error",
+        "version": "1.0.4",
+        "ids": [
+          "RUSTSEC-2024-0370"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-char-property",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0081"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-char-range",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0075"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-common",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0080"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-ucd-ident",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0100"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "unic-ucd-version",
+        "version": "0.9.0",
+        "ids": [
+          "RUSTSEC-2025-0098"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zbus_names",
+        "version": "4.3.4",
+        "ids": [
+          "RUSTSEC-2026-0371"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zvariant",
+        "version": "5.15.0",
+        "ids": [
+          "RUSTSEC-2026-0370"
+        ]
+      },
+      {
+        "ecosystem": "crates.io",
+        "name": "zvariant_derive",
+        "version": "5.15.0",
+        "ids": [
+          "RUSTSEC-2026-0372"
+        ]
+      }
+    ]
+  },
+  "advisories": [
+    {
+      "id": "RUSTSEC-2026-0385",
+      "summary": "Non-constant-time mask generation and `u128` comparisons",
+      "affected": [
+        {
+          "name": "ctutils",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "0.4.4"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/ctutils"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0385.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/RustCrypto/utils/pull/1569"
+        }
+      ]
+    },
+    {
+      "id": "GHSA-wrw7-89jp-8q8g",
+      "aliases": [
+        "RUSTSEC-2024-0429"
+      ],
+      "summary": "Unsoundness in `Iterator` and `DoubleEndedIterator` impls for `glib::VariantStrIter`",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "glib",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.15.0"
+                },
+                {
+                  "fixed": "0.20.0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/gtk-rs/gtk-rs-core/pull/1343"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/gtk-rs/gtk-rs-core"
+        },
+        {
+          "type": "WEB",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2024-0429.html"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2024-0429",
+      "aliases": [
+        "GHSA-wrw7-89jp-8q8g"
+      ],
+      "summary": "Unsoundness in `Iterator` and `DoubleEndedIterator` impls for `glib::VariantStrIter`",
+      "affected": [
+        {
+          "name": "glib",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.15.0"
+                },
+                {
+                  "fixed": "0.20.0"
+                }
+              ]
+            }
+          ],
+          "classification": "unsound"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/glib"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2024-0429.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/gtk-rs/gtk-rs-core/pull/1343"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2024-0370",
+      "summary": "proc-macro-error is unmaintained",
+      "affected": [
+        {
+          "name": "proc-macro-error",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/proc-macro-error"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2024-0370.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://gitlab.com/CreepySkeleton/proc-macro-error/-/issues/20"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0338",
+      "aliases": [
+        "GHSA-465w-v9q3-7j98"
+      ],
+      "summary": "Remote peer can panic quinn-proto with zero-length STREAM frames during unordered reads",
+      "affected": [
+        {
+          "name": "quinn-proto",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.7.0"
+                },
+                {
+                  "fixed": "0.11.18"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/quinn-proto"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0338.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/quinn-rs/quinn/pull/2868"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0340",
+      "aliases": [
+        "GHSA-3g6h-r5qx-f6hq"
+      ],
+      "summary": "Peer minimum ACK delay can panic quinn-proto when ACK_FREQUENCY transmission is enabled",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+        }
+      ],
+      "affected": [
+        {
+          "name": "quinn-proto",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.11.0"
+                },
+                {
+                  "fixed": "0.11.18"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/quinn-proto"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0340.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/quinn-rs/quinn/pull/2868"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0343",
+      "aliases": [
+        "GHSA-ppcp-v39w-8jq2"
+      ],
+      "summary": "Outgoing datagram buffer accounting can panic the sender in quinn-proto",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+        }
+      ],
+      "affected": [
+        {
+          "name": "quinn-proto",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.11.17"
+                },
+                {
+                  "fixed": "0.11.18"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/quinn-proto"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0343.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/quinn-rs/quinn/pull/2806"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0346",
+      "aliases": [
+        "GHSA-c8m5-c952-6cm4"
+      ],
+      "summary": "`Debug` impls for client session values expose TLS secrets",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:L/AC:H/PR:H/UI:R/S:U/C:H/I:N/A:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "rustls",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.21.0"
+                },
+                {
+                  "fixed": "0.23.46"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/rustls"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0346.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/rustls/pull/3299"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0347",
+      "aliases": [
+        "GHSA-vp88-798v-h67f"
+      ],
+      "summary": "Buffered application data sent to outer server after ECH rejection",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:L/I:N/A:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "rustls",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.23.44"
+                },
+                {
+                  "fixed": "0.23.46"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/rustls"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0347.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/rustls/pull/3300"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0348",
+      "aliases": [
+        "GHSA-h2v8-394m-p7vv"
+      ],
+      "summary": "Brotli certificate decompression can allocate up to 1 GiB before authentication",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L"
+        }
+      ],
+      "affected": [
+        {
+          "name": "rustls",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.23.9"
+                },
+                {
+                  "fixed": "0.23.46"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/rustls"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0348.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/rustls/pull/3297"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0349",
+      "aliases": [
+        "GHSA-w44r-93j7-qv28"
+      ],
+      "summary": "Unauthenticated ServerHello can downgrade later connections to classical key exchange",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "rustls",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "0.23.46"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/rustls"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0349.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/rustls/pull/3355"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0382",
+      "aliases": [
+        "CVE-2026-111943",
+        "GO-2026-6809",
+        "RUSTSEC-2026-0381",
+        "RUSTSEC-2026-0383"
+      ],
+      "summary": "Certificate verification may accept distrusted intermediates",
+      "affected": [
+        {
+          "name": "rustls-webpki",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "0.103.16"
+                },
+                {
+                  "introduced": "0.104.0-alpha.1"
+                },
+                {
+                  "fixed": "0.104.0-alpha.8"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/rustls-webpki"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0382.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/webpki/pull/546"
+        },
+        {
+          "type": "WEB",
+          "url": "https://emudhra.we-have-a-problem.com/"
+        },
+        {
+          "type": "WEB",
+          "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=2083449"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0386",
+      "summary": "`AsyncFd::new` and related constructors violate I/O safety",
+      "affected": [
+        {
+          "name": "tokio",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.3.2"
+                },
+                {
+                  "fixed": "1.51.6"
+                },
+                {
+                  "introduced": "1.52.0"
+                },
+                {
+                  "fixed": "1.53.3"
+                }
+              ]
+            }
+          ],
+          "classification": "unsound"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/tokio"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0386.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/tokio-rs/tokio/pull/8587"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/tokio-rs/tokio/issues/8538"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/tokio-rs/tokio/issues/8539"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2025-0081",
+      "summary": "`unic-char-property` is unmaintained",
+      "affected": [
+        {
+          "name": "unic-char-property",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-char-property"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0081.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2025-0075",
+      "summary": "`unic-char-range` is unmaintained",
+      "affected": [
+        {
+          "name": "unic-char-range",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-char-range"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0075.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2025-0080",
+      "summary": "`unic-common` is unmaintained",
+      "affected": [
+        {
+          "name": "unic-common",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-common"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0080.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2025-0100",
+      "summary": "`unic-ucd-ident` is unmaintained",
+      "affected": [
+        {
+          "name": "unic-ucd-ident",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-ucd-ident"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0100.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2025-0098",
+      "summary": "`unic-ucd-version` is unmaintained",
+      "affected": [
+        {
+          "name": "unic-ucd-version",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/unic-ucd-version"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2025-0098.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/rustsec/advisory-db/issues/2414"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0383",
+      "aliases": [
+        "CVE-2026-111943",
+        "GO-2026-6809",
+        "RUSTSEC-2026-0381",
+        "RUSTSEC-2026-0382"
+      ],
+      "summary": "Bundled root certificates allow trust in distrusted emSign intermediates",
+      "affected": [
+        {
+          "name": "webpki-root-certs",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "0.26.11"
+                },
+                {
+                  "introduced": "0.26.12-0"
+                },
+                {
+                  "fixed": "1.0.10"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/webpki-root-certs"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0383.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/webpki-roots/pull/133"
+        },
+        {
+          "type": "WEB",
+          "url": "https://emudhra.we-have-a-problem.com/"
+        },
+        {
+          "type": "WEB",
+          "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=2083449"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0381",
+      "aliases": [
+        "CVE-2026-111943",
+        "GO-2026-6809",
+        "RUSTSEC-2026-0382",
+        "RUSTSEC-2026-0383"
+      ],
+      "summary": "Bundled root certificates allow trust in distrusted emSign intermediates",
+      "affected": [
+        {
+          "name": "webpki-roots",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "0.26.11"
+                },
+                {
+                  "introduced": "0.26.12-0"
+                },
+                {
+                  "fixed": "1.0.10"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/webpki-roots"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0381.html"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/rustls/webpki-roots/pull/133"
+        },
+        {
+          "type": "WEB",
+          "url": "https://emudhra.we-have-a-problem.com/"
+        },
+        {
+          "type": "WEB",
+          "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=2083449"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0371",
+      "summary": "`zbus_names` is unmaintained",
+      "affected": [
+        {
+          "name": "zbus_names",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/zbus_names"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0371.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/z-galaxy/zbus/issues/2043"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0367",
+      "aliases": [
+        "GHSA-vv5m-jxxh-4627"
+      ],
+      "summary": " Insecure Preservation of SUID/SGID Bits during ZIP Extraction Leading to Potential Privilege Escalation",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:L/AC:L/PR:L/UI:R/S:U/C:H/I:H/A:H"
+        }
+      ],
+      "affected": [
+        {
+          "name": "zip",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "9.0.0"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/zip"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0367.html"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0368",
+      "aliases": [
+        "GHSA-4v9h-p7m9-rh26"
+      ],
+      "summary": "zip: `ZipArchive::extract` creates symbolic links whose attacker-controlled targets are outside the destination directory",
+      "affected": [
+        {
+          "name": "zip",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "9.0.0"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/zip"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0368.html"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0369",
+      "aliases": [
+        "GHSA-4684-h2q9-2vcp"
+      ],
+      "summary": "ZipStreamReader::extract() and ZipArchive::extract() apply Unix permissions through symlinks without confining the target",
+      "severity": [
+        {
+          "type": "CVSS_V3",
+          "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H"
+        }
+      ],
+      "affected": [
+        {
+          "name": "zip",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                },
+                {
+                  "fixed": "9.0.0"
+                }
+              ]
+            }
+          ],
+          "classification": null
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/zip"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0369.html"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0370",
+      "summary": "`zvariant` is unmaintained",
+      "affected": [
+        {
+          "name": "zvariant",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/zvariant"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0370.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/z-galaxy/zbus/issues/2043"
+        }
+      ]
+    },
+    {
+      "id": "RUSTSEC-2026-0372",
+      "summary": "`zvariant_derive` is unmaintained",
+      "affected": [
+        {
+          "name": "zvariant_derive",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0.0.0-0"
+                }
+              ]
+            }
+          ],
+          "classification": "unmaintained"
+        }
+      ],
+      "references": [
+        {
+          "type": "PACKAGE",
+          "url": "https://crates.io/crates/zvariant_derive"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://rustsec.org/advisories/RUSTSEC-2026-0372.html"
+        },
+        {
+          "type": "REPORT",
+          "url": "https://github.com/z-galaxy/zbus/issues/2043"
+        }
+      ]
+    },
+    {
+      "id": "GHSA-587h-7wmj-h5pm",
+      "aliases": [
+        "CVE-2026-112942"
+      ],
+      "summary": "launch-editor: `fs.existsSync()` existence check can be bypassed on Windows",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:A/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "launch-editor",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "2.14.2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.3.0"
+                },
+                {
+                  "fixed": "8.3.3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.2.0"
+                },
+                {
+                  "fixed": "8.2.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.0.0"
+                },
+                {
+                  "fixed": "8.1.6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "7.0.0"
+                },
+                {
+                  "fixed": "7.3.7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "6.4.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite-plus",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "1.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/security/advisories/GHSA-587h-7wmj-h5pm"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112942"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/commit/f13cd835d4b8e860b1d4d080ad8a490cc2463679"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/vitejs/launch-editor"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/releases/tag/v2.14.2"
+        }
+      ]
+    },
+    {
+      "id": "GHSA-698v-4r3x-3vcv",
+      "aliases": [
+        "CVE-2026-112943"
+      ],
+      "summary": "launch-editor: escapeCmdArgs() omits % escaping on Windows",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "launch-editor",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "2.14.2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.3.0"
+                },
+                {
+                  "fixed": "8.3.3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.2.0"
+                },
+                {
+                  "fixed": "8.2.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.0.0"
+                },
+                {
+                  "fixed": "8.1.6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "7.0.0"
+                },
+                {
+                  "fixed": "7.3.7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "6.4.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite-plus",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "1.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/security/advisories/GHSA-698v-4r3x-3vcv"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112943"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/pull/155"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/commit/3c2f9bf2ff8fe63d056a8f9cc52d825b66ca79fc"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/vitejs/launch-editor"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/releases/tag/v2.14.2"
+        }
+      ]
+    },
+    {
+      "id": "GHSA-9jrq-w75r-8gcw",
+      "aliases": [
+        "CVE-2026-112945"
+      ],
+      "summary": "Vite: Cross origin script execution through Vite custom middleware",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:A/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.3.0"
+                },
+                {
+                  "fixed": "8.3.3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.2.0"
+                },
+                {
+                  "fixed": "8.2.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.0.0"
+                },
+                {
+                  "fixed": "8.1.6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "7.0.0"
+                },
+                {
+                  "fixed": "7.3.7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "6.4.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite-plus",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "1.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/security/advisories/GHSA-9jrq-w75r-8gcw"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112945"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/pull/23653"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/commit/7dafd8e56f152403a3230608fa4005273c2e9e17"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/vitejs/vite"
+        }
+      ]
+    },
+    {
+      "id": "GHSA-r825-w8mm-5pxw",
+      "aliases": [
+        "CVE-2026-112944"
+      ],
+      "summary": "launch-editor: Editor CLI flag misinterpretation causing arbitrary command execution for some editors",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "launch-editor",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "2.14.2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.3.0"
+                },
+                {
+                  "fixed": "8.3.3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.2.0"
+                },
+                {
+                  "fixed": "8.2.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.0.0"
+                },
+                {
+                  "fixed": "8.1.6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "7.0.0"
+                },
+                {
+                  "fixed": "7.3.7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "6.4.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite-plus",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "1.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/security/advisories/GHSA-r825-w8mm-5pxw"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112944"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/pull/156"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/commit/f6e6701bb1f16f2dd242b321374f1b6cca6eb6d4"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/vitejs/launch-editor"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/launch-editor/releases/tag/v2.14.2"
+        }
+      ]
+    },
+    {
+      "id": "GHSA-rq7h-c2jc-7f22",
+      "aliases": [
+        "CVE-2026-112946"
+      ],
+      "summary": "Vite: Files outside `server.fs.allow` could be served when project paths match system paths on non-Windows machine",
+      "severity": [
+        {
+          "type": "CVSS_V4",
+          "score": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N"
+        }
+      ],
+      "affected": [
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.3.0"
+                },
+                {
+                  "fixed": "8.3.3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.2.0"
+                },
+                {
+                  "fixed": "8.2.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "8.0.0"
+                },
+                {
+                  "fixed": "8.1.6"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "7.0.0"
+                },
+                {
+                  "fixed": "7.3.7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "6.4.4"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "vite-plus",
+          "ranges": [
+            {
+              "type": "SEMVER",
+              "events": [
+                {
+                  "introduced": "0"
+                },
+                {
+                  "fixed": "1.1.0"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/security/advisories/GHSA-rq7h-c2jc-7f22"
+        },
+        {
+          "type": "ADVISORY",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-112946"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/pull/23656"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/commit/170b92791421bcd484f7325936d989a82d6bd4aa"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/commit/45c0e3392a298626955a0ab93a8e51232daac721"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/commit/c3e06f92e969952466b4e2f5801e85e1e00cd905"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/commit/e570d8d016096b5f8f6f09808376ca6cf73f27d0"
+        },
+        {
+          "type": "WEB",
+          "url": "https://github.com/vitejs/vite/commit/f0d76c7da13d5e794807b82f0b86c1931a8438e3"
+        },
+        {
+          "type": "PACKAGE",
+          "url": "https://github.com/vitejs/vite"
+        }
+      ]
+    }
+  ],
+  "credentialsScan": {
+    "date": "2026-10-24T15:03:28.093Z",
+    "files": 374,
+    "artifacts": [
+      {
+        "file": ".cargo-target\\release\\bundle\\nsis\\Mouse Dictation_0.1.23_x64-setup.exe",
+        "size": 9561047
+      },
+      {
+        "file": ".cargo-target\\release\\bundle\\portable\\Mouse-Dictation-windows-x64-portable.zip",
+        "size": 13730839
+      },
+      {
+        "file": ".cargo-target\\release\\bundle\\portable\\Mouse-Dictation-windows-x64-setup.exe",
+        "size": 9561047
+      },
+      {
+        "file": ".cargo-target\\release\\Mouse-Dictation-Preview.exe",
+        "size": 16426496
+      },
+      {
+        "file": ".cargo-target\\release\\mouse-dictation.exe",
+        "size": 16392704
+      },
+      {
+        "file": ".cargo-target\\release\\mouse_dictation.pdb",
+        "size": 10104832
+      },
+      {
+        "file": ".cargo-target\\release\\onnxruntime.dll",
+        "size": 17378304
+      },
+      {
+        "file": ".cargo-target\\release\\onnxruntime_providers_shared.dll",
+        "size": 104960
+      },
+      {
+        "file": ".cargo-target\\release\\sherpa-onnx-c-api.dll",
+        "size": 4593664
+      },
+      {
+        "file": ".cargo-target\\release\\sherpa-onnx-cxx-api.dll",
+        "size": 258560
+      },
+      {
+        "file": "src-tauri\\target\\release\\bundle\\nsis\\Mouse Dictation_0.1.17_x64-setup.exe",
+        "size": 9545353
+      },
+      {
+        "file": "src-tauri\\target\\release\\bundle\\nsis\\Mouse Dictation_0.1.19_x64-setup.exe",
+        "size": 9537565
+      },
+      {
+        "file": "src-tauri\\target\\release\\bundle\\nsis\\Mouse Dictation_0.1.20_x64-setup.exe",
+        "size": 9543674
+      },
+      {
+        "file": "src-tauri\\target\\release\\bundle\\nsis\\Mouse Dictation_0.1.21_x64-setup.exe",
+        "size": 9545092
+      },
+      {
+        "file": "src-tauri\\target\\release\\mouse-dictation-security-smoke.exe",
+        "size": 16286208
+      },
+      {
+        "file": "src-tauri\\target\\release\\mouse-dictation.exe",
+        "size": 16434688
+      },
+      {
+        "file": "src-tauri\\target\\release\\mouse_dictation.pdb",
+        "size": 10055680
+      },
+      {
+        "file": "src-tauri\\target\\release\\onnxruntime.dll",
+        "size": 17378304
+      },
+      {
+        "file": "src-tauri\\target\\release\\onnxruntime_providers_shared.dll",
+        "size": 104960
+      },
+      {
+        "file": "src-tauri\\target\\release\\sherpa-onnx-c-api.dll",
+        "size": 4593664
+      },
+      {
+        "file": "src-tauri\\target\\release\\sherpa-onnx-cxx-api.dll",
+        "size": 258560
+      }
+    ],
+    "historyBlobs": 374,
+    "commits": 28,
+    "sensitiveTracked": [],
+    "localGitCredentialEntries": [],
+    "findings": [],
+    "portableArchive": {
+      "archive": ".cargo-target\\release\\bundle\\portable\\Mouse-Dictation-windows-x64-portable.zip",
+      "files": [
+        {
+          "name": "Mouse Dictation/LICENSE",
+          "bytes": 10336
+        },
+        {
+          "name": "Mouse Dictation/mouse-dictation.exe",
+          "bytes": 16392704
+        },
+        {
+          "name": "Mouse Dictation/onnxruntime.dll",
+          "bytes": 17378304
+        },
+        {
+          "name": "Mouse Dictation/onnxruntime_providers_shared.dll",
+          "bytes": 104960
+        },
+        {
+          "name": "Mouse Dictation/PRIVACY.md",
+          "bytes": 3563
+        },
+        {
+          "name": "Mouse Dictation/sherpa-onnx-c-api.dll",
+          "bytes": 4593664
+        },
+        {
+          "name": "Mouse Dictation/sherpa-onnx-cxx-api.dll",
+          "bytes": 258560
+        },
+        {
+          "name": "Mouse Dictation/START-HERE.txt",
+          "bytes": 947
+        }
+      ],
+      "findings": [],
+      "extraction": "none; entries scanned directly in memory"
+    },
+    "excludedDuplicateExtractions": {
+      "pattern": ".audit-cache/final-audit-portable-*",
+      "reason": "Duplicate temporary copies excluded; current ZIP was scanned directly in memory and compared with build sources."
+    }
+  },
+  "registryActivity": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "rdev",
+        "repository": "https://github.com/Narsil/rdev",
+        "latest": "0.5.3",
+        "latestPublished": "2023-06-26T09:20:11.289928Z",
+        "latestRecordedUpdate": "2023-06-26T09:20:11.289928Z"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "hound",
+        "repository": "https://github.com/ruuda/hound",
+        "latest": "3.5.1",
+        "latestPublished": "2023-09-25T20:36:49.665784Z",
+        "latestRecordedUpdate": "2023-09-25T20:36:49.665784Z"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "dirs-next",
+        "repository": "https://github.com/xdg-rs/dirs",
+        "latest": "2.0.0",
+        "latestPublished": "2020-10-22T03:34:04.786339Z",
+        "latestRecordedUpdate": "2020-10-22T03:34:04.786339Z"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "name": "cpal",
+        "repository": "https://github.com/RustAudio/cpal",
+        "latest": "0.18.2",
+        "latestPublished": "2026-08-16T18:02:02.361461Z",
+        "latestRecordedUpdate": "2026-08-16T18:02:02.361461Z"
+      }
+    }
+  ],
+  "checks": {
+    "nodeTests": 36,
+    "nodeTestsSkipped": 0,
+    "rustTests": 68,
+    "rustTestsIgnored": 0,
+    "productionTauriBuild": "passed",
+    "portableArchive": "passed, 8 allowlisted files",
+    "nsisBuild": "passed, local preview only, no updater artifacts generated",
+    "nativePreparation": "7 reviewed files verified",
+    "nativeRelease": "4 DLLs verified in release and configured resource source",
+    "nativeAbi": "sherpa-onnx 1.13.7 unchanged",
+    "vendorProvenance": "143 official package files compared; only 3 expected modified files",
+    "rustFormatting": "passed",
+    "gitDiffCheck": "passed with CRLF notices",
+    "cargoAudit": "not installed; OSV/npm/primary advisories used",
+    "linuxRuntime": "not performed; no available WSL distro",
+    "credentialFaultInjection": "12 credential-config tests with memory store and temporary files; real personal credentials untouched"
+  },
+  "acceptedDecisions": {
+    "zip": "Developer explicitly approved: disable legacy Tauri 1 ZIP updater feature, preserve raw EXE/MSI and use local sherpa build-dependency ZIP 9.1 patch.",
+    "glib": "Developer explicitly approved official source backport on glib 0.18.5 while retaining GTK ABI; version-only scanner warning remains visible.",
+    "credentialConsistency": "Developer explicitly approved endpoint/scope-bound immutable keyring snapshots and atomic config-reference migration; implemented and regression checked.",
+    "nonWindowsInput": "Complete Windows validation in this audit and document macOS/Linux focus risks, explicitly selected by developer."
+  },
+  "limitations": [
+    "Linux glib native runtime tests not performed; source backport checked against upstream.",
+    "macOS/Linux original input focus protection remains the previously accepted source risk.",
+    "Credential tests use a memory keyring and temporary files; no personal keyring migration was executed.",
+    "Process termination can leave unreferenced OS-keyring snapshots; current config reference cannot select the abandoned snapshot.",
+    "9 dependency maintenance warnings remain; version scanning also flags the locally backported glib 0.18.5.",
+    "Secret patterns are not proof of absence; remote/unreachable history and compressed NSIS/MSI internals are not fully scanned.",
+    "Native reachability result is limited to the named advisory and current model configuration, not all native code."
+  ],
+  "finalReview": {
+    "at": "2026-10-24T15:07:45.507Z",
+    "verdict": "Stated Windows security controls pass within static/regression/scan scope; Linux and personal-keyring runtime verification not claimed; maintenance warnings remain.",
+    "scope": {
+      "included": [
+        "Dependency vulnerabilities and maintenance status",
+        "Source-level injection, web, deserialization, archive, crypto, logging, desktop IPC and credential security",
+        "Secrets in current files, reachable local history and selected build outputs",
+        "CI/CD security configuration and scripts",
+        "Existing build/tests for security changes"
+      ],
+      "excludedAsSecurityGates": [
+        "Publisher reputation/Authenticode readiness",
+        "Marketing screenshots/demo completeness",
+        "General install/uninstall acceptance",
+        "Whether a release was published"
+      ],
+      "runtimeValidation": "Windows x64, as explicitly selected by developer"
+    },
+    "passMatrix": [
+      {
+        "check": "前端依赖漏洞",
+        "status": "通过",
+        "evidence": "npm audit：0 告警"
+      },
+      {
+        "check": "Windows 已启用依赖链的已知漏洞核查",
+        "status": "通过",
+        "evidence": "ZIP 旧版本不在依赖链中；9.1.0 仅用于构建；未确认当前 Windows 路径存在适用的未处理 High/Critical 问题"
+      },
+      {
+        "check": "注入、XSS、eval 与动态代码执行",
+        "status": "通过",
+        "evidence": "静态审查与相关回归测试通过"
+      },
+      {
+        "check": "路径穿越、反序列化、模型文件解压",
+        "status": "通过",
+        "evidence": "普通文件白名单、摘要、路径与大小边界检查通过"
+      },
+      {
+        "check": "TLS、API 重定向、响应限制及错误脱敏",
+        "status": "通过",
+        "evidence": "证书校验开启、远程 HTTPS、同源重定向及相关测试通过"
+      },
+      {
+        "check": "桌面 IPC、WebView 与权限隔离",
+        "status": "通过",
+        "evidence": "25 个命令显式授权；主窗口和 overlay 权限隔离"
+      },
+      {
+        "check": "凭据存储、绑定、迁移与中断保护",
+        "status": "通过（逻辑与故障模拟）",
+        "evidence": "系统凭据快照、地址/方案绑定、原子配置提交及失败保护测试通过"
+      },
+      {
+        "check": "密钥泄露扫描、日志与敏感文件忽略",
+        "status": "通过（检查范围内）",
+        "evidence": "当前文件、本地可达历史和选定产物未发现确认的真实秘密；.env/私钥忽略正常"
+      },
+      {
+        "check": "Windows 输入保护、文本大小与结果隐私控制",
+        "status": "通过（源码与单元测试）",
+        "evidence": "取消/目标检查、1 MiB 边界、临时录音与内存结果控制测试通过"
+      },
+      {
+        "check": "CI/CD 权限、Action 固定与脚本注入检查",
+        "status": "通过（静态审查）",
+        "evidence": "Action 固定 SHA；无 pull_request_target 或确认的脚本注入、秘密暴露"
+      },
+      {
+        "check": "glib 已知缺陷的本地补丁",
+        "status": "通过（源码核对）",
+        "evidence": "与上游补丁一致；Windows 不启用该 GTK 依赖链"
+      }
+    ],
+    "artifacts": {
+      "archive": {
+        "path": ".cargo-target\\release\\bundle\\portable\\Mouse-Dictation-windows-x64-portable.zip",
+        "size": 13730839,
+        "sha256": "d5b97a440f9ba5cfb2f3a7991e6f5a625be994f0c52666cb1e57e4173f2c4546",
+        "entries": [
+          {
+            "name": "LICENSE",
+            "size": 10336,
+            "sha256": "b078529d98df810c5629638817d8abc5d1384bb8fedf754530ec8a7ea6e41f0d"
+          },
+          {
+            "name": "mouse-dictation.exe",
+            "size": 16392704,
+            "sha256": "97bbd6d673c6c168233e4d6cf07ecbe6cd0900a933eefdfc9dcc94968550887a"
+          },
+          {
+            "name": "onnxruntime.dll",
+            "size": 17378304,
+            "sha256": "b9f6713c3602a4742680a7e6a77e3f9ac4a676ad9447bce609e53efcda795d7e"
+          },
+          {
+            "name": "onnxruntime_providers_shared.dll",
+            "size": 104960,
+            "sha256": "1f8b8ebfb07aad2c692669ba77c45b5a24e72b9c708bc3f2be4103ff29370c60"
+          },
+          {
+            "name": "PRIVACY.md",
+            "size": 3563,
+            "sha256": "339b314bcdd75f6834799e935e1f09e468c78d18f4837ba352d4ddf5d59a11b5"
+          },
+          {
+            "name": "sherpa-onnx-c-api.dll",
+            "size": 4593664,
+            "sha256": "f80a93e69fda12aaab23581f71097010c70fb8b8c042fec7c0efead04be5c441"
+          },
+          {
+            "name": "sherpa-onnx-cxx-api.dll",
+            "size": 258560,
+            "sha256": "019634407ab4ea0f80152ffa988835abecc72f7e27dee4a1ff78c0b7eb1fe81e"
+          },
+          {
+            "name": "START-HERE.txt",
+            "size": 947,
+            "sha256": "4182634d3889099061a55cac28ad739356111abacd7e0cc19dfa0da1a9fc1f8e"
+          }
+        ]
+      },
+      "installer": {
+        "path": ".cargo-target\\release\\bundle\\nsis\\Mouse Dictation_0.1.23_x64-setup.exe",
+        "size": 9561047,
+        "sha256": "d835cc7a24d55ab7a57bb9a0fb19f1af6f3ae040f87421b2850cbf14edb03629",
+        "aliasMatches": true,
+        "authenticode": "NotSigned",
+        "updaterArtifactsGeneratedForThisLocalPreview": false
+      },
+      "extractedForSecretScan": ".audit-cache\\final-audit-portable-kyxqhy87"
+    },
+    "sourceFiles": [
+      {
+        "path": ".env.example",
+        "bytes": 63,
+        "sha256": "8f89741be43614426c971ef9e0cec3d98e0289adb26baa1dc8425d24e6ceec56"
+      },
+      {
+        "path": ".github/FUNDING.yml",
+        "bytes": 145,
+        "sha256": "6f6a74529b0f370eae2d0c5c962b3576e81acfd291c1bda72cfb771c1955994c"
+      },
+      {
+        "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+        "bytes": 957,
+        "sha256": "71db3664b714fd78ebb6d782b38ed3d14385b2ecf24efd13a594dbb052c3678a"
+      },
+      {
+        "path": ".github/workflows/release.yml",
+        "bytes": 4156,
+        "sha256": "60457523888a9ee78ffaeebe00614600489ca5d6bb5edffa1ff5c9819bd255ca"
+      },
+      {
+        "path": ".gitignore",
+        "bytes": 449,
+        "sha256": "66ca024ce0d019da2ba2ea65d0810fb0fd79a5dc8ca910264fb92d3bad17fa88"
+      },
+      {
+        "path": "PRIVACY.md",
+        "bytes": 3563,
+        "sha256": "339b314bcdd75f6834799e935e1f09e468c78d18f4837ba352d4ddf5d59a11b5"
+      },
+      {
+        "path": "README.md",
+        "bytes": 15366,
+        "sha256": "ae92e1386f92c323f989ef6de6a43f79ab53a1d68ff61a66b8c12ec18a04a4ab"
+      },
+      {
+        "path": "docs/security/asset-checksums.json",
+        "bytes": 4690,
+        "sha256": "769369c0c723331964f288546bdd90af714146ca9c8c50494af0e278c37393c1"
+      },
+      {
+        "path": "index.html",
+        "bytes": 315,
+        "sha256": "653d7649b586adaca1d3a5d3997dd963797706c001b4a6c2c1e64a16bb78bc2c"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 42834,
+        "sha256": "fc327b6897f17ffad0d925b3786ecc9bbd6df540a2cf539b22e12409522be610"
+      },
+      {
+        "path": "package.json",
+        "bytes": 849,
+        "sha256": "a88f7ddd9d89801abaf3cbbcc163201c10252c07b82ec79f9e5d1138bd04c5f7"
+      },
+      {
+        "path": "scripts/package-portable.mjs",
+        "bytes": 3833,
+        "sha256": "224c0a4e673451a15f12ee66e585bb8aa324dbe5f6b54c6068a9c58397fbffc6"
+      },
+      {
+        "path": "scripts/verify-native.mjs",
+        "bytes": 4527,
+        "sha256": "08134f1b0452ab3c11ea9086ead386192080765225e9480269451a5b9ae1d5f9"
+      },
+      {
+        "path": "src-tauri/Cargo.lock",
+        "bytes": 163300,
+        "sha256": "8604431a2df8cdfd51fd6abdc609eb1f2421c4ed3636559d3f60c3dacae1ca78"
+      },
+      {
+        "path": "src-tauri/Cargo.toml",
+        "bytes": 1296,
+        "sha256": "70664ef7a881b1ec8bd802d47fb87ff1e1f1123471cfbacd50d2b9afcb521d15"
+      },
+      {
+        "path": "src-tauri/build.rs",
+        "bytes": 1425,
+        "sha256": "0614911b7b9ddbb7edbf4e03b608a7ad85aaabe8c2d98fb99f08a63cede79e5b"
+      },
+      {
+        "path": "src-tauri/capabilities/default.json",
+        "bytes": 1102,
+        "sha256": "a940fcadb5a90d50a81a67b2872d28587896830079218baec684b9c59278800e"
+      },
+      {
+        "path": "src-tauri/capabilities/overlay.json",
+        "bytes": 273,
+        "sha256": "901bfc16173351fc1127af3dc41fd45ac69d4145337f59588271f91f8db38b97"
+      },
+      {
+        "path": "src-tauri/src/credential_config.rs",
+        "bytes": 23043,
+        "sha256": "6ceb756b1e39483734121630eb63a2ed6f8a22b5b7698bd58a3c02615399f9f4"
+      },
+      {
+        "path": "src-tauri/src/dictation_session.rs",
+        "bytes": 1556,
+        "sha256": "978a1f3a4eea47d73674e294e7bac3ba05d0046c1ce2e1e2a11527217ae3d2a3"
+      },
+      {
+        "path": "src-tauri/src/main.rs",
+        "bytes": 169091,
+        "sha256": "469394cf1e80b6d2406d032323c5be446930da7932a0ab5689f873d492eb8b4f"
+      },
+      {
+        "path": "src-tauri/src/text_input.rs",
+        "bytes": 9177,
+        "sha256": "692eb441fb627ccc1d8c0f254af08cde49e29b91390e2bf96e16a6931c114b22"
+      },
+      {
+        "path": "src-tauri/src/text_processing.rs",
+        "bytes": 30028,
+        "sha256": "f4e6768ece6ee73d92b8e3bb29e634762f6484cd4c9b7adfec16af3b5a0c8b63"
+      },
+      {
+        "path": "src-tauri/tauri.conf.json",
+        "bytes": 1664,
+        "sha256": "87f6a1ad598fe17635125fb479cb8db02c207f33b16cf9715e1062e372091607"
+      },
+      {
+        "path": "src-tauri/tauri.release.conf.json",
+        "bytes": 322,
+        "sha256": "ce9abb811123c0ef8ea3d1546d6d582b545254d80a32297babe555201056cc90"
+      },
+      {
+        "path": "src-tauri/tauri.windows.conf.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "src-tauri/vendor/PATCHES.md",
+        "bytes": 1667,
+        "sha256": "802349408ce9198352222e14b72df725542db0aee477e66b68a3a7bdf25aca99"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/.cargo_vcs_info.json",
+        "bytes": 98,
+        "sha256": "b301b45387ec3b66f1eace44a21991aaeac83e3140dab4faa0f6b9f7f0ec445b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/COPYRIGHT",
+        "bytes": 651,
+        "sha256": "dae402989de65164815b7e2b6bc2b9576285434c3785934c8b6ece0fa055960d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/Cargo.toml",
+        "bytes": 3127,
+        "sha256": "bcd52d812b4c111864ae8e88ba6c0a8311eb0cf781b5e81634950b4619592132"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/Cargo.toml.orig",
+        "bytes": 2197,
+        "sha256": "677a6833293bfb48a855a5965aa2616e5a8a67cfe32b348454aa90c829a138f0"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/Gir.toml",
+        "bytes": 22016,
+        "sha256": "c09a2a77e6b5872c356f158db02fb02a91d238acc2b3d74dac527ae113e9a9f3"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/Gir_GObject.toml",
+        "bytes": 3640,
+        "sha256": "02eca96b8fc6fe0e7b36407b91e4e91a5e1662bcdef9b4bbe4ab34744182e8a7"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/LICENSE",
+        "bytes": 1024,
+        "sha256": "8cf56d10131ce201cf69ab74b111d3ebac1acca3833d7efb39ae357224b70edb"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/README.md",
+        "bytes": 3720,
+        "sha256": "31d662868efe1db14c1ae19dc99c0352266dd6f6b2db31d4079cbb162268a819"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/benches/gstring.rs",
+        "bytes": 1164,
+        "sha256": "17387e7dab0bd4002cc8b4bac315e60a171a271b152acaebe709551f4d494589"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/alias.rs",
+        "bytes": 332,
+        "sha256": "55c23867766bc1f570c9d51dd165eb0f96ba606eae6ee4c15d9f3c7a8ccd19e5"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/checksum.rs",
+        "bytes": 1368,
+        "sha256": "2c7f7d139aff5a28ba1672f633e0f76a79e4527e5abed0d9d588d823a3002646"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/constants.rs",
+        "bytes": 6264,
+        "sha256": "c2fa5757279dcc2a357daa56cef643c622b2c387ddc48f88024f67bb72a4cd00"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/date_time.rs",
+        "bytes": 16318,
+        "sha256": "fc05d7c90e522d5ef1cb7cef6d41de49b8357a8349c48745dff3f769b42d0fda"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/enums.rs",
+        "bytes": 102752,
+        "sha256": "70685084d7462df9cf4f9a1a5254b298f0de8ea587cbd7f8ff28e468c306386a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/flags.rs",
+        "bytes": 19925,
+        "sha256": "c2f77a0bdeeea8af3d0a39d7afeb2b75affae58905522b5fa65922d460052d4e"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/functions.rs",
+        "bytes": 26604,
+        "sha256": "e9b0cd6ddde7a2fcb157221e712d9f33f419aeae1aa3d206987ebce526152e7e"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/key_file.rs",
+        "bytes": 15314,
+        "sha256": "263c41a0df370671ef65dbf77f4a1311c349ebbb2a7b6d0a4a19525d57788e9d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/main_context.rs",
+        "bytes": 4947,
+        "sha256": "6c8d3b897b821e73e1653aeff2ddfcffcfd7dd3805bb1d850656c1b8100cab84"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/main_loop.rs",
+        "bytes": 1557,
+        "sha256": "79d3273a2e8357b7d1cf2e3d53ed98e85f3260ae9780a7a559234c0d2d797b57"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/markup_parse_context.rs",
+        "bytes": 3567,
+        "sha256": "979a1e49c8cd5cbca751d40cb37defe20c2f0a72dd9e4b65838c527d0ae0d291"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/mod.rs",
+        "bytes": 4239,
+        "sha256": "74aa2e241ebca146a4843974b2c83087bc93fb71e70d86d2011172cbc5616ce4"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/source.rs",
+        "bytes": 4434,
+        "sha256": "b2360784363f49c9a2e63e2e7873bc478d93eb09dda22f0018ee69b84a5f92b8"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/time_zone.rs",
+        "bytes": 3092,
+        "sha256": "62a86aac66665ec0843bb0ad0d202d72b03224b4b072895034c7daf1f09aba81"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/uri.rs",
+        "bytes": 16960,
+        "sha256": "dd30e5981df044c95a3900c983da28c06fd8fa399b03c76acb45ec2f6c59fcae"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/auto/versions.txt",
+        "bytes": 132,
+        "sha256": "035a7287797d47bfbc9811abee3a8bbae5f5e6ec7dab72ec394a123ddb88c4c2"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/boxed.rs",
+        "bytes": 24430,
+        "sha256": "1bb1a003c82fc5903b398aef6f07d8f828446eff0a793e4aa94abbadff79f3fa"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/boxed_any_object.rs",
+        "bytes": 6519,
+        "sha256": "bd11c46e03dea925ae9b15ba6c2c70f38e207aa70530f30c4a1e7b7322f19404"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/boxed_inline.rs",
+        "bytes": 29709,
+        "sha256": "9dd644d5be6a11e8a56dbb16f70c1570affdeceaaf2622f88d661fa5769b487d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/bridged_logging.rs",
+        "bytes": 13937,
+        "sha256": "a74ff5afc558ac072d083703d234bb79d77362d56c6a2b50934c49a7abfe0eb1"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/byte_array.rs",
+        "bytes": 3991,
+        "sha256": "b859699a50b69878cbf4d7d83c25a3e34402147bc7febe481e92c6d01e31898c"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/bytes.rs",
+        "bytes": 7205,
+        "sha256": "2c4d37050af422a475380fdc05dda58a5179b7a54ac67d14e8ab1131833f5619"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/char.rs",
+        "bytes": 5624,
+        "sha256": "edb208444ce0760c6b52a86e90db0fe2b18472c2436f75b2d241acfaeb89c3f6"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/checksum.rs",
+        "bytes": 1987,
+        "sha256": "fc98c34788d878d2461a394b442a4d8797602b3d380d96260c71160c552faa6f"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/clone.rs",
+        "bytes": 2073,
+        "sha256": "87ff5bf8fca591fb8236d61c8b1bee0db54c645b0af1c1f97dd36298c4f0f79b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/closure.rs",
+        "bytes": 14750,
+        "sha256": "2008243add8ac242fad14e79626ba4fcf3eac2eed72666ae9f9936bad163714a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/collections/list.rs",
+        "bytes": 27224,
+        "sha256": "53887e634a8dc22fd79ad7d38f9e914d06a013061831f5e4bd2ba9095c668220"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/collections/mod.rs",
+        "bytes": 275,
+        "sha256": "0a6967d4d9f22bcfa6dcc35b2ce4f26ce1cc82f83111812ab0815f4b33e2c81f"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/collections/ptr_slice.rs",
+        "bytes": 41267,
+        "sha256": "6fcb10ac7d9b4ba58cdbed9dc0ad40a4f4d4f608a3572403f8a7c77fc99c2221"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/collections/slice.rs",
+        "bytes": 27475,
+        "sha256": "64d450ea2799db681a2d8d505bcac94c9f3a9ab0e52deb8c7ad0eada7d9b15a8"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/collections/slist.rs",
+        "bytes": 27177,
+        "sha256": "15b7ae76a09001e2df9c43feed8f28e06385d6032d53010358e58eb4a693e54b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/collections/strv.rs",
+        "bytes": 44165,
+        "sha256": "e519528d5006592cf682be0ddca09a7eb2b5997115df28184b19e81881c03f03"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/control_flow.rs",
+        "bytes": 2480,
+        "sha256": "9610f16228f2f57a426fbb0c8a9513cb22631d0dc52fa65dfdc5f5372757a40e"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/convert.rs",
+        "bytes": 13755,
+        "sha256": "78fb8fa4fcc6d4c42be9eacb782f456daa35fdab20698dbcc1b67c11e66cb05a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/date.rs",
+        "bytes": 13749,
+        "sha256": "bed49f44abb204d94c062f137f7a39e3ad722adf90b11b833aaae12733871650"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/date_time.rs",
+        "bytes": 366,
+        "sha256": "99cff4cd4e19d57bf81187bc6e74fe7f6936cbb6575728027bfe16595ec478d4"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/enums.rs",
+        "bytes": 30879,
+        "sha256": "a436d253d4f03bffacb488a890784304f231297607460c49ceab64bef21e5338"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/error.rs",
+        "bytes": 9227,
+        "sha256": "7350aca6f26e415d3fe653c6ec94e1e6b735d3f2cefbdae7131cb1342762b29a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/exit_code.rs",
+        "bytes": 680,
+        "sha256": "a3de4048a143860c2d38dd1067b91bc52da9c3994491d5f8ca5187100739ff48"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/future_with_timeout.rs",
+        "bytes": 2950,
+        "sha256": "59c508f47dd247b680ed4a31f05124ae753845a5416c8fec0e31f6218849972c"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/auto/binding.rs",
+        "bytes": 1579,
+        "sha256": "9fcf34d5a4e30234890ecf00af8c7b73362597d12007483d630c6fa94099106b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/auto/binding_group.rs",
+        "bytes": 2647,
+        "sha256": "fa4186b216f273ad2d7d531018d60a4b2a68243e1c1526f20d11bc10dc45b662"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/auto/flags.rs",
+        "bytes": 4598,
+        "sha256": "9a900bdfccfa61f6b222df9cc2bd1859438f72fc17cbe807a268a17079599af3"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/auto/mod.rs",
+        "bytes": 687,
+        "sha256": "71208f4ba80a250bd47ea5216e17da250b344f6e5c8cbd2fc154771bab0f1124"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/auto/signal_group.rs",
+        "bytes": 2045,
+        "sha256": "5ccbc1ee15564464d8107baf2631daa5dd426f8649d9710679f49f1407797a2b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/binding.rs",
+        "bytes": 9508,
+        "sha256": "ff7537c94681056aba4cdb603653e1d781ae2d2c6728d55fc5b8b9786b13758a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/binding_group.rs",
+        "bytes": 16670,
+        "sha256": "79705410a96508115ab8a601e13251a27a62507e93b1c88f9c90c590ed6f302b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/flags.rs",
+        "bytes": 1909,
+        "sha256": "6c2bb2afff339f54225ebbe9d4ab7ef06e8f783612e1e079bc18a3be6ef0ba1d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/mod.rs",
+        "bytes": 573,
+        "sha256": "ad5a8530e2bb7e3a4e49d9d78f66451b0aa8c5b16b88e7185c4a8759d5aa3329"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gobject/signal_group.rs",
+        "bytes": 8181,
+        "sha256": "17eb4995d8f13d37d25d3a0465ca135d69fc4e548db712c2bd80c5419d8812e6"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gstring.rs",
+        "bytes": 73945,
+        "sha256": "f3fe8d70bd1e58b070d4ed9d34cdd3e39f511f341424a632b9d8acdf2aec8741"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/gstring_builder.rs",
+        "bytes": 9407,
+        "sha256": "bfb1b131433531af2efa8765853ef35bbe02dc86120a04b55e6ec97e60cc8fac"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/key_file.rs",
+        "bytes": 9335,
+        "sha256": "018b398bc1bd50fd0f9925408d6898d2974c7f510d79575cb655dad7e17243de"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/lib.rs",
+        "bytes": 6621,
+        "sha256": "70abc92bf0d02f3c4989034501065cdf64d70901e511f6720d8cd65fcbb662e1"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/log.rs",
+        "bytes": 34213,
+        "sha256": "d5458fa20083efdd1f46bc1464d46fcd32fb1af926f3151881f0c0ec37e330e1"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/main_context.rs",
+        "bytes": 9513,
+        "sha256": "a1dc45489f318659f0c4a94d3143807270e6cce6a8d127afa25944838ce66b25"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/main_context_channel.rs",
+        "bytes": 30419,
+        "sha256": "e619173fc993bb1ffa350ef692b50b3b268ed5b294208caede8271ae742d80e8"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/main_context_futures.rs",
+        "bytes": 26537,
+        "sha256": "49a56a433d4f57929d7ced0d438b8dcdbe05b78d097e28d27ead09821cb802be"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/manual_functions.rs",
+        "bytes": 9914,
+        "sha256": "8e9bea0686535b5a464c82fe8b0356734e82c6aafe8bec9c717d208a6fb76059"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/object.rs",
+        "bytes": 160705,
+        "sha256": "61304201fc2dd2ec7d0e8db7343bc62db6e9c81be07b2b16ad3f530a8972f017"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/param_spec.rs",
+        "bytes": 69707,
+        "sha256": "3ffc0efc67226b180ae4f625d6579749c1d74e58fc8790d4ad837697a65ea3ff"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/prelude.rs",
+        "bytes": 374,
+        "sha256": "75479bc1c16d719f472d44f08450b6972af5b4b18a77bcba381fa34428b0a567"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/property.rs",
+        "bytes": 8863,
+        "sha256": "c35ba9d518b0866f4bd07de5b2433fd70ef0ed38a1fb68839d2e481ab77bd887"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/quark.rs",
+        "bytes": 2514,
+        "sha256": "edfba293a1a4fcce1d057f961a182fd6aa5bfe142ecf03a692593d6951a1af5c"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/shared.rs",
+        "bytes": 23665,
+        "sha256": "24678285b9553298767c5a866aa9005dd84e0b3dae4760fcbbc6d3bf32adab8a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/signal.rs",
+        "bytes": 5933,
+        "sha256": "09af50bf7e406b7c36f0fcbcfdb2855d6db259ca14fd4922c25c13b62db45b1d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/source.rs",
+        "bytes": 40158,
+        "sha256": "2b5ed41c030a532be71b8525f73e6097d43380899e352dc2b1db07e4ff2d4cc5"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/source_futures.rs",
+        "bytes": 15661,
+        "sha256": "7d2fde280f9830916e3392eb7cdb69e1dd731084089699a2ad1bc0ddcb7dbcd6"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/basic.rs",
+        "bytes": 2092,
+        "sha256": "e671bd06f057c34b0b0b1dbb8c2b49c1d088b8697a0143d592969162744601ae"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/boxed.rs",
+        "bytes": 3346,
+        "sha256": "77825d5f8f7c6a2c78e10a696bbcd379984c1174ab9e3ce5a67d0942c38c4d16"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/interface.rs",
+        "bytes": 7121,
+        "sha256": "7ce87736717fdba007b649501e6cd4121c69e18a6cf0bcaf79a5512b4864ca53"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/mod.rs",
+        "bytes": 9355,
+        "sha256": "c3b6cb807d4e5ba7bd88153fedff76de11bcd53797905fc94d1dfadc51caa3c9"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/object.rs",
+        "bytes": 24414,
+        "sha256": "77da557b5e346ae3cde5ddfe525eeba22054b5beeb8335ae4a54a95cafab8701"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/object_impl_ref.rs",
+        "bytes": 4279,
+        "sha256": "7395e7e9bd5f8e6221883daaf2918758171bd75a002c5ec45b3099449a088c5d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/shared.rs",
+        "bytes": 9284,
+        "sha256": "d60b0164b5d71412d9e7ef7a405cf730eecc3825dea2889810512124f50aae80"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/signal.rs",
+        "bytes": 21430,
+        "sha256": "006c9ad5a763fa2922b933f18b19b253d771f4a89e3115acca9c445c26c361b2"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/subclass/types.rs",
+        "bytes": 38914,
+        "sha256": "a2ad0aa5a551d95e73eb31d0339007bc615ebcbdf72953a92ddcc66ba09f4e4e"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/thread_guard.rs",
+        "bytes": 3336,
+        "sha256": "33995f6ba5bb78698ce049be3129579b9d7cc7d101b64bc8252e2d46150369a8"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/thread_pool.rs",
+        "bytes": 7750,
+        "sha256": "82766026df3d2f06fc4917eab56c4c205d95eaebd46b06f3c53ec4b406b2b050"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/time_span.rs",
+        "bytes": 2734,
+        "sha256": "7c0ca119e080a460d2e2f4d92d0e4b2909e215b52126351a74d2c4f2a0d94857"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/time_zone.rs",
+        "bytes": 460,
+        "sha256": "8f54373db83b228a3459d71c18b3229fe37646fe3deeba23ad5592f6f5aad9d9"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/translate.rs",
+        "bytes": 94681,
+        "sha256": "f7b8c4b8a778e02d9ab18a1e018c27504e79e77b78353805bce156c694a0e85f"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/types.rs",
+        "bytes": 18400,
+        "sha256": "37137fe328dd321ceb4c9bfb439b40c630204711d4b24cc78c31800f539be4af"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/unichar.rs",
+        "bytes": 7864,
+        "sha256": "b489b849e3d7fbfd6563f43526d07647c5344e25f3a0a27803294f2695b7b9ce"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/unicollate.rs",
+        "bytes": 2752,
+        "sha256": "0bf8fe3d5aca3dc7f9ebba97984b775f0bcbf3b158cdfac03fc71c5b2a11f77d"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/utils.rs",
+        "bytes": 8574,
+        "sha256": "3c05a182c7e19409198d560e04de9136d3dbbb6beba166def08a76c181be75df"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/value.rs",
+        "bytes": 45287,
+        "sha256": "37eb2396c22f6eec372da9561d2c1651e4a9aff1f5fc634ac6db78f885f8be80"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/value_array.rs",
+        "bytes": 7064,
+        "sha256": "61b40654fe0771b5fafde9b54f2fba8db9c81cb27f114376024b66b775a785e7"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/variant.rs",
+        "bytes": 77401,
+        "sha256": "b48295eca732e862b2c5347ee431c2f800c7b0c6b30f6a0f0879cd16fe13eb9b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/variant_dict.rs",
+        "bytes": 10269,
+        "sha256": "7b22eeb2804a2ec07d32612b712374559f23ed1e2cc59f0d05b7f28e168d706b"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/variant_iter.rs",
+        "bytes": 9882,
+        "sha256": "a0f5ee8acb8faa089bcdfbc9a57372609fce7654026ccef7d9a224d05a654ccc"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/variant_type.rs",
+        "bytes": 33192,
+        "sha256": "3e0ed2dd6119876bac19599b3aa729d5252d5449fe7f40329fb702c8f224c6b8"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/win32.rs",
+        "bytes": 3385,
+        "sha256": "a221643d9be5f9cee911fad60890d3727fdd700f70da6dcf947b2631be2fcee6"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/src/wrapper.rs",
+        "bytes": 14934,
+        "sha256": "1356b5423ac469b1778a6f06d3855251f5f8f5246bbbe05812502deeadadca54"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/check_gir.rs",
+        "bytes": 230,
+        "sha256": "8984c8e380221bb61475e329b6206eaa5702efe7e3501ec14e56e0e7773e0101"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/clone.rs",
+        "bytes": 19802,
+        "sha256": "2aee80da279e7072e853bcf15088e56748aebad3c9e15d1c3c62db0c0541f3d5"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/derive.rs",
+        "bytes": 679,
+        "sha256": "59ec971ff0de81728ddd8c528f590e962090a0eadda276b75951745b0aaf6b40"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/log.rs",
+        "bytes": 3681,
+        "sha256": "04bb3d80acd39e8f58660ec590087e8a3f414794be97fcbe86535f6356182204"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/print.rs",
+        "bytes": 1713,
+        "sha256": "07baf16c95976c35723a9e0ba4fe1b5d1916f22887a358a76b1010ade6aa4d87"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/structured_log.rs",
+        "bytes": 4485,
+        "sha256": "023503c632375ce1f3196fa1249e1b7a79aedfa28b458036657ea0b389064b05"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest.rs",
+        "bytes": 590,
+        "sha256": "06fd13974d96c0a21ce9a906010f82db1fdf1b17c192716510cc93ed2ef79547"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/01-auto-send-sync.rs",
+        "bytes": 615,
+        "sha256": "8ff975b8f4b5c94c4cb823f27668446e3f8da5c0cf359e1bd8ac6a86334d1aa4"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/02-no-auto-send-sync.rs",
+        "bytes": 645,
+        "sha256": "39d1a1dd156bc2eaaf6a5ca57525b1f9c5b069ac6ee70ecea9455138c2eebe13"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/02-no-auto-send-sync.stderr",
+        "bytes": 1266,
+        "sha256": "064b2d5b0dceb949c288fe09cb056f870a34c0ae5a65a33ea2e827f6ef9725ad"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/03-object-no-auto-send-sync.rs",
+        "bytes": 125,
+        "sha256": "f7d3ae563cbb02b07253b396bb9af5fa31394e4d64ee9b6d4ffa1641e1a50b52"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/03-object-no-auto-send-sync.stderr",
+        "bytes": 1811,
+        "sha256": "3e0ea73faa979d9ab9ddcc5c3a2824592378f53e4894d029572cddbf6e6f816f"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/04-auto-send-sync-with-send-sync-parent.rs",
+        "bytes": 1489,
+        "sha256": "6832dc8851d0fdabc906acc1af8234d8ae1143a1fe8f7d7f2134e706538b6dbe"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/05-no-auto-send-sync-with-non-send-sync-parent.rs",
+        "bytes": 1457,
+        "sha256": "2b05fad36e3311bd1f6bef737431b96bbbb579b3071aef685debaaa16b95cbda"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/05-no-auto-send-sync-with-non-send-sync-parent.stderr",
+        "bytes": 1775,
+        "sha256": "9cff33355447a4c18610a211ad2ee58b87536720e0685e44c8212992ef687f77"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/06-no-auto-send-sync-with-non-send-sync-ffi-parent.rs",
+        "bytes": 1218,
+        "sha256": "a37119bff708de5c84e8a82affa6cc9abe73595b08c9e0539d9cbe33af5e9f7a"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/subclass_compiletest/06-no-auto-send-sync-with-non-send-sync-ffi-parent.stderr",
+        "bytes": 2887,
+        "sha256": "808ac199325749e28e4c5ea6a459463d87c375443dc73c143a8fc1032575895f"
+      },
+      {
+        "path": "src-tauri/vendor/glib-0.18.5/tests/value.rs",
+        "bytes": 1707,
+        "sha256": "c796ea2b30559e9c8ab6ebbb6c59c575d365a27b461c20f9ca0b1989dbe01d79"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/.cargo_vcs_info.json",
+        "bytes": 145,
+        "sha256": "8eae9badb169c379bf95200692366bb2b3c0db83ddc04d6f5c7d188b1178680d"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/Cargo.lock",
+        "bytes": 32845,
+        "sha256": "a953c1fb5fd6a0a3d99ad7db4dca53fde0b70993f4fb72240e6a7fd115457854"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/Cargo.toml",
+        "bytes": 1461,
+        "sha256": "6a591f650c569f7d6e2b9938996edf13a7c3dc514d024703a1eb65bcd67846a6"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/Cargo.toml.orig",
+        "bytes": 747,
+        "sha256": "7e6cb5d5a6a7efb99e903d3477dd9a330a180e32296727aabff02fd59630cd33"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/LICENSE",
+        "bytes": 11358,
+        "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/README.md",
+        "bytes": 52966,
+        "sha256": "52c3d1d72cfe50bc89dcfe6f142910e8a87c6276bee4a16c2cef0abae3aca97d"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/build.rs",
+        "bytes": 28151,
+        "sha256": "fad04dde5b7dfae6ef9b99b5e1ccd382e75fad1cf05c310e8fea150e1329e2a4"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/audio_tagging.rs",
+        "bytes": 1469,
+        "sha256": "139301b3753b080476c1ce17f42ef83103a90957db99f71eeffc71c76f701d28"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/kws.rs",
+        "bytes": 2529,
+        "sha256": "51681240a4c7158467d77a1a792c143a79fa5fc6d3754d40d15ac41948790462"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/lib.rs",
+        "bytes": 1113,
+        "sha256": "87300aca9e7e501a2770b3547930fa16cc4ecb0444284c8e34333b8b5a97d76c"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/offline_asr.rs",
+        "bytes": 7236,
+        "sha256": "d408f95bdf53f1e46f07ef5d9de700b736736c0b6ae956df99ca316bd991f7c8"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/offline_punctuation.rs",
+        "bytes": 960,
+        "sha256": "c380194c1fda8a1ab3aef59a6065b4b8735b6f62ebd8f47fa93897f7e339df85"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/offline_speaker_diarization.rs",
+        "bytes": 2760,
+        "sha256": "89cb8b6d1681726e1516357539b580f3fbe414f10284a7d6540774eb46b61729"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/online_asr.rs",
+        "bytes": 4940,
+        "sha256": "19f15ac580c4b1c2024b9b70ac9d348a4dd86e95e0118585b54b3c940e19825c"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/online_punctuation.rs",
+        "bytes": 998,
+        "sha256": "caf9ca6e116a747d983fc109eb6664dcb52bf7611021b0f9ab7981f57c12078f"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/resampler.rs",
+        "bytes": 1119,
+        "sha256": "c4017b0e121577c166665cb7295cedfc66179a6c30c45a20e529ef148ea75358"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/speaker_embedding.rs",
+        "bytes": 3897,
+        "sha256": "6f89e62a709c33024e2ab209aee7c123e43f3b04b231b810958f2ee8a18e58cf"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/speech_denoiser.rs",
+        "bytes": 2569,
+        "sha256": "1922c1536c5902590320e0380df526290f93d423a14838cdef6e7a478148aa9b"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/spoken_language_identification.rs",
+        "bytes": 1555,
+        "sha256": "20ec96af0fbcccfb3e8a381643d1d90e3e6434936f6040897e130f1abbec95dd"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/tts.rs",
+        "bytes": 4772,
+        "sha256": "d1a949a60edc3f670ece52246b5083869f81fefcc9ea9b9ea7c1a4280df094f7"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/vad.rs",
+        "bytes": 2872,
+        "sha256": "d1e93356889a7dcd524172ccff22acdf7b87c8e0f1a4f77f1e35fa5e5768a13d"
+      },
+      {
+        "path": "src-tauri/vendor/sherpa-onnx-sys-1.13.7/src/wave.rs",
+        "bytes": 781,
+        "sha256": "3610968cfb6511db142449f391850e96d02253f607eb940a90d285cf60b5440d"
+      },
+      {
+        "path": "src/dictionary.js",
+        "bytes": 12246,
+        "sha256": "3c929ad54e272a157e7e3f97b7fa326665d034deba30aae24bc981666c509503"
+      },
+      {
+        "path": "src/html.js",
+        "bytes": 189,
+        "sha256": "a43c1db7c5525ac73382da891f43ea37b328dc54fe36c63cfbc00d67623c81c4"
+      },
+      {
+        "path": "src/input-tools.js",
+        "bytes": 8265,
+        "sha256": "ecc92d246bb850375520aaeb2d201327317910a1ce27c973e15a19423ca5e4e6"
+      },
+      {
+        "path": "src/main.js",
+        "bytes": 163657,
+        "sha256": "68d9e1a66fcec554ec2ce3c595ff4916efefd79443e0d268fd6a4d3b55acc160"
+      },
+      {
+        "path": "src/styles.css",
+        "bytes": 36519,
+        "sha256": "f4dc98511b884fdad5be5d6c946423d737c2366e16925b4ce590f81a292a38ea"
+      },
+      {
+        "path": "tests/audio-ui.test.mjs",
+        "bytes": 5081,
+        "sha256": "a807f8c7ae12ec27017efa472c79c44229026d3e76a4a27d295e8a648b3a8999"
+      },
+      {
+        "path": "tests/dependency-patches.test.mjs",
+        "bytes": 1309,
+        "sha256": "59860930f0cc810d77fb49dd7ebc2c32f562af36367e2c014ea597188128e64b"
+      },
+      {
+        "path": "tests/dictionary.test.mjs",
+        "bytes": 5274,
+        "sha256": "e375a182b6669b5c52e0547cd182e663ab6f6f7a45c94e58d8a31c2b711ce05b"
+      },
+      {
+        "path": "tests/input-tools.test.mjs",
+        "bytes": 5296,
+        "sha256": "d0ce87ccbcb30a028b43837fa89ccd113ca76c9013a3f8768baf69ce459aba01"
+      },
+      {
+        "path": "tests/portable.test.mjs",
+        "bytes": 3943,
+        "sha256": "b1fa359aa3eedf1af1710955f65813126353d6e092fb9ad843556f06af968a73"
+      },
+      {
+        "path": "tests/security.test.mjs",
+        "bytes": 5240,
+        "sha256": "3fa22fe7d2aae40ab397066813bc9f075a5c4604e38491d23c45886ab30e4cef"
+      },
+      {
+        "path": "tests/settings.test.mjs",
+        "bytes": 7237,
+        "sha256": "c4ca03477b3478173a0db78ff9b1d031a479c216bc716f121c70c7cc2f6f77a5"
+      },
+      {
+        "path": "vite.config.js",
+        "bytes": 156,
+        "sha256": "913314dcd9e8ccdfe85d3fd9377ea282d4fd4c27b0b10a78db3abf191c7563c2"
+      }
+    ],
+    "newFixes": [
+      "Immutable endpoint/scope-bound keyring snapshots with atomic config references",
+      "Legacy settings/profile migration and failed-read overwrite protection",
+      "Remove ZIP 2/4; build-only ZIP 9.1, preserve native ABI",
+      "Official glib VariantStrIter mutable out-pointer backport"
+    ],
+    "nativeAdvisory": "Named offline Transducer advisory is not applicable to current configured paths; see native-advisory-reachability-2026-10-24.md"
+  },
+  "vendorPatches": [
+    {
+      "name": "glib",
+      "version": "0.18.5",
+      "crateFile": ".security-audit/glib-0.18.5.crate",
+      "checksum": "233daaf6e83ae6a12a52055f568f9d7cf4671dabb78ff9560ab6da230ce00ee5",
+      "download": "https://static.crates.io/crates/glib/glib-0.18.5.crate",
+      "upstreamFiles": 121,
+      "changes": [
+        {
+          "file": "src/variant_iter.rs",
+          "beforeSha256": "1fd02859333761c45321b32f28b24233446b97d0022a90d3a937ed162585b90e",
+          "afterSha256": "a0f5ee8acb8faa089bcdfbc9a57372609fce7654026ccef7d9a224d05a654ccc"
+        }
+      ],
+      "verifiedChangesOnly": true
+    },
+    {
+      "name": "sherpa-onnx-sys",
+      "version": "1.13.7",
+      "crateFile": ".security-audit/sherpa-onnx-sys-1.13.7.crate",
+      "checksum": "566aad07d0924a7ed897cc035cc67ad71cdfddb959717dbf445031d5d4b58d4d",
+      "download": "https://static.crates.io/crates/sherpa-onnx-sys/sherpa-onnx-sys-1.13.7.crate",
+      "upstreamFiles": 22,
+      "changes": [
+        {
+          "file": "Cargo.toml",
+          "beforeSha256": "8426beff1617a4809a46364d6413082ccbe56c0b0772eecf8fcbcddea229eb0b",
+          "afterSha256": "6a591f650c569f7d6e2b9938996edf13a7c3dc514d024703a1eb65bcd67846a6"
+        },
+        {
+          "file": "Cargo.toml.orig",
+          "beforeSha256": "aaf0bd9b59d8c895e47c15be947a25ca91044c4522164f78ab5ab59411484c0b",
+          "afterSha256": "7e6cb5d5a6a7efb99e903d3477dd9a330a180e32296727aabff02fd59630cd33"
+        }
+      ],
+      "verifiedChangesOnly": true
+    }
+  ],
+  "recheck": {
+    "at": "2026-10-24T15:07:45.507Z",
+    "sourceChanges": [],
+    "sourceFileCount": 183,
+    "executed": [
+      "npm audit",
+      "OSV full locked-version query",
+      "npm test:36 passed",
+      "cargo test --locked --offline:68 passed",
+      "vendor archive comparison:143 files",
+      "secret scan: no confirmed secrets",
+      "source and artifact fingerprint verification"
+    ],
+    "reused": "Detailed per-file review, per-package WebSearch references and successful production builds belong to the identical verified source/artifact snapshot.",
+    "newCodeChanges": 0
+  },
+  "releasePreparation": {
+    "version": "0.1.24",
+    "at": "2026-10-24T15:39:39.313Z",
+    "auditSnapshotPreserved": true,
+    "changesSinceAuditedSource": [
+      {
+        "path": ".github/workflows/release.yml",
+        "sha256": "b86393c23617924e817f9f3a9d571e0f3d644f7058b2750dbb3e9cd2d2bde514"
+      },
+      {
+        "path": "README.md",
+        "sha256": "9e77c5c5fcc62a62eea0b91784764ee425e73c60b22bd7afce2e381cafc67084"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "ebb0771ee6664330d533cca77a07ddb758ed595e38cca8bde9470d6c16c5c8c7"
+      },
+      {
+        "path": "package.json",
+        "sha256": "f9cddf9b3a404807dbe1acb36ea73c2f009721d048b9daecd76e54384e62615c"
+      },
+      {
+        "path": "src-tauri/Cargo.lock",
+        "sha256": "dba98075f1d9ef760e98ad6dd71cc17ef3d6d6ab5f7582d7edfa6ae83a8608f9"
+      },
+      {
+        "path": "src-tauri/Cargo.toml",
+        "sha256": "8e69057670602a41d70a826450797122e4cebff66044e2d0f37038561c98754a"
+      },
+      {
+        "path": "src-tauri/tauri.conf.json",
+        "sha256": "9a9b0505b07b46b0dcda423b6da24825cc385ab2552a6d833d6322ea2e087f44"
+      }
+    ],
+    "scope": "Version metadata, release workflow notes, public documentation links and restored real UI media. Audited application runtime source is unchanged.",
+    "checks": [
+      "frontend:36 passed",
+      "Rust:68 passed",
+      "cargo fmt --check",
+      "git diff --check",
+      "production NSIS build",
+      "portable packaging",
+      "4 native DLL SHA-256 checks"
+    ],
+    "artifacts": [
+      {
+        "path": ".cargo-target/release/mouse-dictation.exe",
+        "size": 16392704,
+        "sha256": "4f0e9aa0b4d4b9f5f2e3c1f262fa9203887c36111bd00752636d7f14b63e6533"
+      },
+      {
+        "path": ".cargo-target/release/bundle/nsis/Mouse Dictation_0.1.24_x64-setup.exe",
+        "size": 9561653,
+        "sha256": "0ab7a94b1cb200fac0d508bbaf703567f1d617f84c834f7198f9b07af2c56ab8"
+      },
+      {
+        "path": ".cargo-target/release/bundle/portable/Mouse-Dictation-windows-x64-portable.zip",
+        "size": 13731220,
+        "sha256": "a9b2ea337828474a5abe16db87555eb8d9fee8ff43be26974a0159672c30a01c"
+      }
+    ],
+    "localInstallerUpdaterSignature": false,
+    "signatureNote": "Local preview only; formal release updater signatures are generated by GitHub CI."
+  }
+}

@@ -4,7 +4,7 @@
 
 ## 覆盖范围
 
-[asset-checksums.json](<D:/Codage/03 Mouse Dictation/docs/security/asset-checksums.json>) 是唯一摘要来源，记录官方 URL、GitHub asset ID、时间、上传者、大小及 SHA-256。
+[asset-checksums.json](<asset-checksums.json>) 是唯一摘要来源，记录官方 URL、GitHub asset ID、时间、上传者、大小及 SHA-256。
 
 - 应用的三个模型压缩包：SenseVoice、Streaming Zipformer、Whisper Small。
 - Windows x64 sherpa-onnx v1.13.7 共享库归档，以及其中 4 个 DLL 和 3 个导入库。

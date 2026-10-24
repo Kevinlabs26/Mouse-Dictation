@@ -1,5 +1,7 @@
 # Mouse Dictation 安全审核报告
 
+最新结果见 [2026-10-24 最终修复后安全审核报告](<SECURITY_AUDIT_2026-10-24.md>)；其中列明已通过检查、已修复问题、开发者接受的保留风险和待验证项。当前依赖和剩余风险以该报告为准。以下保留 2026-10-03 历史记录。
+
 审核日期：2026-10-03。对象：当前工作目录及审核前已有的未提交修改。安全修复保留了原有的文字输入、界面及文档修改；审核阶段未提交、发布应用或轮换密钥；之后开发者授权发布 v0.1.22，已通过 GitHub CI 完成发布，包含本报告列出的修复及原有输入/界面改动。
 
 结论：发现并修复了 Tauri 高危 IPC 漏洞、rustls 协议状态校验漏洞和 source-map-js 高危构建依赖漏洞，并加固 HTML 输出、桌面 IPC、模型解压、录音临时文件、API 请求及凭据迁移。远程 API 已强制 HTTPS，仅本机回环地址允许 HTTP。剩余事项包括 Linux/glib 迁移及停止维护的间接包、未完成的运行验证、其他平台原生库的验证和初始信任局限。不能据此宣称项目没有任何漏洞。
@@ -18,7 +20,7 @@
 
 本地没有安装 cargo-audit，因此未宣称运行过 cargo audit；使用 OSV 对 Cargo 锁文件进行全量查询，并用官方公告交叉核对。没有把 npm audit 返回 0 当作没有漏洞的证明：本次 Tauri 和 source-map-js 公告没有被相应的精确生态/版本查询命中，通过 WebSearch 和官方记录发现。
 
-完整清单见 [dependency-inventory.tsv](<D:/Codage/03 Mouse Dictation/docs/security/dependency-inventory.tsv>)；告警、官方 release/action 元数据和历史扫描统计见 [audit-evidence.json](<D:/Codage/03 Mouse Dictation/docs/security/audit-evidence.json>)。这些文件不包含真实凭据。
+完整清单见 [dependency-inventory.tsv](<docs/security/dependency-inventory.tsv>)；告警、官方 release/action 元数据和历史扫描统计见 [audit-evidence.json](<docs/security/audit-evidence.json>)。这些文件不包含真实凭据。
 
 ### 全部直接依赖
 
@@ -76,26 +78,26 @@
 
 | 编号 | 类别 | 严重级别 | 位置 | 状态 |
 | --- | --- | --- | --- | --- |
-| D01 | 依赖 | High | [Cargo.toml:13](<D:/Codage/03 Mouse Dictation/src-tauri/Cargo.toml:13>)、Cargo.lock 的 tauri | 已修复 |
-| D02 | 依赖 | Medium | [Cargo.lock:4044](<D:/Codage/03 Mouse Dictation/src-tauri/Cargo.lock:4044>) | 已修复 |
-| D03 | 依赖 | High（公告；本项目仅构建链） | [package-lock.json:1261](<D:/Codage/03 Mouse Dictation/package-lock.json:1261>) | 已修复 |
-| D04 | 依赖 | Medium | [Cargo.lock:1879](<D:/Codage/03 Mouse Dictation/src-tauri/Cargo.lock:1879>) | 建议关注（已决定暂缓迁移） |
-| D05 | 依赖 | Low | [Cargo.lock:3663](<D:/Codage/03 Mouse Dictation/src-tauri/Cargo.lock:3663>)、[Cargo.lock:5522](<D:/Codage/03 Mouse Dictation/src-tauri/Cargo.lock:5522>) | 建议关注（已决定暂缓迁移） |
-| D06 | 依赖 | Low | [Cargo.toml:17](<D:/Codage/03 Mouse Dictation/src-tauri/Cargo.toml:17>)、hound、dirs-next | 建议关注 |
-| C01 | 代码 | Medium | [main.js:1385](<D:/Codage/03 Mouse Dictation/src/main.js:1385>)、[main.js:1968](<D:/Codage/03 Mouse Dictation/src/main.js:1968>) | 已修复 |
-| C02 | 代码 | Medium | [tauri.conf.json:25](<D:/Codage/03 Mouse Dictation/src-tauri/tauri.conf.json:25>) | 已修复 |
-| C03 | 代码 | Medium | [build.rs:11](<D:/Codage/03 Mouse Dictation/src-tauri/build.rs:11>)、capabilities、[main.rs:1416](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1416>) | 已修复 |
-| C04 | 代码 | Medium | [main.rs:1372](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1372>) | 已修复 |
-| C05 | 代码 | Medium | [main.rs:1152](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1152>)、[main.rs:2053](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:2053>) | 已修复 |
-| C06 | 代码 | Medium | [main.rs:1998](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1998>)、[main.rs:2029](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:2029>) | 已修复 |
-| C07 | 代码 | Medium | [main.rs:1827](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1827>)、[main.rs:1873](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1873>) | 已修复 |
-| C08 | 密钥 | Low | [main.rs:2084](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:2084>) | 已修复 |
-| C09 | 代码 | Low | [main.rs:185](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:185>)、[main.rs:1095](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1095>) | 已修复 |
-| C10 | 代码 | High（启用远程 HTTP 时） | [main.rs:1998](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1998>) | 已修复 |
-| C11 | 代码 | Medium | [main.rs:1332](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:1332>)、模型下载、sherpa-onnx-sys 原生构建链 | 已修复（模型和 Windows x64）；其他平台建议关注 |
-| C12 | 代码 | Medium | [release.yml:19](<D:/Codage/03 Mouse Dictation/.github/workflows/release.yml:19>) | 已修复 |
-| K01 | 密钥 | Medium | [main.rs:531](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:531>)、[main.rs:602](<D:/Codage/03 Mouse Dictation/src-tauri/src/main.rs:602>) | 已修复（迁移失败的残余见下文） |
-| K02 | 密钥 | Low | [.gitignore:11](<D:/Codage/03 Mouse Dictation/.gitignore:11>)、[.env.example](<D:/Codage/03 Mouse Dictation/.env.example>) | 已修复（预防性） |
+| D01 | 依赖 | High | [Cargo.toml:13](<src-tauri/Cargo.toml>)、Cargo.lock 的 tauri | 已修复 |
+| D02 | 依赖 | Medium | [Cargo.lock:4044](<src-tauri/Cargo.lock>) | 已修复 |
+| D03 | 依赖 | High（公告；本项目仅构建链） | [package-lock.json:1261](<package-lock.json>) | 已修复 |
+| D04 | 依赖 | Medium | [Cargo.lock:1879](<src-tauri/Cargo.lock>) | 建议关注（已决定暂缓迁移） |
+| D05 | 依赖 | Low | [Cargo.lock:3663](<src-tauri/Cargo.lock>)、[Cargo.lock:5522](<src-tauri/Cargo.lock>) | 建议关注（已决定暂缓迁移） |
+| D06 | 依赖 | Low | [Cargo.toml:17](<src-tauri/Cargo.toml>)、hound、dirs-next | 建议关注 |
+| C01 | 代码 | Medium | [main.js:1385](<src/main.js>)、[main.js:1968](<src/main.js>) | 已修复 |
+| C02 | 代码 | Medium | [tauri.conf.json:25](<src-tauri/tauri.conf.json>) | 已修复 |
+| C03 | 代码 | Medium | [build.rs:11](<src-tauri/build.rs>)、capabilities、[main.rs:1416](<src-tauri/src/main.rs>) | 已修复 |
+| C04 | 代码 | Medium | [main.rs:1372](<src-tauri/src/main.rs>) | 已修复 |
+| C05 | 代码 | Medium | [main.rs:1152](<src-tauri/src/main.rs>)、[main.rs:2053](<src-tauri/src/main.rs>) | 已修复 |
+| C06 | 代码 | Medium | [main.rs:1998](<src-tauri/src/main.rs>)、[main.rs:2029](<src-tauri/src/main.rs>) | 已修复 |
+| C07 | 代码 | Medium | [main.rs:1827](<src-tauri/src/main.rs>)、[main.rs:1873](<src-tauri/src/main.rs>) | 已修复 |
+| C08 | 密钥 | Low | [main.rs:2084](<src-tauri/src/main.rs>) | 已修复 |
+| C09 | 代码 | Low | [main.rs:185](<src-tauri/src/main.rs>)、[main.rs:1095](<src-tauri/src/main.rs>) | 已修复 |
+| C10 | 代码 | High（启用远程 HTTP 时） | [main.rs:1998](<src-tauri/src/main.rs>) | 已修复 |
+| C11 | 代码 | Medium | [main.rs:1332](<src-tauri/src/main.rs>)、模型下载、sherpa-onnx-sys 原生构建链 | 已修复（模型和 Windows x64）；其他平台建议关注 |
+| C12 | 代码 | Medium | [release.yml:19](<.github/workflows/release.yml>) | 已修复 |
+| K01 | 密钥 | Medium | [main.rs:531](<src-tauri/src/main.rs>)、[main.rs:602](<src-tauri/src/main.rs>) | 已修复（迁移失败的残余见下文） |
+| K02 | 密钥 | Low | [.gitignore:11](<.gitignore>)、[.env.example](<.env.example>) | 已修复（预防性） |
 
 ## 3. 已修复问题及利用条件
 
@@ -201,7 +203,7 @@ proc-macro-error 1.0.4 命中 [RUSTSEC-2024-0370](https://rustsec.org/advisories
 
 ### C11 — 已确认并完成：模型与 Windows 原生库摘要清单
 
-开发者已选择建立经核验的模型/DLL 摘要清单。实施文件：[asset-checksums.json](<D:/Codage/03 Mouse Dictation/docs/security/asset-checksums.json>)、[verify-native.mjs](<D:/Codage/03 Mouse Dictation/scripts/verify-native.mjs>)；维护说明见 [ASSET_VERIFICATION.md](<D:/Codage/03 Mouse Dictation/docs/security/ASSET_VERIFICATION.md>)。
+开发者已选择建立经核验的模型/DLL 摘要清单。实施文件：[asset-checksums.json](<docs/security/asset-checksums.json>)、[verify-native.mjs](<scripts/verify-native.mjs>)；维护说明见 [ASSET_VERIFICATION.md](<docs/security/ASSET_VERIFICATION.md>)。
 
 - 三个模型均在解压前校验编译进应用的 SHA-256。SenseVoice 使用官方 GitHub digest；Streaming/Whisper 从官方 HTTPS release 流式下载，核对完整大小及下载前后的 asset ID/size/name/updated_at/digest，计算实际摘要。记录上传者和来源 URL，不将自行计算值冒称为发行方签名。
 - Windows x64 的 sherpa-onnx v1.13.7 原生归档重新下载，SHA-256 与官方 GitHub digest 匹配；对其中 4 个 DLL、3 个导入库分别建档。现有缓存和 release DLL 与官方归档字节一致。ONNX Runtime DLL 文件版本为 1.27.1；sherpa DLL 未提供可核实文件版本。

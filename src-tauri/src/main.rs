@@ -1,11 +1,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#[cfg(not(target_os = "windows"))]
 use arboard::Clipboard;
+mod credential_config;
+mod dictation_session;
+mod text_processing;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use dictation_session::{Cancellation, CANCELLED_ERROR};
 #[cfg(not(target_os = "windows"))]
 use rdev::simulate;
 use rdev::{listen, Button, Event, EventType, Key};
+use text_processing::{RecentResult, RecentResults};
 #[cfg(target_os = "windows")]
 mod text_input;
 use serde::{Deserialize, Serialize};
@@ -32,10 +36,13 @@ use tauri_plugin_autostart::ManagerExt as AutostartManagerExt;
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
 struct Settings {
+    #[serde(skip)]
+    credential_error: bool,
     engine: String,
     api_url: String,
     api_key: String,
     online_language: String,
+    input_device: String,
     model: String,
     hold_ms: u64,
     local_model_dir: String,
@@ -54,15 +61,20 @@ struct Settings {
     translate_key: String,
     theme: String,
     accent: String,
+    text_rules: String,
+    voice_formatting: bool,
+    remember_results: bool,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            credential_error: false,
             engine: "online".into(),
             api_url: "https://api.openai.com/v1".into(),
             api_key: String::new(),
             online_language: "auto".into(),
+            input_device: String::new(),
             model: "whisper-1".into(),
             hold_ms: 1000,
             local_model_dir: default_local_model_dir().to_string_lossy().into_owned(),
@@ -81,6 +93,9 @@ impl Default for Settings {
             translate_key: String::new(),
             theme: "dark".into(),
             accent: "#8b7cff".into(),
+            text_rules: String::new(),
+            voice_formatting: false,
+            remember_results: false,
         }
     }
 }
@@ -165,6 +180,7 @@ struct AudioStatus {
     available: bool,
     name: String,
     detail: String,
+    devices: Vec<String>,
 }
 
 #[derive(Clone, Serialize)]
@@ -219,15 +235,57 @@ struct RecordingStatus {
 }
 
 struct Recorder {
-    stop: mpsc::Sender<()>,
-    done: mpsc::Receiver<()>,
+    session: Arc<DictationSession>,
+    stop: mpsc::Sender<Option<String>>,
+    done: mpsc::Receiver<Result<(), String>>,
     max_stop: mpsc::Sender<()>,
     started_at: Instant,
     samples: Arc<Mutex<Vec<i16>>>,
     sample_rate: u32,
     channels: u16,
-    streaming_stop: Option<mpsc::Sender<()>>,
+    streaming_stop: Option<mpsc::Sender<bool>>,
     streaming_done: Option<mpsc::Receiver<Result<(), String>>>,
+}
+
+struct DictationSession {
+    settings: Settings,
+    cancellation: Cancellation,
+    #[cfg(target_os = "windows")]
+    target: text_input::InputTarget,
+    recovery_ticket: Option<u64>,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum DictationPhase {
+    Starting,
+    Recording,
+    Processing,
+}
+
+struct ActiveDictation {
+    session: Arc<DictationSession>,
+    phase: DictationPhase,
+}
+
+fn session_matches(active: &Option<ActiveDictation>, session: &Arc<DictationSession>) -> bool {
+    active
+        .as_ref()
+        .is_some_and(|active| Arc::ptr_eq(&active.session, session))
+        && !session.cancellation.is_cancelled()
+}
+
+fn reserve_session(
+    active: &mut Option<ActiveDictation>,
+    session: Arc<DictationSession>,
+) -> Result<(), String> {
+    if active.is_some() {
+        return Err("上一段听写尚未完成，请等待完成或按 Esc 取消".into());
+    }
+    *active = Some(ActiveDictation {
+        session,
+        phase: DictationPhase::Starting,
+    });
+    Ok(())
 }
 
 const MAX_RECORDING_TIME: Duration = Duration::from_secs(5 * 60);
@@ -245,7 +303,7 @@ impl StreamingAudio {
 }
 
 struct LocalRecognizerCache {
-    model_dir: String,
+    key: (String, PathBuf, String),
     recognizer: OfflineRecognizer,
 }
 
@@ -260,18 +318,21 @@ struct AppState {
     profiles: Mutex<Vec<Profile>>,
     active_profile: Mutex<Option<String>>,
     recorder: Mutex<Option<Recorder>>,
+    dictation: Mutex<Option<ActiveDictation>>,
     local_recognizer: Mutex<Option<LocalRecognizerCache>>,
     streaming_recognizer: Mutex<Option<StreamingRecognizerCache>>,
     model_download: Mutex<()>,
+    recent_results: Mutex<RecentResults>,
 }
 
+#[derive(Default)]
 struct MouseSession {
+    keys_down: Vec<Key>,
     token: u64,
     pressed: bool,
     triggered: bool,
     hotkey_pressed: bool,
-    engine_toggle_pressed: bool,
-    translate_toggle_pressed: bool,
+    held_recording_hotkey: String,
     ctrl_down: bool,
     alt_down: bool,
     shift_down: bool,
@@ -280,6 +341,62 @@ struct MouseSession {
     start_y: f64,
     last_x: f64,
     last_y: f64,
+}
+
+impl MouseSession {
+    fn press_key(&mut self, key: Key) -> bool {
+        if self.keys_down.contains(&key) {
+            return false;
+        }
+        self.keys_down.push(key);
+        true
+    }
+
+    fn release_key(&mut self, key: Key) {
+        self.keys_down.retain(|pressed| *pressed != key);
+    }
+
+    fn release_recording_hotkey(&mut self, key: Key) -> bool {
+        let finish = self.hotkey_pressed && hotkey_part(&self.held_recording_hotkey, key);
+        if finish {
+            self.hotkey_pressed = false;
+        }
+        finish
+    }
+    fn press_mouse(&mut self) -> u64 {
+        self.token += 1;
+        self.pressed = true;
+        self.triggered = false;
+        self.start_x = self.last_x;
+        self.start_y = self.last_y;
+        self.token
+    }
+
+    fn trigger_mouse(&mut self, token: u64) -> bool {
+        if !self.pressed || self.token != token || self.triggered {
+            return false;
+        }
+        self.triggered = true;
+        true
+    }
+
+    fn release_mouse(&mut self) -> bool {
+        let finish = self.pressed && self.triggered;
+        self.pressed = false;
+        self.triggered = false;
+        self.token += 1;
+        finish
+    }
+
+    fn cancel(&mut self) {
+        self.release_mouse();
+        self.hotkey_pressed = false;
+    }
+}
+
+enum InputEvent {
+    Global(EventType),
+    HoldElapsed(u64),
 }
 
 #[derive(Clone, Copy)]
@@ -480,29 +597,32 @@ fn profiles_path() -> Option<PathBuf> {
     dirs_next::config_dir().map(|dir| dir.join("mouse-dictation").join("profiles.json"))
 }
 
-const KEYRING_SERVICE: &str = "com.mousedictation.desktop";
-
-fn read_secret_for(service: &str, name: &str) -> Option<String> {
-    keyring::Entry::new(service, name)
-        .ok()
-        .and_then(|entry| entry.get_password().ok())
-        .filter(|secret| !secret.is_empty())
+fn write_config_file(path: &Path, json: &str) -> Result<(), String> {
+    let parent = path.parent().ok_or("配置文件缺少父目录")?;
+    fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+    let mut staged = tempfile::NamedTempFile::new_in(parent).map_err(|error| error.to_string())?;
+    staged
+        .write_all(json.as_bytes())
+        .map_err(|error| error.to_string())?;
+    staged
+        .as_file()
+        .sync_all()
+        .map_err(|error| error.to_string())?;
+    // Keep the old configuration intact until the complete replacement is ready.
+    staged.persist(path).map_err(|error| error.to_string())?;
+    Ok(())
 }
+
+const KEYRING_SERVICE: &str = "com.mousedictation.desktop";
 
 fn write_secret_for(service: &str, name: &str, value: &str) -> Result<(), String> {
     let entry = keyring::Entry::new(service, name).map_err(|e| e.to_string())?;
     entry
         .set_password(value)
-        .map_err(|e| format!("保存安全凭据失败：{e}"))
+        .map_err(|_| "保存安全凭据失败，请检查系统凭据库及凭据长度".into())
 }
 
 fn clear_secret_for(service: &str, name: &str) -> Result<(), String> {
-    // 没有保存过凭据时不要调用 delete_credential。Windows 凭据管理器会
-    // 把“没有这个条目”作为错误返回，但这对清空设置来说是正常情况。
-    if read_secret_for(service, name).is_none() {
-        return Ok(());
-    }
-
     let entry = keyring::Entry::new(service, name).map_err(|e| e.to_string())?;
     match entry.delete_credential() {
         Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
@@ -510,143 +630,165 @@ fn clear_secret_for(service: &str, name: &str) -> Result<(), String> {
     }
 }
 
-fn save_secret_for(service: &str, name: &str, value: &str, label: &str) -> Result<(), String> {
-    if value.is_empty() {
-        clear_secret_for(service, name)
-    } else {
-        write_secret_for(service, name, value).map_err(|error| format!("保存{label}失败：{error}"))
-    }
-}
-
-fn read_secret(name: &str) -> Option<String> {
-    read_secret_for(KEYRING_SERVICE, name)
-}
-
-fn write_secret(name: &str, value: &str) -> Result<(), String> {
-    write_secret_for(KEYRING_SERVICE, name, value)
-}
-
-fn save_secret(name: &str, value: &str, label: &str) -> Result<(), String> {
-    save_secret_for(KEYRING_SERVICE, name, value, label)
-}
-
 fn profile_secret_name(profile_id: &str, kind: &str) -> String {
     format!("profile/{profile_id}/{kind}")
 }
 
-fn load_profiles() -> Vec<Profile> {
-    let mut profiles: Vec<Profile> = profiles_path()
-        .and_then(|path| fs::read_to_string(path).ok())
-        .and_then(|data| serde_json::from_str(&data).ok())
-        .unwrap_or_default();
-    let had_legacy_secrets = profiles.iter().any(|profile| {
-        !profile.settings.api_key.is_empty() || !profile.settings.translate_key.is_empty()
-    });
-    let mut all_secrets_secured = true;
-    for profile in &mut profiles {
-        if let Some(secret) =
-            read_secret(&profile_secret_name(&profile.id, "transcription-api-key"))
-        {
-            profile.settings.api_key = secret;
-        } else if !profile.settings.api_key.is_empty() {
-            all_secrets_secured &= write_secret(
-                &profile_secret_name(&profile.id, "transcription-api-key"),
-                &profile.settings.api_key,
-            )
-            .is_ok();
-        }
-        if let Some(secret) = read_secret(&profile_secret_name(&profile.id, "translation-api-key"))
-        {
-            profile.settings.translate_key = secret;
-        } else if !profile.settings.translate_key.is_empty() {
-            all_secrets_secured &= write_secret(
-                &profile_secret_name(&profile.id, "translation-api-key"),
-                &profile.settings.translate_key,
-            )
-            .is_ok();
-        }
-    }
-    if had_legacy_secrets && all_secrets_secured {
-        if save_profiles_file(&profiles).is_err() {
-            eprintln!("旧方案明文凭据清理失败，请检查配置文件权限");
-        }
-    } else if had_legacy_secrets {
-        eprintln!("旧方案凭据迁移失败，保留原文件以避免丢失凭据");
-    }
-    profiles.retain(|profile| !profile.id.is_empty() && !profile.name.trim().is_empty());
-    profiles
+fn unavailable_credentials(mut settings: Settings) -> Settings {
+    settings.api_key.clear();
+    settings.translate_key.clear();
+    settings.credential_error = true;
+    settings
 }
 
-fn save_profile_secrets(profile: &Profile) -> Result<(), String> {
-    save_secret(
-        &profile_secret_name(&profile.id, "transcription-api-key"),
-        &profile.settings.api_key,
-        "方案识别 API Key",
-    )?;
-    save_secret(
-        &profile_secret_name(&profile.id, "translation-api-key"),
-        &profile.settings.translate_key,
-        "方案翻译 API Key",
-    )?;
-    Ok(())
+fn load_profiles() -> Vec<Profile> {
+    let stored: Vec<credential_config::StoredProfile> = profiles_path()
+        .and_then(|path| fs::read(path).ok())
+        .and_then(|data| serde_json::from_slice(&data).ok())
+        .unwrap_or_default();
+    let legacy = stored
+        .iter()
+        .any(|profile| profile.settings.credentials.is_none());
+    let profiles: Vec<Profile> = stored
+        .into_iter()
+        .filter(|profile| !profile.id.is_empty() && !profile.name.trim().is_empty())
+        .map(|profile| {
+            let settings = credential_config::load(
+                &profile.settings,
+                &format!("profile/{}", profile.id),
+                &credential_config::SystemSecrets,
+            )
+            .unwrap_or_else(|_| {
+                eprintln!("方案凭据读取失败，已阻止加载及覆盖，请恢复凭据库后重启");
+                unavailable_credentials(profile.settings.settings)
+            });
+            Profile {
+                id: profile.id,
+                name: profile.name,
+                settings,
+            }
+        })
+        .collect();
+    if legacy
+        && profiles.iter().any(|profile| {
+            !profile.settings.api_key.is_empty() || !profile.settings.translate_key.is_empty()
+        })
+        && save_profiles_file(&profiles).is_err()
+    {
+        eprintln!("方案凭据迁移未全部完成，请检查系统凭据库与配置目录");
+    }
+    profiles
 }
 
 fn save_profiles_file(profiles: &[Profile]) -> Result<(), String> {
     let path = profiles_path().ok_or("无法找到系统配置目录")?;
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-    }
-    let mut persisted = profiles.to_vec();
-    for profile in &mut persisted {
-        profile.settings.api_key.clear();
-        profile.settings.translate_key.clear();
-    }
-    let json = serde_json::to_string_pretty(&persisted).map_err(|e| e.to_string())?;
-    fs::write(path, json).map_err(|e| e.to_string())
+    credential_config::save_profiles(&path, profiles, &credential_config::SystemSecrets)
 }
 
 fn load_settings() -> Settings {
-    let mut settings: Settings = config_path()
-        .and_then(|path| fs::read_to_string(path).ok())
-        .and_then(|data| serde_json::from_str(&data).ok())
-        .unwrap_or_default();
-    let had_legacy_secrets = !settings.api_key.is_empty() || !settings.translate_key.is_empty();
-    let mut all_secrets_secured = true;
-    if let Some(secret) = read_secret("transcription-api-key") {
-        settings.api_key = secret;
-    } else if !settings.api_key.is_empty() {
-        all_secrets_secured &= write_secret("transcription-api-key", &settings.api_key).is_ok();
-    }
-    if let Some(secret) = read_secret("translation-api-key") {
-        settings.translate_key = secret;
-    } else if !settings.translate_key.is_empty() {
-        all_secrets_secured &= write_secret("translation-api-key", &settings.translate_key).is_ok();
-    }
-    if had_legacy_secrets && all_secrets_secured {
-        if save_settings_file(&settings).is_err() {
-            eprintln!("旧设置明文凭据清理失败，请检查配置文件权限");
-        }
-    } else if had_legacy_secrets {
-        eprintln!("旧设置凭据迁移失败，保留原文件以避免丢失凭据");
+    let Some(path) = config_path() else {
+        return Default::default();
+    };
+    let data = match fs::read(&path) {
+        Ok(data) => data,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Default::default(),
+        Err(_) => return unavailable_credentials(Default::default()),
+    };
+    let stored: credential_config::StoredSettings = match serde_json::from_slice(&data) {
+        Ok(stored) => stored,
+        Err(_) => return unavailable_credentials(Default::default()),
+    };
+    let settings =
+        match credential_config::load(&stored, "current", &credential_config::SystemSecrets) {
+            Ok(settings) => settings,
+            Err(_) => {
+                eprintln!("当前凭据读取失败，已阻止加载及覆盖，请恢复凭据库后重启");
+                return unavailable_credentials(stored.settings);
+            }
+        };
+    if stored.credentials.is_none()
+        && (!settings.api_key.is_empty() || !settings.translate_key.is_empty())
+        && save_settings_file(&settings).is_err()
+    {
+        eprintln!("当前凭据迁移未全部完成，请检查系统凭据库与配置目录");
     }
     settings
 }
 
 fn save_settings_file(settings: &Settings) -> Result<(), String> {
+    text_processing::parse_rules(&settings.text_rules)?;
     let path = config_path().ok_or("无法找到系统配置目录")?;
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-    }
-    let mut persisted = settings.clone();
-    persisted.api_key.clear();
-    persisted.translate_key.clear();
-    let json = serde_json::to_string_pretty(&persisted).map_err(|e| e.to_string())?;
-    fs::write(path, json).map_err(|e| e.to_string())
+    credential_config::save_settings(&path, settings, &credential_config::SystemSecrets)
 }
 
 #[tauri::command]
 fn get_settings(state: State<'_, AppState>) -> Settings {
     state.settings.lock().unwrap().clone()
+}
+
+fn sync_recent_results<R: Runtime>(app: &AppHandle<R>, enabled: bool) {
+    if let Ok(mut history) = app.state::<AppState>().recent_results.lock() {
+        history.set_enabled(enabled);
+    }
+    emit(app, "recent-results-changed", ());
+}
+
+#[tauri::command]
+fn preview_text_rules(
+    text_rules: String,
+    text: String,
+    language: String,
+) -> Result<String, String> {
+    text_processing::preview(&text_rules, &text, &language)
+}
+
+#[tauri::command]
+fn get_recent_results(state: State<'_, AppState>) -> Result<Vec<RecentResult>, String> {
+    Ok(state
+        .recent_results
+        .lock()
+        .map_err(|_| "恢复记录锁定失败")?
+        .entries())
+}
+
+#[tauri::command]
+fn clear_recent_results(state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
+    state
+        .recent_results
+        .lock()
+        .map_err(|_| "恢复记录锁定失败")?
+        .clear();
+    emit(&app, "recent-results-changed", ());
+    Ok(())
+}
+
+#[tauri::command]
+fn copy_recent_result(id: u64, original: bool, state: State<'_, AppState>) -> Result<(), String> {
+    // Hold the history lock until copy completes so disabling/clearing cannot race it.
+    let history = state
+        .recent_results
+        .lock()
+        .map_err(|_| "恢复记录锁定失败")?;
+    let entry = history
+        .entries()
+        .into_iter()
+        .find(|entry| entry.id == id)
+        .ok_or("找不到恢复记录")?;
+    Clipboard::new()
+        .map_err(|e| format!("无法访问剪贴板：{e}"))?
+        .set_text(if original { entry.original } else { entry.text })
+        .map_err(|e| format!("无法写入剪贴板：{e}"))
+}
+
+#[tauri::command]
+fn copy_pending_result(text: String) -> Result<(), String> {
+    if text.len() > text_processing::MAX_TEXT_BYTES {
+        return Err("复制文字不能超过 1 MiB".into());
+    }
+    Clipboard::new()
+        .map_err(|e| format!("无法访问剪贴板：{e}"))?
+        .set_text(text)
+        .map_err(|e| format!("无法写入剪贴板：{e}"))
 }
 
 #[tauri::command]
@@ -713,7 +855,6 @@ fn create_profile(
         name,
         settings: current,
     };
-    save_profile_secrets(&profile)?;
     profiles.push(profile.clone());
     save_profiles_file(&profiles)?;
     drop(profiles);
@@ -766,21 +907,13 @@ fn rename_profile(
 #[tauri::command]
 fn delete_profile(id: String, state: State<'_, AppState>, app: AppHandle) -> Result<(), String> {
     let mut profiles = state.profiles.lock().map_err(|_| "方案锁定失败")?;
-    let removed = profiles
+    let _removed = profiles
         .iter()
         .find(|profile| profile.id == id)
         .cloned()
         .ok_or("找不到方案")?;
     profiles.retain(|profile| profile.id != id);
     save_profiles_file(&profiles)?;
-    let _ = clear_secret_for(
-        KEYRING_SERVICE,
-        &profile_secret_name(&removed.id, "transcription-api-key"),
-    );
-    let _ = clear_secret_for(
-        KEYRING_SERVICE,
-        &profile_secret_name(&removed.id, "translation-api-key"),
-    );
     drop(profiles);
     if state.active_profile.lock().unwrap().as_deref() == Some(id.as_str()) {
         *state
@@ -813,21 +946,13 @@ fn apply_profile_impl<R: Runtime>(
         .start_on_login;
     let mut settings = profile.settings;
     settings.start_on_login = start_on_login;
-    let streaming_model_changed = {
-        let current = state.settings.lock().map_err(|_| "设置锁定失败")?;
-        current.local_mode != settings.local_mode
-            || current.local_model_dir != settings.local_model_dir
-    };
     save_settings_file(&settings)?;
     *state.settings.lock().map_err(|_| "设置锁定失败")? = settings.clone();
+    sync_recent_results(app, settings.remember_results);
     *state
         .active_profile
         .lock()
         .map_err(|_| "方案状态锁定失败")? = Some(id);
-    if streaming_model_changed {
-        *state.streaming_recognizer.lock().unwrap() = None;
-        *state.local_recognizer.lock().unwrap() = None;
-    }
     emit(&app, "settings-changed", settings.clone());
     let _ = refresh_tray_menu(&app, &settings);
     Ok(())
@@ -844,8 +969,18 @@ fn save_settings(
     state: State<'_, AppState>,
     app: AppHandle,
 ) -> Result<(), String> {
+    if state
+        .settings
+        .lock()
+        .map_err(|_| "设置锁定失败")?
+        .credential_error
+    {
+        return Err("凭据读取异常，已阻止覆盖配置；请恢复系统凭据库后重启应用".into());
+    }
+    text_processing::parse_rules(&settings.text_rules)?;
     let settings =
         Settings {
+            credential_error: false,
             engine: if settings.engine == "local" {
                 "local".into()
             } else {
@@ -853,6 +988,7 @@ fn save_settings(
             },
             api_url: settings.api_url.trim().trim_end_matches('/').to_string(),
             api_key: normalize_api_key(&settings.api_key),
+            input_device: settings.input_device,
             online_language: match settings.online_language.as_str() {
                 "zh" | "en" | "ja" | "ko" | "de" | "fr" | "es" | "ru" | "pt" | "it" | "nl"
                 | "pl" | "tr" | "ar" | "hi" | "id" | "ms" | "th" | "vi" | "uk" | "fa" | "he"
@@ -900,6 +1036,9 @@ fn save_settings(
             } else {
                 "primary-alt-t".into()
             },
+            text_rules: settings.text_rules,
+            voice_formatting: settings.voice_formatting,
+            remember_results: settings.remember_results,
             start_on_login: settings.start_on_login,
             translate_on: settings.translate_on
                 && !(settings.engine == "local" && settings.local_mode == "streaming"),
@@ -934,12 +1073,6 @@ fn save_settings(
                 }
             },
         };
-    save_secret("transcription-api-key", &settings.api_key, "识别 API Key")?;
-    save_secret(
-        "translation-api-key",
-        &settings.translate_key,
-        "翻译 API Key",
-    )?;
     let previous_start_on_login = state.settings.lock().unwrap().start_on_login;
     if settings.start_on_login && !previous_start_on_login {
         app.autolaunch().enable().map_err(|e| e.to_string())?;
@@ -952,23 +1085,15 @@ fn save_settings(
                 .map_err(|e| format!("关闭开机启动失败：{e}"))?;
         }
     }
-    let streaming_model_changed = {
-        let current = state.settings.lock().unwrap();
-        current.local_mode != settings.local_mode
-            || current.local_model_dir != settings.local_model_dir
-    };
     save_settings_file(&settings)?;
     *state.settings.lock().unwrap() = settings.clone();
+    sync_recent_results(&app, settings.remember_results);
     if let Some(active_id) = state.active_profile.lock().unwrap().clone() {
         let mut profiles = state.profiles.lock().map_err(|_| "方案锁定失败")?;
         if let Some(profile) = profiles.iter_mut().find(|profile| profile.id == active_id) {
             profile.settings = settings.clone();
-            save_profile_secrets(profile)?;
             save_profiles_file(&profiles)?;
         }
-    }
-    if streaming_model_changed {
-        *state.streaming_recognizer.lock().unwrap() = None;
     }
     let _ = refresh_tray_menu(&app, &settings);
     Ok(())
@@ -994,15 +1119,66 @@ fn get_local_model_status(state: State<'_, AppState>) -> LocalModelStatus {
     }
 }
 
+fn selected_input_device_index(selected: &str, names: &[String]) -> Result<Option<usize>, String> {
+    if selected.is_empty() {
+        return Ok(None);
+    }
+    names
+        .iter()
+        .position(|name| name == selected)
+        .map(Some)
+        .ok_or_else(|| format!("找不到已选麦克风：{selected}。请重新连接设备或选择其他麦克风。"))
+}
+
+fn resolve_input_device(host: &cpal::Host, selected: &str) -> Result<cpal::Device, String> {
+    if selected.is_empty() {
+        return host
+            .default_input_device()
+            .ok_or_else(|| "系统没有可用的默认麦克风，请检查设备连接和系统权限。".into());
+    }
+    let devices: Vec<_> = host
+        .input_devices()
+        .map_err(|error| format!("无法读取麦克风列表：{error}"))?
+        .collect();
+    let names: Vec<_> = devices
+        .iter()
+        .map(|device| device.name().unwrap_or_default())
+        .collect();
+    let index = selected_input_device_index(selected, &names)?.ok_or("未选择麦克风")?;
+    devices
+        .into_iter()
+        .nth(index)
+        .ok_or_else(|| "麦克风已断开，请重新选择。".into())
+}
+
 #[tauri::command]
-fn get_audio_status() -> AudioStatus {
+fn get_audio_status(state: State<'_, AppState>) -> AudioStatus {
     let host = cpal::default_host();
-    let Some(device) = host.default_input_device() else {
-        return AudioStatus {
-            available: false,
-            name: String::new(),
-            detail: "系统没有可用的默认麦克风，请检查设备连接和系统权限。".into(),
-        };
+    let devices = host
+        .input_devices()
+        .map(|devices| devices.filter_map(|device| device.name().ok()).collect())
+        .unwrap_or_default();
+    let selected = match state.settings.lock() {
+        Ok(settings) => settings.input_device.clone(),
+        Err(_) => {
+            return AudioStatus {
+                available: false,
+                name: String::new(),
+                detail: "设置锁定失败".into(),
+                devices,
+            }
+        }
+    };
+    let device = match resolve_input_device(&host, &selected) {
+        Ok(device) => device,
+        Err(detail) => {
+            return AudioStatus {
+                available: false,
+                name: selected,
+                detail,
+                devices,
+            }
+        }
     };
     let name = device.name().unwrap_or_else(|_| "默认麦克风".into());
     match device.default_input_config() {
@@ -1010,18 +1186,20 @@ fn get_audio_status() -> AudioStatus {
             available: true,
             detail: format!("{} · {} Hz", name, config.sample_rate().0),
             name,
+            devices,
         },
         Err(error) => AudioStatus {
             available: false,
             detail: format!("{} · 无法读取麦克风配置：{error}", name),
             name,
+            devices,
         },
     }
 }
 
 #[tauri::command]
 fn get_recording_elapsed(state: State<'_, AppState>) -> Option<RecordingStatus> {
-    let recorder = state.recorder.lock().ok()?;
+    let recorder = state.recorder.try_lock().ok()?;
     let recorder = recorder.as_ref()?;
     let samples = recorder.samples.lock().ok()?;
     Some(RecordingStatus {
@@ -1075,6 +1253,20 @@ fn list_local_models() -> Vec<ModelInfo> {
     models
 }
 
+fn validate_model_deletion(
+    path: &Path,
+    configured: Option<&Path>,
+    active: Option<&ActiveDictation>,
+) -> Result<(), String> {
+    if configured == Some(path) {
+        return Err("该模型正在使用中，请先切换到其他模型再删除".into());
+    }
+    if active.is_some_and(|active| active.session.settings.engine == "local") {
+        return Err("请等待本地听写完成或按 Esc 取消后再删除模型".into());
+    }
+    Ok(())
+}
+
 #[tauri::command]
 fn delete_local_model(dir: String, state: State<'_, AppState>) -> Result<(), String> {
     let path = PathBuf::from(&dir)
@@ -1092,8 +1284,10 @@ fn delete_local_model(dir: String, state: State<'_, AppState>) -> Result<(), Str
         .map_err(|_| "设置锁定失败")?
         .local_model_dir
         .clone();
-    if PathBuf::from(current).canonicalize().ok().as_deref() == Some(path.as_path()) {
-        return Err("该模型正在使用中，请先切换到其他模型再删除".into());
+    let current = PathBuf::from(current).canonicalize().ok();
+    {
+        let active = state.dictation.lock().map_err(|_| "听写状态锁定失败")?;
+        validate_model_deletion(&path, current.as_deref(), active.as_ref())?;
     }
     fs::remove_dir_all(&path).map_err(|e| format!("删除模型失败：{e}"))
 }
@@ -1457,47 +1651,79 @@ fn raise_overlay<R: Runtime>(app: &AppHandle<R>) {
 
 fn keep_overlay_on_top<R: Runtime>(app: &AppHandle<R>, started_at: Instant) {
     let guard_app = app.clone();
-    thread::spawn(move || loop {
-        thread::sleep(Duration::from_millis(500));
-        let active = guard_app
+    thread::spawn(move || {
+        let mut ticks = 0;
+        loop {
+            thread::sleep(Duration::from_millis(50));
+            let active = guard_app
+                .state::<AppState>()
+                .recorder
+                .lock()
+                .ok()
+                .and_then(|recorder| {
+                    recorder
+                        .as_ref()
+                        .map(|recorder| recorder.started_at == started_at)
+                })
+                .unwrap_or(false);
+            if !active {
+                break;
+            }
+            position_overlay_at_cursor(&guard_app);
+            ticks += 1;
+            if ticks % 10 == 0 {
+                raise_overlay(&guard_app);
+            }
+        }
+    });
+}
+
+fn show_overlay<R: Runtime>(app: &AppHandle<R>, started_at: Instant) {
+    let overlay_app = app.clone();
+    let _ = app.run_on_main_thread(move || {
+        let active = overlay_app
             .state::<AppState>()
             .recorder
             .lock()
             .ok()
-            .and_then(|recorder| {
-                recorder
+            .map(|slot| {
+                let active = slot
                     .as_ref()
-                    .map(|recorder| recorder.started_at == started_at)
+                    .is_some_and(|rec| rec.started_at == started_at);
+                active
             })
             .unwrap_or(false);
         if !active {
-            break;
+            return;
         }
-        raise_overlay(&guard_app);
+        if let Some(win) = overlay_app.get_webview_window("overlay") {
+            let _ = win.unminimize();
+            let _ = win.set_ignore_cursor_events(true);
+            let _ = win.show();
+            raise_overlay(&overlay_app);
+            position_overlay_at_cursor(&overlay_app);
+            keep_overlay_on_top(&overlay_app, started_at);
+        } else {
+            eprintln!("显示录音悬浮层失败：窗口尚未创建");
+        }
     });
 }
 
-fn show_overlay<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(win) = app.get_webview_window("overlay") {
-        let _ = win.unminimize();
-        let _ = win.set_ignore_cursor_events(true);
-        let _ = win.show();
-        raise_overlay(app);
-        position_overlay_at_cursor(app);
-        if let Ok(recorder) = app.state::<AppState>().recorder.lock() {
-            if let Some(recorder) = recorder.as_ref() {
-                keep_overlay_on_top(app, recorder.started_at);
+fn hide_overlay<R: Runtime>(app: &AppHandle<R>) {
+    let overlay_app = app.clone();
+    let _ = app.run_on_main_thread(move || {
+        let idle = overlay_app
+            .state::<AppState>()
+            .recorder
+            .lock()
+            .map(|slot| slot.is_none())
+            .unwrap_or(false);
+        if idle {
+            if let Some(win) = overlay_app.get_webview_window("overlay") {
+                let _ = win.hide();
             }
         }
-    } else {
-        eprintln!("显示录音悬浮层失败：窗口尚未创建");
-    }
-}
-
-fn hide_overlay<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(win) = app.get_webview_window("overlay") {
-        let _ = win.hide();
-    }
+    });
 }
 
 fn create_streaming_recognizer(settings: &Settings) -> Result<OnlineRecognizer, String> {
@@ -1573,7 +1799,8 @@ fn resample_available(
     let channels = channels.max(1) as usize;
     let frames = samples.len() / channels;
     let mut output = Vec::new();
-    while state.next_output < frames {
+    let output_frames = frames as u64 * 16_000 / u64::from(sample_rate.max(1));
+    while (state.next_output as u64) < output_frames {
         let position = state.next_output as f64 * sample_rate as f64 / 16_000.0;
         let left = position.floor() as usize;
         if left >= frames || (!flush && left + 1 >= frames) {
@@ -1596,12 +1823,35 @@ fn resample_available(
     output
 }
 
-fn emit_stream_preview(app: &AppHandle, last_preview: &mut String, text: &str) {
+fn emit_stream_preview(
+    app: &AppHandle,
+    session: &Arc<DictationSession>,
+    last_preview: &mut String,
+    text: &str,
+) {
     let text = text.trim();
     if !text.is_empty() && text != last_preview {
         *last_preview = text.to_string();
-        emit(app, "dictation-partial", text.to_string());
+        emit_session(app, session, "dictation-partial", text.to_string());
     }
+}
+
+fn commit_stream_segment(
+    app: &AppHandle,
+    session: &Arc<DictationSession>,
+    text: &str,
+) -> Result<(), String> {
+    if let Err(error) = paste_text(text, session) {
+        emit_session(
+            app,
+            session,
+            "dictation-recovery",
+            serde_json::json!({"text": text}),
+        );
+        return Err(error);
+    }
+    emit_session(app, session, "dictation-committed", text.to_string());
+    Ok(())
 }
 
 fn append_segment(target: &mut String, segment: &str) {
@@ -1624,18 +1874,24 @@ fn spawn_streaming_worker(
     sample_rate: u32,
     channels: u16,
     recognizer: Arc<OnlineRecognizer>,
-    live_output: bool,
-) -> (mpsc::Sender<()>, mpsc::Receiver<Result<(), String>>) {
+    session: Arc<DictationSession>,
+) -> (mpsc::Sender<bool>, mpsc::Receiver<Result<(), String>>) {
     let (stop_tx, stop_rx) = mpsc::channel();
     let (done_tx, done_rx) = mpsc::channel();
     thread::spawn(move || {
+        let live_output = session.settings.output_mode == "streaming";
         let result = (|| -> Result<(), String> {
             let stream: OnlineStream = recognizer.create_stream();
             let mut audio = StreamingAudio::new();
             let mut last_preview = String::new();
             let mut completed = String::new();
             loop {
-                let stopping = stop_rx.try_recv().is_ok();
+                session.cancellation.check()?;
+                let stopping = match stop_rx.try_recv() {
+                    Ok(true) => true,
+                    Ok(false) | Err(mpsc::TryRecvError::Disconnected) => return Ok(()),
+                    Err(mpsc::TryRecvError::Empty) => false,
+                };
                 let chunk = {
                     let captured = samples.lock().map_err(|_| "音频数据锁定失败")?;
                     resample_available(&captured, sample_rate, channels, &mut audio, stopping)
@@ -1643,18 +1899,18 @@ fn spawn_streaming_worker(
                 if !chunk.is_empty() {
                     stream.accept_waveform(16_000, &chunk);
                     while recognizer.is_ready(&stream) {
+                        session.cancellation.check()?;
                         recognizer.decode(&stream);
                     }
                     if let Some(result) = recognizer.get_result(&stream) {
                         if live_output {
-                            emit_stream_preview(&app, &mut last_preview, &result.text);
+                            emit_stream_preview(&app, &session, &mut last_preview, &result.text);
                         }
                         if recognizer.is_endpoint(&stream) {
                             let text = result.text.trim();
                             if !text.is_empty() {
                                 if live_output {
-                                    paste_text(text)?;
-                                    emit(&app, "dictation-committed", text.to_string());
+                                    commit_stream_segment(&app, &session, text)?;
                                 } else {
                                     append_segment(&mut completed, text);
                                 }
@@ -1669,22 +1925,21 @@ fn spawn_streaming_worker(
                 if stopping {
                     stream.input_finished();
                     while recognizer.is_ready(&stream) {
+                        session.cancellation.check()?;
                         recognizer.decode(&stream);
                     }
                     if let Some(result) = recognizer.get_result(&stream) {
                         let text = result.text.trim();
                         if !text.is_empty() {
                             if live_output {
-                                paste_text(text)?;
-                                emit(&app, "dictation-committed", text.to_string());
+                                commit_stream_segment(&app, &session, text)?;
                             } else {
                                 append_segment(&mut completed, text);
                             }
                         }
                     }
                     if !live_output && !completed.is_empty() {
-                        paste_text(&completed)?;
-                        emit(&app, "dictation-committed", completed);
+                        commit_stream_segment(&app, &session, &completed)?;
                     }
                     break;
                 }
@@ -1692,27 +1947,112 @@ fn spawn_streaming_worker(
             }
             Ok(())
         })();
-        let _ = done_tx.send(result);
+        let _ = done_tx.send(result.clone());
+        if let Err(error) = result {
+            end_session(&app, &session, Err(error));
+        }
     });
     (stop_tx, done_rx)
 }
 
-fn start_recording(app: &AppHandle) -> Result<(), String> {
-    let state = app.state::<AppState>();
-    let mut recorder_slot = state.recorder.lock().map_err(|_| "录音状态锁定失败")?;
-    if recorder_slot.is_some() {
-        return Ok(());
+fn emit_session<R: Runtime>(
+    app: &AppHandle<R>,
+    session: &Arc<DictationSession>,
+    event: &str,
+    payload: impl Serialize + Clone,
+) {
+    if let Ok(active) = app.state::<AppState>().dictation.lock() {
+        if session_matches(&active, session) {
+            if event == "dictation-recovery" {
+                let _ = app.emit_to("main", event, payload);
+            } else {
+                emit(app, event, payload);
+            }
+        }
     }
+}
 
-    let settings = state.settings.lock().map_err(|_| "设置锁定失败")?.clone();
+fn stop_cancelled_recorder(recorder: Recorder) {
+    let _ = recorder.max_stop.send(());
+    let _ = recorder.stop.send(None);
+    if let Some(stop) = recorder.streaming_stop {
+        let _ = stop.send(false);
+    }
+}
+
+fn end_session(app: &AppHandle, session: &Arc<DictationSession>, result: Result<(), String>) {
+    let state = app.state::<AppState>();
+    let Ok(mut active) = state.dictation.lock() else {
+        return;
+    };
+    if !session_matches(&active, session) {
+        return;
+    }
+    session.cancellation.cancel();
+    let recorder = state.recorder.lock().ok().and_then(|mut slot| {
+        if slot
+            .as_ref()
+            .is_some_and(|rec| Arc::ptr_eq(&rec.session, session))
+        {
+            slot.take()
+        } else {
+            None
+        }
+    });
+    active.take();
+    match result {
+        Ok(()) => emit(app, "dictation-state", "done"),
+        Err(error) if error == CANCELLED_ERROR => emit(app, "dictation-state", "cancelled"),
+        Err(error) => emit(app, "dictation-error", error),
+    }
+    drop(active);
+    if let Some(recorder) = recorder {
+        stop_cancelled_recorder(recorder);
+    }
+    hide_overlay(app);
+}
+
+fn start_recording(app: &AppHandle) -> Result<Arc<DictationSession>, String> {
+    let state = app.state::<AppState>();
+    let mut active = state.dictation.lock().map_err(|_| "听写状态锁定失败")?;
+    if active.is_some() {
+        return Err("上一段听写尚未完成，请等待完成或按 Esc 取消".into());
+    }
+    let session = Arc::new(DictationSession {
+        settings: state.settings.lock().map_err(|_| "设置锁定失败")?.clone(),
+        cancellation: Cancellation::default(),
+        #[cfg(target_os = "windows")]
+        target: text_input::InputTarget::capture()?,
+        recovery_ticket: state
+            .recent_results
+            .lock()
+            .map_err(|_| "恢复记录锁定失败")?
+            .ticket(),
+    });
+    reserve_session(&mut active, Arc::clone(&session))?;
+    emit(app, "dictation-state", "starting");
+    drop(active);
+    let worker_app = app.clone();
+    let worker_session = Arc::clone(&session);
+    thread::spawn(move || {
+        if let Err(error) = begin_recording(&worker_app, &worker_session) {
+            end_session(&worker_app, &worker_session, Err(error));
+        }
+    });
+    Ok(session)
+}
+
+fn begin_recording(app: &AppHandle, session: &Arc<DictationSession>) -> Result<(), String> {
+    session.cancellation.check()?;
+    let settings = &session.settings;
     let streaming_recognizer = if settings.engine == "local" && settings.local_mode == "streaming" {
-        Some(get_streaming_recognizer(app, &settings)?)
+        Some(get_streaming_recognizer(app, settings)?)
     } else {
         None
     };
-
+    session.cancellation.check()?;
     let host = cpal::default_host();
-    let device = host.default_input_device().ok_or("找不到默认麦克风")?;
+    let device = resolve_input_device(&host, &settings.input_device)?;
     let supported = device
         .default_input_config()
         .map_err(|e| format!("无法读取麦克风配置：{e}"))?;
@@ -1722,35 +2062,22 @@ fn start_recording(app: &AppHandle) -> Result<(), String> {
     let channels = config.channels.max(1);
     let (stop_tx, stop_rx) = mpsc::channel();
     let (done_tx, done_rx) = mpsc::channel();
+    let (ready_tx, ready_rx) = mpsc::channel();
     let (max_stop_tx, max_stop_rx) = mpsc::channel();
-    let started_at = Instant::now();
-    let watchdog_app = app.clone();
-    let watchdog_started_at = started_at;
-    thread::spawn(move || {
-        if max_stop_rx.recv_timeout(MAX_RECORDING_TIME).is_err() {
-            let should_finish = watchdog_app
-                .state::<AppState>()
-                .recorder
-                .lock()
-                .ok()
-                .and_then(|recorder| {
-                    recorder
-                        .as_ref()
-                        .map(|rec| rec.started_at == watchdog_started_at)
-                })
-                .unwrap_or(false);
-            if should_finish {
-                finish_dictation(watchdog_app);
-            }
-        }
-    });
     let samples = Arc::new(Mutex::new(Vec::<i16>::new()));
     let worker_samples = Arc::clone(&samples);
     let worker_app = app.clone();
+    let worker_session = Arc::clone(session);
+    let error_stop = stop_tx.clone();
     thread::spawn(move || {
         let result = (|| -> Result<(), String> {
+            worker_session.cancellation.check()?;
             let captured = Arc::clone(&worker_samples);
-            let error_callback = |error| eprintln!("audio stream error: {error}");
+            let error_callback = move |error| {
+                let _ = error_stop.send(Some(format!(
+                    "麦克风录音中断：{error}。请检查设备连接后重试。"
+                )));
+            };
             let stream = match sample_format {
                 cpal::SampleFormat::I16 => device.build_input_stream(
                     &config,
@@ -1789,19 +2116,54 @@ fn start_recording(app: &AppHandle) -> Result<(), String> {
                 format => return Err(format!("不支持的麦克风格式：{format:?}")),
             }
             .map_err(|e| format!("无法打开麦克风：{e}"))?;
+            worker_session.cancellation.check()?;
             stream.play().map_err(|e| format!("无法开始录音：{e}"))?;
-            let _ = stop_rx.recv();
+            let _ = ready_tx.send(Ok(()));
+            let error = loop {
+                if worker_session.cancellation.is_cancelled() {
+                    break None;
+                }
+                match stop_rx.recv_timeout(Duration::from_millis(20)) {
+                    Ok(error) => break error,
+                    Err(mpsc::RecvTimeoutError::Disconnected) => break None,
+                    Err(mpsc::RecvTimeoutError::Timeout) => {}
+                }
+            };
             drop(stream);
-            Ok(())
+            error.map_or(Ok(()), Err)
         })();
+        let _ = done_tx.send(result.clone());
         if let Err(error) = result {
-            if let Ok(mut slot) = worker_app.state::<AppState>().recorder.lock() {
-                slot.take();
-            }
-            emit(&worker_app, "dictation-error", error);
+            let _ = ready_tx.send(Err(error.clone()));
+            end_session(&worker_app, &worker_session, Err(error));
         }
-        let _ = done_tx.send(());
     });
+    let deadline = Instant::now() + Duration::from_secs(5);
+    loop {
+        if let Err(error) = session.cancellation.check() {
+            let _ = stop_tx.send(None);
+            return Err(error);
+        }
+        match ready_rx.recv_timeout(Duration::from_millis(20)) {
+            Ok(result) => {
+                result?;
+                break;
+            }
+            Err(mpsc::RecvTimeoutError::Disconnected) => return Err("无法开始录音".into()),
+            Err(mpsc::RecvTimeoutError::Timeout) if Instant::now() >= deadline => {
+                let _ = stop_tx.send(None);
+                return Err("麦克风启动超时，请检查设备连接后重试".into());
+            }
+            Err(mpsc::RecvTimeoutError::Timeout) => {}
+        }
+    }
+    let state = app.state::<AppState>();
+    let mut active = state.dictation.lock().map_err(|_| "听写状态锁定失败")?;
+    if !session_matches(&active, session) {
+        let _ = stop_tx.send(None);
+        return Err(CANCELLED_ERROR.into());
+    }
+    let started_at = Instant::now();
     let (streaming_stop, streaming_done) = streaming_recognizer
         .map(|recognizer| {
             spawn_streaming_worker(
@@ -1810,11 +2172,12 @@ fn start_recording(app: &AppHandle) -> Result<(), String> {
                 sample_rate,
                 channels,
                 recognizer,
-                settings.output_mode == "streaming",
+                Arc::clone(session),
             )
         })
         .map_or((None, None), |(stop, done)| (Some(stop), Some(done)));
-    *recorder_slot = Some(Recorder {
+    *state.recorder.lock().map_err(|_| "录音状态锁定失败")? = Some(Recorder {
+        session: Arc::clone(session),
         stop: stop_tx,
         done: done_rx,
         max_stop: max_stop_tx,
@@ -1825,26 +2188,33 @@ fn start_recording(app: &AppHandle) -> Result<(), String> {
         streaming_stop,
         streaming_done,
     });
-    drop(recorder_slot);
-    show_overlay(app);
+    active.as_mut().unwrap().phase = DictationPhase::Recording;
     emit(app, "dictation-state", "recording");
+    drop(active);
+    let watchdog_app = app.clone();
+    let watchdog_session = Arc::clone(session);
+    thread::spawn(move || {
+        if matches!(
+            max_stop_rx.recv_timeout(MAX_RECORDING_TIME),
+            Err(mpsc::RecvTimeoutError::Timeout)
+        ) {
+            finish_dictation(watchdog_app, &watchdog_session);
+        }
+    });
+    show_overlay(app, started_at);
     Ok(())
 }
 
 struct StoppedRecording {
+    session: Arc<DictationSession>,
     path: tempfile::TempPath,
     streaming_result: Option<Result<(), String>>,
+    was_streaming: bool,
 }
 
-fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
-    let recorder = app
-        .state::<AppState>()
-        .recorder
-        .lock()
-        .map_err(|_| "录音状态锁定失败")?
-        .take()
-        .ok_or("当前没有录音")?;
+fn stop_recording(recorder: Recorder) -> Result<StoppedRecording, String> {
     let Recorder {
+        session,
         stop,
         done,
         max_stop,
@@ -1855,12 +2225,15 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
         streaming_stop,
         streaming_done,
     } = recorder;
+    session.cancellation.check()?;
     let _ = max_stop.send(());
-    let _ = stop.send(());
-    let _ = done.recv_timeout(Duration::from_millis(500));
+    let _ = stop.send(None);
+    done.recv_timeout(Duration::from_millis(500))
+        .map_err(|_| "麦克风未能停止录音，请检查设备后重试")??;
     let samples = samples.lock().map_err(|_| "音频数据锁定失败")?.clone();
+    let was_streaming = streaming_stop.is_some();
     let streaming_result = streaming_stop.and_then(|stop| {
-        let _ = stop.send(());
+        let _ = stop.send(true);
         streaming_done.and_then(|done| done.recv_timeout(Duration::from_secs(3)).ok())
     });
     if samples.is_empty() {
@@ -1868,7 +2241,7 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
     }
 
     let samples = normalize_audio(&samples, sample_rate, channels);
-    if !has_voice_energy(&samples) {
+    if !has_audio_signal(&samples) {
         return Err("没有检测到语音".into());
     }
     let spec = hound::WavSpec {
@@ -1893,41 +2266,44 @@ fn stop_recording(app: &AppHandle) -> Result<StoppedRecording, String> {
         .finalize()
         .map_err(|e| format!("无法完成录音：{e}"))?;
     Ok(StoppedRecording {
+        session,
         path: file.into_temp_path(),
         streaming_result,
+        was_streaming,
     })
 }
 
-fn cancel_recording(app: &AppHandle) -> Result<bool, String> {
-    let recorder = app
-        .state::<AppState>()
+fn cancel_session(
+    app: &AppHandle,
+    expected: Option<&Arc<DictationSession>>,
+) -> Result<bool, String> {
+    let state = app.state::<AppState>();
+    let mut active = state.dictation.lock().map_err(|_| "听写状态锁定失败")?;
+    if expected.is_some_and(|session| !session_matches(&active, session)) {
+        return Ok(false);
+    }
+    let Some(current) = active.take() else {
+        drop(active);
+        hide_overlay(app);
+        return Ok(false);
+    };
+    current.session.cancellation.cancel();
+    let recorder = state
         .recorder
         .lock()
         .map_err(|_| "录音状态锁定失败")?
         .take();
-    let Some(Recorder {
-        stop,
-        done,
-        max_stop,
-        streaming_stop,
-        streaming_done,
-        ..
-    }) = recorder
-    else {
-        return Ok(false);
-    };
-    let _ = max_stop.send(());
-    let _ = stop.send(());
-    let _ = done.recv_timeout(Duration::from_millis(500));
-    if let Some(stop) = streaming_stop {
-        let _ = stop.send(());
-        if let Some(done) = streaming_done {
-            let _ = done.recv_timeout(Duration::from_secs(3));
-        }
+    emit(app, "dictation-state", "cancelled");
+    drop(active);
+    if let Some(recorder) = recorder {
+        stop_cancelled_recorder(recorder);
     }
     hide_overlay(app);
-    emit(app, "dictation-state", "cancelled");
     Ok(true)
+}
+
+fn cancel_recording(app: &AppHandle) -> Result<bool, String> {
+    cancel_session(app, None)
 }
 
 fn normalize_audio(samples: &[i16], sample_rate: u32, channels: u16) -> Vec<i16> {
@@ -1964,6 +2340,12 @@ fn normalize_audio(samples: &[i16], sample_rate: u32, channels: u16) -> Vec<i16>
         .collect()
 }
 
+fn has_audio_signal(samples: &[i16]) -> bool {
+    // shortcut: only flat input is rejected to preserve quiet speech; use calibrated VAD if noise-only input needs filtering.
+    samples.windows(2).any(|pair| pair[0] != pair[1])
+}
+
+#[cfg(test)]
 fn has_voice_energy(samples: &[i16]) -> bool {
     if samples.is_empty() {
         return false;
@@ -1985,7 +2367,12 @@ fn has_voice_energy(samples: &[i16]) -> bool {
 
 fn has_recent_voice_energy(samples: &[i16], sample_rate: u32, channels: u16) -> bool {
     let window_samples = (sample_rate as usize / 4).max(1) * usize::from(channels.max(1));
-    has_voice_energy(&samples[samples.len().saturating_sub(window_samples)..])
+    let recent = normalize_audio(
+        &samples[samples.len().saturating_sub(window_samples)..],
+        sample_rate,
+        channels,
+    );
+    has_audio_signal(&recent)
 }
 
 fn normalize_api_key(value: &str) -> String {
@@ -2261,7 +2648,12 @@ fn transcription_retry_delay(
     (seconds <= 5).then(|| Duration::from_secs(seconds))
 }
 
-fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
+fn transcribe(
+    path: &Path,
+    settings: &Settings,
+    cancellation: &Cancellation,
+) -> Result<String, String> {
+    cancellation.check()?;
     let api_key = normalize_api_key(&settings.api_key);
     if api_key.is_empty() {
         return Err(
@@ -2281,6 +2673,7 @@ fn transcribe(path: &Path, settings: &Settings) -> Result<String, String> {
     )?;
     let mut retried = false;
     let response = loop {
+        cancellation.check()?;
         // Multipart bodies are consumed by send; reopen the recording on retry.
         let file = reqwest::blocking::multipart::Part::file(path)
             .map_err(|e| format!("读取录音失败：{e}"))?;
@@ -2514,7 +2907,9 @@ fn translate_with_available_model(
     configured: &str,
     text: &str,
     target: &str,
+    cancellation: &Cancellation,
 ) -> Result<String, String> {
+    cancellation.check()?;
     let configured = configured.trim();
     if !configured.is_empty() {
         match chat_translate(base, api_key, configured, text, target) {
@@ -2526,10 +2921,12 @@ fn translate_with_available_model(
         }
     }
 
+    cancellation.check()?;
     let candidates = translation_model_candidates(base, api_key, configured)
         .map_err(|error| format!("翻译模型不可用，且无法获取当前模型列表：{error}"))?;
     let mut last_error = String::from("接口没有提供可用的文本模型");
     for model in candidates {
+        cancellation.check()?;
         if model == configured {
             continue;
         }
@@ -2543,7 +2940,11 @@ fn translate_with_available_model(
     ))
 }
 
-fn translate_text(text: &str, settings: &Settings) -> Result<String, String> {
+fn translate_text(
+    text: &str,
+    settings: &Settings,
+    cancellation: &Cancellation,
+) -> Result<String, String> {
     let model = settings.translate_model.trim();
     match settings.translate_api.as_str() {
         "follow" | "auto" | "google" => translate_with_available_model(
@@ -2552,6 +2953,7 @@ fn translate_text(text: &str, settings: &Settings) -> Result<String, String> {
             model,
             text,
             &settings.translate_target,
+            cancellation,
         ),
         "custom" | "deepseek" | "zhipu" | "dashscope" | "siliconflow" | "groq" | "openai" => {
             translate_with_available_model(
@@ -2560,6 +2962,7 @@ fn translate_text(text: &str, settings: &Settings) -> Result<String, String> {
                 model,
                 text,
                 &settings.translate_target,
+                cancellation,
             )
         }
         _ => Err("请先选择翻译通道".into()),
@@ -2575,6 +2978,7 @@ fn test_translation_api(settings: Settings) -> Result<String, String> {
         model.trim(),
         "This is a translation test.",
         &settings.translate_target,
+        &Cancellation::default(),
     )?;
     if translated.trim().is_empty() {
         return Err("翻译接口没有返回结果".into());
@@ -2582,9 +2986,18 @@ fn test_translation_api(settings: Settings) -> Result<String, String> {
     Ok("连接成功 · 翻译接口可用".into())
 }
 
+fn local_recognizer_cache_key(settings: &Settings) -> (String, PathBuf, String) {
+    (
+        settings.local_mode.clone(),
+        PathBuf::from(settings.local_model_dir.trim()),
+        settings.local_language.clone(),
+    )
+}
+
 fn transcribe_local(app: &AppHandle, path: &Path, settings: &Settings) -> Result<String, String> {
-    let model_dir = PathBuf::from(settings.local_model_dir.trim());
-    if !model_ready_for_mode(&settings.local_mode, &model_dir) {
+    let cache_key = local_recognizer_cache_key(settings);
+    let model_dir = &cache_key.1;
+    if !model_ready_for_mode(&settings.local_mode, model_dir) {
         return Err(format!(
             "本地模型不完整，请在“模型”选项卡重新下载：{}",
             model_dir.display()
@@ -2638,7 +3051,6 @@ fn transcribe_local(app: &AppHandle, path: &Path, settings: &Settings) -> Result
         config.model_config.tokens =
             Some(model_dir.join("tokens.txt").to_string_lossy().into_owned());
     }
-    let cache_key = format!("{}::{}", settings.local_mode, model_dir.to_string_lossy());
     let app_state = app.state::<AppState>();
     let mut cache = app_state
         .local_recognizer
@@ -2646,12 +3058,12 @@ fn transcribe_local(app: &AppHandle, path: &Path, settings: &Settings) -> Result
         .map_err(|_| "本地模型状态锁定失败")?;
     if cache
         .as_ref()
-        .map(|cached| cached.model_dir != cache_key)
+        .map(|cached| cached.key != cache_key)
         .unwrap_or(true)
     {
         let recognizer = OfflineRecognizer::create(&config).ok_or("加载本地模型失败")?;
         *cache = Some(LocalRecognizerCache {
-            model_dir: cache_key,
+            key: cache_key,
             recognizer,
         });
     }
@@ -2667,12 +3079,13 @@ fn transcribe_local(app: &AppHandle, path: &Path, settings: &Settings) -> Result
 }
 
 #[cfg(target_os = "windows")]
-fn paste_text(text: &str) -> Result<(), String> {
-    text_input::insert_text(text)
+fn paste_text(text: &str, session: &DictationSession) -> Result<(), String> {
+    text_input::insert_text(text, &session.target, &session.cancellation)
 }
 
 #[cfg(not(target_os = "windows"))]
-fn paste_text(text: &str) -> Result<(), String> {
+fn paste_text(text: &str, session: &DictationSession) -> Result<(), String> {
+    session.cancellation.check()?;
     let mut clipboard = Clipboard::new().map_err(|e| format!("无法访问剪贴板：{e}"))?;
     let previous_text = clipboard.get_text().ok();
     clipboard
@@ -2683,12 +3096,15 @@ fn paste_text(text: &str) -> Result<(), String> {
     } else {
         Key::ControlLeft
     };
-    let result = (|| -> Result<(), String> {
-        simulate(&EventType::KeyPress(modifier)).map_err(|e| format!("无法模拟粘贴：{e:?}"))?;
-        simulate(&EventType::KeyPress(Key::KeyV)).map_err(|e| format!("无法模拟粘贴：{e:?}"))?;
-        thread::sleep(PASTE_SETTLE_TIME);
-        Ok(())
-    })();
+    let result = session
+        .cancellation
+        .run_if_active(|| -> Result<(), String> {
+            simulate(&EventType::KeyPress(modifier)).map_err(|e| format!("无法模拟粘贴：{e:?}"))?;
+            simulate(&EventType::KeyPress(Key::KeyV))
+                .map_err(|e| format!("无法模拟粘贴：{e:?}"))?;
+            thread::sleep(PASTE_SETTLE_TIME);
+            Ok(())
+        });
     let _ = simulate(&EventType::KeyRelease(Key::KeyV));
     let _ = simulate(&EventType::KeyRelease(modifier));
     if let Some(previous_text) = previous_text {
@@ -2697,49 +3113,113 @@ fn paste_text(text: &str) -> Result<(), String> {
     result
 }
 
-fn finish_dictation(app: AppHandle) {
-    emit(&app, "dictation-state", "processing");
-    let result = stop_recording(&app).and_then(|recording| {
-        let settings = app
-            .state::<AppState>()
-            .settings
-            .lock()
-            .map_err(|_| "设置锁定失败")?
-            .clone();
-        let result = if settings.engine == "local" && settings.local_mode == "streaming" {
-            recording
-                .streaming_result
-                .unwrap_or_else(|| Err("实时识别线程没有返回结果".into()))
-        } else {
-            let text = if settings.engine == "local" {
-                transcribe_local(&app, &recording.path, &settings)
-            } else {
-                transcribe(&recording.path, &settings)
-            };
-            let text = text.and_then(|text| {
-                let need_api_translate = settings.translate_on
-                    && !(settings.engine == "local" && settings.local_mode == "streaming");
-                if need_api_translate {
-                    emit(&app, "dictation-state", "translating");
-                    translate_text(&text, &settings)
-                } else {
-                    Ok(text)
-                }
-            });
-            text.and_then(|text| paste_text(&text).map(|_| ()))
-        };
-        // TempPath deletes the recording on success and on every error return.
-        result
-    });
-    match result {
-        Ok(_) => emit(&app, "dictation-state", "done"),
-        Err(error) if error == "当前没有录音" => {}
-        Err(error) if error == "没有检测到语音" => {
-            emit(&app, "dictation-state", "cancelled")
-        }
-        Err(error) => emit(&app, "dictation-error", error),
+fn finish_dictation(app: AppHandle, session: &Arc<DictationSession>) {
+    let state = app.state::<AppState>();
+    let Ok(mut active) = state.dictation.lock() else {
+        return;
+    };
+    if !session_matches(&active, session) {
+        return;
     }
+    match active.as_ref().unwrap().phase {
+        DictationPhase::Starting => {
+            drop(active);
+            let _ = cancel_session(&app, Some(session));
+            return;
+        }
+        DictationPhase::Processing => return,
+        DictationPhase::Recording => {}
+    }
+    let recorder = state.recorder.lock().ok().and_then(|mut slot| slot.take());
+    let Some(recorder) = recorder else {
+        return;
+    };
+    active.as_mut().unwrap().phase = DictationPhase::Processing;
+    emit(&app, "dictation-state", "processing");
+    drop(active);
     hide_overlay(&app);
+    let session = Arc::clone(session);
+    thread::spawn(move || {
+        let result = stop_recording(recorder);
+        match result {
+            Ok(recording) => complete_dictation(app, recording),
+            Err(error) => end_session(&app, &session, Err(error)),
+        }
+    });
+}
+
+fn complete_dictation(app: AppHandle, recording: StoppedRecording) {
+    let session = &recording.session;
+    let settings = &session.settings;
+    let result = (|| -> Result<(), String> {
+        session.cancellation.check()?;
+        if recording.was_streaming {
+            return recording
+                .streaming_result
+                .unwrap_or_else(|| Err("实时识别线程没有返回结果".into()));
+        }
+        let original = if settings.engine == "local" {
+            transcribe_local(&app, &recording.path, settings)
+        } else {
+            transcribe(&recording.path, settings, &session.cancellation)
+        }?;
+        session.cancellation.check()?;
+        let mut output = original.clone();
+        let result = (|| -> Result<(), String> {
+            let rules = text_processing::parse_rules(&settings.text_rules)?;
+            let language = if settings.engine == "local" {
+                &settings.local_language
+            } else {
+                &settings.online_language
+            };
+            output = text_processing::process_for_language(
+                &original,
+                &rules,
+                settings.voice_formatting,
+                language,
+            )?;
+            session.cancellation.check()?;
+            if settings.translate_on && !output.is_empty() {
+                emit_session(&app, session, "dictation-state", "translating");
+                output = translate_text(&output, settings, &session.cancellation)?;
+            }
+            session.cancellation.check()?;
+            if !output.is_empty() {
+                paste_text(&output, session)?;
+            }
+            Ok(())
+        })();
+        if result.is_err() && !output.is_empty() {
+            emit_session(
+                &app,
+                session,
+                "dictation-recovery",
+                serde_json::json!({"text": output}),
+            );
+        }
+        if let Ok(active) = app.state::<AppState>().dictation.lock() {
+            if session_matches(&active, session) {
+                let added = app
+                    .state::<AppState>()
+                    .recent_results
+                    .lock()
+                    .map(|mut history| {
+                        history.add(
+                            session.recovery_ticket,
+                            output,
+                            original,
+                            result.as_ref().err().cloned(),
+                        )
+                    })
+                    .unwrap_or(false);
+                if added {
+                    emit(&app, "recent-results-changed", ());
+                }
+            }
+        }
+        result
+    })();
+    end_session(&app, session, result);
 }
 
 fn update_modifier_state(state: &mut MouseSession, key: Key, pressed: bool) {
@@ -2793,188 +3273,148 @@ fn hotkey_part(hotkey: &str, key: Key) -> bool {
         || (spec.meta && matches!(key, Key::MetaLeft | Key::MetaRight))
 }
 
+#[cfg(target_os = "windows")]
+fn mouse_trigger_allowed() -> bool {
+    use windows_sys::Win32::UI::WindowsAndMessaging::{
+        GetGUIThreadInfo, GUITHREADINFO, GUI_INMOVESIZE,
+    };
+    let mut info = GUITHREADINFO {
+        cbSize: std::mem::size_of::<GUITHREADINFO>() as u32,
+        ..Default::default()
+    };
+    // Holding a title bar or resize border belongs to the other window.
+    unsafe { GetGUIThreadInfo(0, &mut info) == 0 || info.flags & GUI_INMOVESIZE == 0 }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn mouse_trigger_allowed() -> bool {
+    true
+}
+
 fn spawn_mouse_listener(app: AppHandle) {
+    let (event_tx, event_rx) = mpsc::channel();
+    let timer_tx = event_tx.clone();
+    let hook_app = app.clone();
     thread::spawn(move || {
-        let session = Arc::new(Mutex::new(MouseSession {
-            token: 0,
-            pressed: false,
-            triggered: false,
-            hotkey_pressed: false,
-            engine_toggle_pressed: false,
-            translate_toggle_pressed: false,
-            ctrl_down: false,
-            alt_down: false,
-            shift_down: false,
-            meta_down: false,
-            start_x: 0.0,
-            start_y: 0.0,
-            last_x: 0.0,
-            last_y: 0.0,
-        }));
-        let listener_session = Arc::clone(&session);
-        let listener_app = app.clone();
-        let callback = move |event: Event| match event.event_type {
-            EventType::ButtonPress(Button::Left) => {
-                let (token, hold_ms) = {
-                    let mut state = listener_session.lock().unwrap();
-                    state.token += 1;
-                    state.pressed = true;
-                    state.triggered = false;
-                    state.start_x = state.last_x;
-                    state.start_y = state.last_y;
-                    (
-                        state.token,
-                        listener_app
-                            .state::<AppState>()
-                            .settings
-                            .lock()
-                            .unwrap()
-                            .hold_ms,
-                    )
-                };
-                let timer_session = Arc::clone(&listener_session);
-                let timer_app = listener_app.clone();
-                thread::spawn(move || {
-                    thread::sleep(Duration::from_millis(hold_ms));
-                    let should_start = {
-                        let mut state = timer_session.lock().unwrap();
-                        if state.pressed && state.token == token && !state.triggered {
-                            state.triggered = true;
-                            true
-                        } else {
-                            false
-                        }
-                    };
-                    if should_start {
-                        if let Err(error) = start_recording(&timer_app) {
-                            emit(&timer_app, "dictation-error", error);
+        // Windows can remove slow hooks; never wait for a window or recorder here.
+        if let Err(error) = listen(move |event: Event| {
+            let _ = event_tx.send(InputEvent::Global(event.event_type));
+        }) {
+            emit(
+                &hook_app,
+                "dictation-error",
+                format!("鼠标监听启动失败：{error:?}"),
+            );
+        }
+    });
+    thread::spawn(move || {
+        let mut state = MouseSession::default();
+        let mut mouse_session = None;
+        let mut hotkey_session = None;
+        for event in event_rx {
+            match event {
+                InputEvent::HoldElapsed(token) => {
+                    if mouse_trigger_allowed() && state.trigger_mouse(token) {
+                        match start_recording(&app) {
+                            Ok(session) => mouse_session = Some(session),
+                            Err(error) => {
+                                state.release_mouse();
+                                emit(&app, "dictation-error", error);
+                            }
                         }
                     }
-                });
-            }
-            EventType::MouseMove { x, y } => {
-                if listener_app
-                    .state::<AppState>()
-                    .recorder
-                    .lock()
-                    .map(|recorder| recorder.is_some())
-                    .unwrap_or(false)
-                {
-                    position_overlay_at_cursor(&listener_app);
                 }
-                let mut state = listener_session.lock().unwrap();
-                state.last_x = x;
-                state.last_y = y;
-                if state.pressed
-                    && !state.triggered
-                    && ((x - state.start_x).abs() + (y - state.start_y).abs() > 12.0)
-                {
-                    state.pressed = false;
-                    state.token += 1;
-                }
-            }
-            EventType::ButtonRelease(Button::Left) => {
-                let should_finish = {
-                    let mut state = listener_session.lock().unwrap();
-                    let value = state.pressed && state.triggered;
-                    state.pressed = false;
-                    state.triggered = false;
-                    state.token += 1;
-                    value
-                };
-                if should_finish {
-                    let finish_app = listener_app.clone();
-                    thread::spawn(move || finish_dictation(finish_app));
-                }
-            }
-            EventType::KeyPress(key) => {
-                if key == Key::Escape {
-                    let has_recording = listener_app
+                InputEvent::Global(EventType::ButtonPress(Button::Left)) => {
+                    let token = state.press_mouse();
+                    let hold_ms = app
                         .state::<AppState>()
-                        .recorder
+                        .settings
                         .lock()
-                        .map(|recorder| recorder.is_some())
-                        .unwrap_or(false);
-                    if has_recording {
-                        listener_session.lock().unwrap().hotkey_pressed = false;
-                        let cancel_app = listener_app.clone();
+                        .map(|settings| settings.hold_ms)
+                        .unwrap_or(1000);
+                    let timer_tx = timer_tx.clone();
+                    thread::spawn(move || {
+                        thread::sleep(Duration::from_millis(hold_ms));
+                        let _ = timer_tx.send(InputEvent::HoldElapsed(token));
+                    });
+                }
+                InputEvent::Global(EventType::MouseMove { x, y }) => {
+                    state.last_x = x;
+                    state.last_y = y;
+                    if state.pressed
+                        && !state.triggered
+                        && ((x - state.start_x).abs() + (y - state.start_y).abs() > 12.0)
+                    {
+                        state.release_mouse();
+                    }
+                }
+                InputEvent::Global(EventType::ButtonRelease(Button::Left)) => {
+                    if state.release_mouse() {
+                        if let Some(session) = mouse_session.take() {
+                            finish_dictation(app.clone(), &session);
+                        }
+                    }
+                }
+                InputEvent::Global(EventType::KeyPress(key)) => {
+                    if !state.press_key(key) {
+                        continue;
+                    }
+                    if key == Key::Escape {
+                        state.cancel();
+                        mouse_session = None;
+                        hotkey_session = None;
+                        if let Err(error) = cancel_recording(&app) {
+                            emit(&app, "dictation-error", error);
+                        }
+                        continue;
+                    }
+                    let (hotkey, engine_hotkey, translate_hotkey) = app
+                        .state::<AppState>()
+                        .settings
+                        .lock()
+                        .map(|settings| {
+                            (
+                                settings.hotkey.clone(),
+                                settings.engine_hotkey.clone(),
+                                settings.translate_hotkey.clone(),
+                            )
+                        })
+                        .unwrap_or_else(|_| {
+                            ("disabled".into(), "disabled".into(), "disabled".into())
+                        });
+                    update_modifier_state(&mut state, key, true);
+                    if hotkey_matches(
+                        &engine_hotkey,
+                        state.ctrl_down,
+                        state.alt_down,
+                        state.shift_down,
+                        state.meta_down,
+                        key,
+                    ) {
+                        let toggle_app = app.clone();
                         thread::spawn(move || {
-                            if let Err(error) = cancel_recording(&cancel_app) {
-                                emit(&cancel_app, "dictation-error", error);
+                            if let Err(error) = toggle_engine(&toggle_app) {
+                                emit(&toggle_app, "dictation-error", error);
                             }
                         });
-                        return;
+                        continue;
                     }
-                }
-                let (hotkey, engine_hotkey, translate_hotkey) = listener_app
-                    .state::<AppState>()
-                    .settings
-                    .lock()
-                    .map(|settings| {
-                        (
-                            settings.hotkey.clone(),
-                            settings.engine_hotkey.clone(),
-                            settings.translate_hotkey.clone(),
-                        )
-                    })
-                    .unwrap_or_else(|_| ("disabled".into(), "disabled".into(), "disabled".into()));
-                let should_start = {
-                    let mut state = listener_session.lock().unwrap();
-                    update_modifier_state(&mut state, key, true);
-                    if !state.engine_toggle_pressed
-                        && hotkey_matches(
-                            &engine_hotkey,
-                            state.ctrl_down,
-                            state.alt_down,
-                            state.shift_down,
-                            state.meta_down,
-                            key,
-                        )
-                    {
-                        state.engine_toggle_pressed = true;
-                        true
-                    } else {
-                        false
+                    if hotkey_matches(
+                        &translate_hotkey,
+                        state.ctrl_down,
+                        state.alt_down,
+                        state.shift_down,
+                        state.meta_down,
+                        key,
+                    ) {
+                        let toggle_app = app.clone();
+                        thread::spawn(move || {
+                            if let Err(error) = toggle_translation(&toggle_app) {
+                                emit(&toggle_app, "dictation-error", error);
+                            }
+                        });
+                        continue;
                     }
-                };
-                if should_start {
-                    let toggle_app = listener_app.clone();
-                    thread::spawn(move || {
-                        if let Err(error) = toggle_engine(&toggle_app) {
-                            emit(&toggle_app, "dictation-error", error);
-                        }
-                    });
-                    return;
-                }
-                let should_toggle_translation = {
-                    let mut state = listener_session.lock().unwrap();
-                    if !state.translate_toggle_pressed
-                        && hotkey_matches(
-                            &translate_hotkey,
-                            state.ctrl_down,
-                            state.alt_down,
-                            state.shift_down,
-                            state.meta_down,
-                            key,
-                        )
-                    {
-                        state.translate_toggle_pressed = true;
-                        true
-                    } else {
-                        false
-                    }
-                };
-                if should_toggle_translation {
-                    let toggle_app = listener_app.clone();
-                    thread::spawn(move || {
-                        if let Err(error) = toggle_translation(&toggle_app) {
-                            emit(&toggle_app, "dictation-error", error);
-                        }
-                    });
-                    return;
-                }
-                let should_start = {
-                    let mut state = listener_session.lock().unwrap();
                     if !state.hotkey_pressed
                         && hotkey_matches(
                             &hotkey,
@@ -2986,61 +3426,25 @@ fn spawn_mouse_listener(app: AppHandle) {
                         )
                     {
                         state.hotkey_pressed = true;
-                        true
-                    } else {
-                        false
-                    }
-                };
-                if should_start {
-                    let hotkey_app = listener_app.clone();
-                    thread::spawn(move || {
-                        if let Err(error) = start_recording(&hotkey_app) {
-                            emit(&hotkey_app, "dictation-error", error);
+                        state.held_recording_hotkey = hotkey;
+                        match start_recording(&app) {
+                            Ok(session) => hotkey_session = Some(session),
+                            Err(error) => emit(&app, "dictation-error", error),
                         }
-                    });
+                    }
                 }
-            }
-            EventType::KeyRelease(key) => {
-                let (hotkey, engine_hotkey, translate_hotkey) = listener_app
-                    .state::<AppState>()
-                    .settings
-                    .lock()
-                    .map(|settings| {
-                        (
-                            settings.hotkey.clone(),
-                            settings.engine_hotkey.clone(),
-                            settings.translate_hotkey.clone(),
-                        )
-                    })
-                    .unwrap_or_else(|_| ("disabled".into(), "disabled".into(), "disabled".into()));
-                let should_finish = {
-                    let mut state = listener_session.lock().unwrap();
-                    if hotkey_part(&engine_hotkey, key) {
-                        state.engine_toggle_pressed = false;
-                    }
-                    if hotkey_part(&translate_hotkey, key) {
-                        state.translate_toggle_pressed = false;
-                    }
-                    let value = state.hotkey_pressed && hotkey_part(&hotkey, key);
-                    if value {
-                        state.hotkey_pressed = false;
-                    }
+                InputEvent::Global(EventType::KeyRelease(key)) => {
+                    state.release_key(key);
+                    let should_finish = state.release_recording_hotkey(key);
                     update_modifier_state(&mut state, key, false);
-                    value
-                };
-                if should_finish {
-                    let finish_app = listener_app.clone();
-                    thread::spawn(move || finish_dictation(finish_app));
+                    if should_finish {
+                        if let Some(session) = hotkey_session.take() {
+                            finish_dictation(app.clone(), &session);
+                        }
+                    }
                 }
+                _ => {}
             }
-            _ => {}
-        };
-        if let Err(error) = listen(callback) {
-            emit(
-                &app,
-                "dictation-error",
-                format!("鼠标监听启动失败：{error:?}"),
-            );
         }
     });
 }
@@ -3083,6 +3487,7 @@ fn commit_runtime_settings<R: Runtime>(
         }
     }
     *state.settings.lock().map_err(|_| "设置锁定失败")? = settings.clone();
+    sync_recent_results(app, settings.remember_results);
     emit(app, "settings-changed", settings.clone());
     refresh_tray_menu(app, &settings)?;
     Ok(())
@@ -3506,15 +3911,19 @@ fn main() {
         .setup(|app| {
             let settings = load_settings();
             let profiles = load_profiles();
+            let mut recent_results = RecentResults::default();
+            recent_results.set_enabled(settings.remember_results);
             app.manage(AppState {
                 settings: Mutex::new(settings.clone()),
                 ui_locale: Mutex::new("zh".into()),
                 profiles: Mutex::new(profiles),
                 active_profile: Mutex::new(None),
                 recorder: Mutex::new(None),
+                dictation: Mutex::new(None),
                 local_recognizer: Mutex::new(None),
                 streaming_recognizer: Mutex::new(None),
                 model_download: Mutex::new(()),
+                recent_results: Mutex::new(recent_results),
             });
             let profiles = profile_summaries(&app.state::<AppState>());
             let menu = tray_menu(app, &settings, &profiles, "zh")?;
@@ -3539,6 +3948,7 @@ fn main() {
             .shadow(false)
             .resizable(false)
             .focused(false)
+            .focusable(false)
             .visible(false)
             .inner_size(200.0, 200.0)
             .build()
@@ -3571,6 +3981,11 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             get_settings,
+            preview_text_rules,
+            get_recent_results,
+            clear_recent_results,
+            copy_recent_result,
+            copy_pending_result,
             set_ui_locale,
             get_profiles,
             create_profile,
@@ -3597,10 +4012,284 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn configuration_replacement_writes_complete_json_without_leaving_staging_files() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        super::write_config_file(&path, r#"{"model":"old"}"#).unwrap();
+        super::write_config_file(&path, r#"{"model":"new","text_rules":"猫 => cat"}"#).unwrap();
+        let value: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        assert_eq!(value["model"], "new");
+        assert_eq!(value["text_rules"], "猫 => cat");
+        assert_eq!(std::fs::read_dir(directory.path()).unwrap().count(), 1);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn failed_configuration_replacement_preserves_the_old_file() {
+        use std::os::windows::fs::OpenOptionsExt;
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("settings.json");
+        let original = r#"{"model":"old"}"#;
+        std::fs::write(&path, original).unwrap();
+        let locked = std::fs::OpenOptions::new()
+            .read(true)
+            .share_mode(0)
+            .open(&path)
+            .unwrap();
+        assert!(super::write_config_file(&path, r#"{"model":"new"}"#).is_err());
+        drop(locked);
+        assert_eq!(std::fs::read_to_string(path).unwrap(), original);
+        assert_eq!(std::fs::read_dir(directory.path()).unwrap().count(), 1);
+    }
+
+    fn session(settings: super::Settings) -> std::sync::Arc<super::DictationSession> {
+        std::sync::Arc::new(super::DictationSession {
+            settings,
+            cancellation: Default::default(),
+            recovery_ticket: None,
+            #[cfg(target_os = "windows")]
+            target: crate::text_input::test_target(),
+        })
+    }
+
+    #[test]
+    fn escape_cannot_rearm_a_physically_held_recording_key() {
+        let mut state = super::MouseSession::default();
+        assert!(state.press_key(rdev::Key::F12));
+        state.hotkey_pressed = true;
+        state.cancel();
+        assert!(!state.press_key(rdev::Key::F12));
+        state.release_key(rdev::Key::F12);
+        assert!(state.press_key(rdev::Key::F12));
+    }
+
+    #[test]
+    fn held_hotkey_release_uses_the_original_shortcut_after_a_profile_switch() {
+        let mut settings = super::Settings::default();
+        let mut state = super::MouseSession {
+            hotkey_pressed: true,
+            held_recording_hotkey: settings.hotkey.clone(),
+            ..Default::default()
+        };
+        settings.hotkey = "custom:F10".into();
+        assert!(!state.release_recording_hotkey(rdev::Key::F10));
+        assert!(state.release_recording_hotkey(rdev::Key::F12));
+        assert!(!state.release_recording_hotkey(rdev::Key::F12));
+        assert_eq!(settings.hotkey, "custom:F10");
+    }
+
+    #[test]
+    fn busy_sessions_include_startup_recording_and_processing() {
+        let first = session(Default::default());
+        let next = session(Default::default());
+        let mut active = None;
+        super::reserve_session(&mut active, first.clone()).unwrap();
+        for phase in [
+            super::DictationPhase::Starting,
+            super::DictationPhase::Recording,
+            super::DictationPhase::Processing,
+        ] {
+            active.as_mut().unwrap().phase = phase;
+            assert!(super::reserve_session(&mut active, next.clone()).is_err());
+            assert!(super::session_matches(&active, &first));
+        }
+        first.cancellation.cancel();
+        assert!(!super::session_matches(&active, &first));
+        active.take();
+        super::reserve_session(&mut active, next.clone()).unwrap();
+        assert!(!super::session_matches(&active, &first));
+        assert!(super::session_matches(&active, &next));
+    }
+
+    #[test]
+    fn oversized_recovery_copy_is_rejected_before_accessing_clipboard() {
+        assert!(super::copy_pending_result("x".repeat(1024 * 1024 + 1)).is_err());
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn credential_cleanup_does_not_hide_invalid_entry_errors() {
+        // This invalid target cannot name a real Windows credential; no secret is read or written.
+        assert!(
+            super::clear_secret_for("mouse-dictation-security-test", &"x".repeat(32768)).is_err()
+        );
+    }
+
+    #[test]
+    fn cancelled_translation_starts_no_model_or_translation_requests() {
+        let cancellation = super::Cancellation::default();
+        cancellation.cancel();
+        for model in ["", "missing-model"] {
+            assert_eq!(
+                super::translate_with_available_model(
+                    "http://127.0.0.1:9/v1",
+                    "test-only",
+                    model,
+                    "hello",
+                    "zh",
+                    &cancellation
+                )
+                .unwrap_err(),
+                super::CANCELLED_ERROR
+            );
+        }
+    }
+
+    #[test]
+    fn mouse_release_and_escape_invalidate_pending_holds() {
+        let mut session = super::MouseSession::default();
+        let released = session.press_mouse();
+        assert!(!session.release_mouse());
+        assert!(!session.trigger_mouse(released));
+
+        let cancelled = session.press_mouse();
+        session.hotkey_pressed = true;
+        session.cancel();
+        assert!(!session.trigger_mouse(cancelled));
+        assert!(!session.hotkey_pressed);
+        assert!(!session.release_mouse());
+    }
+
+    #[test]
+    fn mouse_release_finishes_once_and_stale_timers_cannot_start_a_new_press() {
+        let mut session = super::MouseSession::default();
+        let old = session.press_mouse();
+        let current = session.press_mouse();
+        assert!(!session.trigger_mouse(old));
+        assert!(session.trigger_mouse(current));
+        assert!(!session.trigger_mouse(current));
+        assert!(session.release_mouse());
+        assert!(!session.release_mouse());
+    }
+
+    #[test]
+    fn legacy_settings_default_to_no_processing_or_history() {
+        let settings: super::Settings = serde_json::from_str(r#"{"engine":"local"}"#).unwrap();
+        assert!(settings.text_rules.is_empty());
+        assert!(!settings.voice_formatting);
+        assert!(!settings.remember_results);
+        assert!(settings.input_device.is_empty());
+        assert_eq!(settings.engine, "local");
+    }
+
+    #[test]
+    fn model_deletion_protects_active_local_model_after_settings_change() {
+        let model_a = std::path::Path::new("C:/models/a");
+        let model_b = std::path::Path::new("C:/models/b");
+        let model_c = std::path::Path::new("C:/models/c");
+        let settings = super::Settings {
+            engine: "local".into(),
+            local_model_dir: model_a.to_string_lossy().into_owned(),
+            ..Default::default()
+        };
+        for phase in [
+            super::DictationPhase::Starting,
+            super::DictationPhase::Recording,
+            super::DictationPhase::Processing,
+        ] {
+            let active = super::ActiveDictation {
+                session: session(settings.clone()),
+                phase,
+            };
+            assert!(super::validate_model_deletion(model_a, Some(model_b), Some(&active)).is_err());
+            assert!(super::validate_model_deletion(model_c, Some(model_b), Some(&active)).is_err());
+        }
+        assert!(super::validate_model_deletion(model_b, Some(model_b), None).is_err());
+        assert!(super::validate_model_deletion(model_a, Some(model_b), None).is_ok());
+        let online = super::ActiveDictation {
+            session: session(super::Settings {
+                engine: "online".into(),
+                ..settings
+            }),
+            phase: super::DictationPhase::Processing,
+        };
+        assert!(super::validate_model_deletion(model_a, Some(model_b), Some(&online)).is_ok());
+    }
+
+    #[test]
+    fn local_recognizer_cache_changes_when_language_mode_or_model_changes() {
+        for mode in ["offline", "whisper"] {
+            let mut settings = super::Settings {
+                local_mode: mode.into(),
+                local_model_dir: "C:/models/speech".into(),
+                local_language: "en".into(),
+                ..Default::default()
+            };
+            let english = super::local_recognizer_cache_key(&settings);
+            settings.local_language = "zh".into();
+            assert_ne!(english, super::local_recognizer_cache_key(&settings));
+            settings.local_language = "en".into();
+            settings.local_model_dir = "  C:/models/speech  ".into();
+            assert_eq!(english, super::local_recognizer_cache_key(&settings));
+            settings.local_model_dir = "C:/models/other".into();
+            assert_ne!(english, super::local_recognizer_cache_key(&settings));
+            settings.local_model_dir = "C:/models/speech".into();
+            settings.local_mode = "streaming".into();
+            assert_ne!(english, super::local_recognizer_cache_key(&settings));
+        }
+    }
+
+    #[test]
+    fn microphone_selection_preserves_default_and_does_not_replace_missing_device() {
+        let devices = vec![
+            "Laptop microphone".to_string(),
+            "Headset microphone".to_string(),
+        ];
+        assert_eq!(
+            super::selected_input_device_index("", &devices).unwrap(),
+            None
+        );
+        assert_eq!(
+            super::selected_input_device_index("Headset microphone", &devices).unwrap(),
+            Some(1)
+        );
+        assert!(
+            super::selected_input_device_index("Disconnected headset", &devices)
+                .unwrap_err()
+                .contains("Disconnected headset")
+        );
+    }
+
+    #[test]
+    fn stopped_recording_keeps_its_original_settings_and_session() {
+        let mut settings = super::Settings {
+            engine: "local".into(),
+            local_language: "zh".into(),
+            ..Default::default()
+        };
+        let original = session(settings.clone());
+        settings.engine = "online".into();
+        settings.local_language = "en".into();
+        let started_at = std::time::Instant::now();
+        let (stop, _) = std::sync::mpsc::channel();
+        let (finished, done) = std::sync::mpsc::channel();
+        finished.send(Ok(())).unwrap();
+        let (max_stop, _) = std::sync::mpsc::channel();
+        let recording = super::stop_recording(super::Recorder {
+            session: original.clone(),
+            stop,
+            done,
+            max_stop,
+            started_at,
+            samples: std::sync::Arc::new(std::sync::Mutex::new(vec![0, 100, -100, 0])),
+            sample_rate: 16_000,
+            channels: 1,
+            streaming_stop: None,
+            streaming_done: None,
+        })
+        .unwrap();
+        assert!(std::sync::Arc::ptr_eq(&recording.session, &original));
+        assert_eq!(recording.session.settings.engine, "local");
+        assert_eq!(recording.session.settings.local_language, "zh");
+        assert_eq!(settings.engine, "online");
+    }
+
     use super::{
-        has_voice_energy, hotkey_matches, is_speech_to_text_model, normalize_api_key,
-        normalize_audio, resample_available, transcription_prompt, transcription_retry_delay,
-        transcription_timeout, StreamingAudio,
+        has_audio_signal, has_voice_energy, hotkey_matches, is_speech_to_text_model,
+        normalize_api_key, normalize_audio, resample_available, transcription_prompt,
+        transcription_retry_delay, transcription_timeout, StreamingAudio,
     };
     use rdev::Key;
 
@@ -3826,8 +4515,29 @@ mod tests {
 
     #[test]
     fn rejects_silent_audio_before_transcription() {
-        assert!(!has_voice_energy(&vec![0_i16; 16_000]));
-        assert!(!has_voice_energy(&vec![120_i16; 16_000]));
+        assert!(!has_audio_signal(&[]));
+        assert!(!has_audio_signal(&vec![0_i16; 16_000]));
+        assert!(!has_audio_signal(&vec![120_i16; 16_000]));
+    }
+
+    #[test]
+    fn quiet_speech_is_not_discarded_before_transcription() {
+        let samples: Vec<i16> = (0..16_000)
+            .map(|i| ((i as f64 * std::f64::consts::TAU * 200.0 / 16_000.0).sin() * 100.0) as i16)
+            .collect();
+        assert!(!has_voice_energy(&samples));
+        assert!(has_audio_signal(&samples));
+        assert!(has_audio_signal(&normalize_audio(&samples, 48_000, 1)));
+    }
+
+    #[test]
+    fn pauses_do_not_discard_a_recorded_phrase() {
+        let mut samples = vec![0_i16; 16_000 * 20];
+        for (i, sample) in samples[8_000..16_000].iter_mut().enumerate() {
+            *sample = if i % 2 == 0 { 1_000 } else { -1_000 };
+        }
+        assert!(!has_voice_energy(&samples));
+        assert!(has_audio_signal(&samples));
     }
 
     #[test]
@@ -3851,6 +4561,11 @@ mod tests {
             16_000,
             1
         ));
+        samples[7_600..].fill(0);
+        for (i, sample) in samples[7_600..].iter_mut().enumerate() {
+            *sample = if i % 2 == 0 { 20 } else { -20 };
+        }
+        assert!(super::has_recent_voice_energy(&samples, 16_000, 1));
     }
 
     #[test]
@@ -3933,7 +4648,14 @@ mod tests {
         let mut writer = hound::WavWriter::create(&path, spec).unwrap();
         writer.write_sample(1000_i16).unwrap();
         writer.finalize().unwrap();
-        for statuses in [vec![503, 200], vec![503, 503], vec![401]] {
+        for (statuses, cancel_on_response) in [
+            (vec![503, 200], false),
+            (vec![503, 503], false),
+            (vec![401], false),
+            (vec![503], true),
+        ] {
+            let cancellation = std::sync::Arc::new(super::Cancellation::default());
+            let server_cancellation = cancellation.clone();
             let listener = TcpListener::bind("127.0.0.1:0").unwrap();
             let address = listener.local_addr().unwrap();
             listener.set_nonblocking(true).unwrap();
@@ -3983,6 +4705,9 @@ mod tests {
                     } else {
                         r#"{"error":{"message":"temporary failure"}}"#
                     };
+                    if cancel_on_response {
+                        server_cancellation.cancel();
+                    }
                     write!(socket, "HTTP/1.1 {status} Test\r\nContent-Length: {}\r\nRetry-After: 0\r\nConnection: close\r\n\r\n{response}", response.len()).unwrap();
                 }
             });
@@ -3992,9 +4717,11 @@ mod tests {
                 online_language: "zh".into(),
                 ..Default::default()
             };
-            let result = super::transcribe(&path, &settings);
+            let result = super::transcribe(&path, &settings, &cancellation);
             server.join().unwrap();
-            if succeeds {
+            if cancel_on_response {
+                assert_eq!(result.unwrap_err(), super::CANCELLED_ERROR);
+            } else if succeeds {
                 assert_eq!(result.unwrap(), "你好，世界。");
             } else {
                 assert!(result.unwrap_err().contains("temporary failure"));
@@ -4010,6 +4737,18 @@ mod tests {
         let result = resample_available(&source, 16_000, 1, &mut state, true);
         assert_eq!(result.len(), source.len());
         assert_eq!(result[1], 1000.0 / 32768.0);
+    }
+
+    #[test]
+    fn streaming_resampler_preserves_8k_headset_audio_duration() {
+        let source = vec![0_i16, 1000, 2000, 3000];
+        let mut state = StreamingAudio::new();
+        let mut result = resample_available(&source[..2], 8_000, 1, &mut state, false);
+        result.extend(resample_available(&source, 8_000, 1, &mut state, true));
+        assert_eq!(result.len(), source.len() * 2);
+        assert_eq!(result[2], 1000.0 / 32768.0);
+        assert_eq!(result[6], 3000.0 / 32768.0);
+        assert!(resample_available(&source, 8_000, 1, &mut state, true).is_empty());
     }
 
     #[test]

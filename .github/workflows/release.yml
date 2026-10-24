@@ -27,9 +27,11 @@ jobs:
         run: npm test
       - name: Prepare frontend and verified native libraries
         run: npm run build:desktop
+      - name: Test portable archive packaging
+        run: node --test tests/portable.test.mjs
       - name: Test Rust security regressions
         run: cargo test --manifest-path src-tauri/Cargo.toml --locked --target-dir src-tauri/target
-      - name: Build and publish
+      - name: Build installers and updater signatures in draft release
         uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,24 +44,43 @@ jobs:
           releaseBody: |
             ## What's new
 
-            - Updated vulnerable Tauri, rustls, and source-map dependencies.
-            - Hardened WebView permissions, HTML rendering, API redirects, temporary recordings, and credential migration.
-            - Added SHA-256 verification for official model downloads and Windows x64 native libraries.
-            - Improved Windows Unicode text insertion and transcription timeout/retry handling.
-            - Removed Telegram community links and the recognition feedback prompt.
-            - Show audio waves only when recent microphone input contains speech-level energy.
-            - Added tests and native library verification before publishing.
+            - Added quiet GitHub and feedback links in the app footer.
+            - Added an installation-free Windows ZIP with verified native libraries.
+            - Added language-aware dictionary rules, a local preview, and opt-in in-memory recent results.
+            - Bound API credentials to their endpoint and profile, with atomic configuration writes and failure-safe migration.
+            - Improved recording cancellation, Windows input safeguards, and text size limits.
+            - Updated dependency security patches and replaced legacy ZIP build dependencies while preserving the recognition library ABI.
+            - Included a concise Windows security audit with detailed dependency and patch evidence.
+            - Added frontend, Rust, portable-package, and native-library checks before publishing.
 
             ## Compatibility
 
-            - Remote transcription, translation, and model-list API endpoints now require HTTPS.
-            - HTTP remains supported for localhost and literal loopback IP addresses such as 127.0.0.1 and ::1.
-            - LAN or public HTTP API endpoints must be configured with TLS before use.
+            - Existing credentials migrate to endpoint/profile-bound system credential records. Older app versions may require keys to be entered again after migration.
+            - Legacy Tauri 1 ZIP updater packages are no longer supported. Current EXE/MSI updates remain supported.
+            - Remote APIs require HTTPS; localhost and literal loopback HTTP remain supported.
+            - Runtime verification covers Windows x64. Linux/macOS validation and upstream maintenance warnings remain documented in the audit.
 
             ## Downloads
 
             - NSIS installer: recommended for most users.
             - MSI installer: Windows installer package.
-          releaseDraft: false
+            - Portable ZIP: extract the full folder and run mouse-dictation.exe; WebView2 Runtime is required.
+          releaseDraft: true
           prerelease: false
           updaterJsonPreferNsis: true
+      - name: Package portable app and stable installer alias
+        shell: pwsh
+        run: |
+          node scripts/package-portable.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $releaseVersion = node -p "require('./package.json').version"
+          $installerSource = Join-Path 'src-tauri/target/release/bundle/nsis' ("Mouse Dictation_{0}_x64-setup.exe" -f $releaseVersion)
+          Copy-Item -LiteralPath $installerSource -Destination 'src-tauri/target/release/bundle/portable/Mouse-Dictation-windows-x64-setup.exe' -ErrorAction Stop
+      - name: Upload portable app and stable installer alias
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$env:GITHUB_REF_NAME" "src-tauri/target/release/bundle/portable/Mouse-Dictation-windows-x64-portable.zip" "src-tauri/target/release/bundle/portable/Mouse-Dictation-windows-x64-setup.exe"
+      - name: Publish complete release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release edit "$env:GITHUB_REF_NAME" --draft=false --latest

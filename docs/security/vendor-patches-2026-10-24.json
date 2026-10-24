@@ -1,0 +1,39 @@
+[
+  {
+    "name": "glib",
+    "version": "0.18.5",
+    "crateFile": ".security-audit/glib-0.18.5.crate",
+    "checksum": "233daaf6e83ae6a12a52055f568f9d7cf4671dabb78ff9560ab6da230ce00ee5",
+    "download": "https://static.crates.io/crates/glib/glib-0.18.5.crate",
+    "upstreamFiles": 121,
+    "changes": [
+      {
+        "file": "src/variant_iter.rs",
+        "beforeSha256": "1fd02859333761c45321b32f28b24233446b97d0022a90d3a937ed162585b90e",
+        "afterSha256": "a0f5ee8acb8faa089bcdfbc9a57372609fce7654026ccef7d9a224d05a654ccc"
+      }
+    ],
+    "verifiedChangesOnly": true
+  },
+  {
+    "name": "sherpa-onnx-sys",
+    "version": "1.13.7",
+    "crateFile": ".security-audit/sherpa-onnx-sys-1.13.7.crate",
+    "checksum": "566aad07d0924a7ed897cc035cc67ad71cdfddb959717dbf445031d5d4b58d4d",
+    "download": "https://static.crates.io/crates/sherpa-onnx-sys/sherpa-onnx-sys-1.13.7.crate",
+    "upstreamFiles": 22,
+    "changes": [
+      {
+        "file": "Cargo.toml",
+        "beforeSha256": "8426beff1617a4809a46364d6413082ccbe56c0b0772eecf8fcbcddea229eb0b",
+        "afterSha256": "6a591f650c569f7d6e2b9938996edf13a7c3dc514d024703a1eb65bcd67846a6"
+      },
+      {
+        "file": "Cargo.toml.orig",
+        "beforeSha256": "aaf0bd9b59d8c895e47c15be947a25ca91044c4522164f78ab5ab59411484c0b",
+        "afterSha256": "7e6cb5d5a6a7efb99e903d3477dd9a330a180e32296727aabff02fd59630cd33"
+      }
+    ],
+    "verifiedChangesOnly": true
+  }
+]
